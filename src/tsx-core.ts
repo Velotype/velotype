@@ -345,7 +345,7 @@ export class UpdateHandlerLink<UpdateRefsType> {
 
 /**
  * An ObjectComponent is an efficient way of rendering Objects to potentially multiple HTMLElements
- * changes to the value of the underlying Data Object will propogate out to
+ * changes to the value of the underlying Data Object will propogate to all attached elements.
  * 
  * @template DataType The type of the underlying Data Object
  * @template UpdateRefsType An advanced capability of ObjectComponent to more efficiently re-render instance elements

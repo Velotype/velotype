@@ -1,0 +1,33 @@
+{
+  "name": "@velotype/browser-tsx-core",
+  "main": "./src/tsx-core.ts",
+  "exports": {
+    ".": "./src/tsx-core.ts"
+  },
+  "license": "MIT",
+  "tasks": {
+    "test": "deno test ./tests/"
+  },
+  "publish": {
+    "exclude": [
+      "tests/"
+    ]
+  },
+  "compilerOptions": {
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "f",
+    "lib": ["dom", "esnext"],
+    "target": "esnext"
+  },
+  "imports": {
+    "@std/assert": "jsr:@std/assert@^1.0.13",
+    "tslib": "npm:tslib@^2.8.1",
+    "typescript": "npm:typescript@^5.8.3"
+  },
+  "lint": {
+    "rules": {
+      "exclude": ["jsx-key"]
+    }
+  }
+}

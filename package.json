@@ -1,6 +1,6 @@
 {
   "name": "@velotype/browser-tsx-core",
-  "version": "0.0.4",
+  "version": "0.0.1",
   "description": "Fast and small TSX framework for creating high performance websites",
   "main": "./src/tsx-core.ts",
   "types": "./src/tsx-core.d.ts",

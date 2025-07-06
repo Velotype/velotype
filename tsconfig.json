@@ -1,0 +1,19 @@
+{
+  "include": [
+    "./src/"
+  ],
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "f",
+    "jsxImportSource": null,
+    "listEmittedFiles": true,
+    "sourceMap": true,
+    "lib": [ "dom", "esnext" ],
+    "outDir": "./tsbuild",
+    "explainFiles": true,
+    "rewriteRelativeImportExtensions": true
+  }
+}

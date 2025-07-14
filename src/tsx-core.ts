@@ -1037,6 +1037,7 @@ function setAttrsOnElement(element: Element, attrs?: Readonly<any> | null) {
             // Special handling for event listener attributes
             // Example attrs: {onClick: ()=>{}, onClickOptions: {<AddEventListenerOptions>}}
 
+            // TODO change this to accept an object on the same key
             // Skip Options objects (those are used on the EventListener pass)
             if (!name.endsWith("Options")) {
                 if (value) { // Check for <div onClick={null}>
@@ -1049,6 +1050,7 @@ function setAttrsOnElement(element: Element, attrs?: Readonly<any> | null) {
             }
         } else if (name == "style" && value instanceof Object) {
             // Special handling for style object
+            // TODO learn from: https://github.com/preactjs/preact/blob/main/src/diff/props.js#L4 and remove string-based handling
             const styleAttributes = []
             for (const key of Object.keys(value)) {
                 styleAttributes.push(lowerCamelToHypenCase(key)+":"+value[key as keyof typeof value])
@@ -1057,10 +1059,12 @@ function setAttrsOnElement(element: Element, attrs?: Readonly<any> | null) {
             setAttributeHelper(element, name, styleValue)
         } else if (typeof value == "boolean") {
             // Boolean true gets set to empty string, boolean false does not get set
+            // TODO check for aria- and data- and allow boolen false
             if (value) {
                 setAttributeHelper(element, name, "")
             }
         } else if (value) {
+            // TODO check for typeof = 'function' and avoid setting the attribute
             // Regular string-based attribute
             setAttributeHelper(element, name, value.toString())
         }

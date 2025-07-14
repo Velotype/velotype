@@ -75,13 +75,13 @@ return <div><ComplexComponent foo="Component!"></ComplexComponent></div>
 Class Components are meant to operate as classes directly and are availble to access using the `getComponent()` function which will convert from an Element that was constructed with a given class to the underlying instance of that Class.
 
 ```tsx
-// Define a simple class
+// Define an advanced class
 class ComplexComponent extends Component<EmptyAttrs> {
     override render() {
-        return <div>This is an advanced Component</div>
+        return <div>This is a complex Component</div>
     }
     someMethod() {
-        console.log("ComplexComponent method called")
+        console.log("ComplexComponent someMethod() called")
     }
 }
 
@@ -90,12 +90,56 @@ const foo: ComplexComponent = getComponent<ComplexComponent>(<ComplexComponent/>
 foo.someMethod()
 
 //Can then be used in tsx directly:
-return <div>{foo}</div>
+const someVariable = <div>{foo}</div>
+```
+
+#### More Complex Component example
+
+Components' lifecycle supports a `mount()`, `render()`, then `unmount()` cycle.
+
+```tsx
+type MoreComplexAttrsType = {
+    requiredAttr: string,
+    optionalAttr?: string
+}
+class MoreComplexComponent extends Component<MoreComplexAttrsType, HTMLElement> {
+    someMethodCallCount: number = 0
+    otherMethodCallCount = new BasicComponent<number>(0)
+    override mount() {
+        console.log("This component was just added to the DOM")
+    }
+    override unmount() {
+        console.log("This component is about to be removed from the DOM")
+    }
+    override render(attrs: Readonly<MoreComplexAttrsType>, children: ChildrenTypes[]) {
+        return <div>
+            This is a more complex Component
+            <button onClick={this.otherMethod}>click me {this.otherMethodCallCount}</button>
+            <button onClick={this.someMethod}>click me {this.someMethodCallCount}</button>
+            <div>
+                Children here:
+                <div>{children}</div>
+            </div>
+        </div>
+    }
+    otherMethod = () => {
+        console.log("MoreComplexComponent otherMethod() called")
+        // Update the value of the BasicComponent, this will rerender the one {this.otherMethodCallCount} element created by render() above
+        this.otherMethodCallCount.value+=1
+    }
+    someMethod = () => {
+        console.log("MoreComplexComponent someMethod() called")
+        this.someMethodCallCount+=1
+
+        // Trigger a full rerender of this Component, this will unmount and delete all child Components, then call this.render() and consequently new and mount a fresh set of child Components.
+        this.refresh()
+    }
+}
 ```
 
 ### ObjectComponentArray
 
-An optimized Component that represents an Array of data points rendered into a wrapperElement (by default a \<div> tag)
+An optimized Component that represents an Array of data points rendered into a wrapperElement (by default a `<div>` tag)
 
 ```ts
 type todo = {
@@ -132,7 +176,7 @@ class TodoList extends Component<EmptyProps> {
 }
 ```
 
-## Types of Signalish Components
+## Types of Signal-like Components
 
 Create these objects with `new ObjectComponent<DataType>()`, usually as fields of Component classes. These can then be used in tsx and will render using the provided render function as many times as that object needs to be rendered. Then later updates to `obj.value` will trigger rerendering to each of those DOM locations.
 
@@ -140,9 +184,47 @@ Create these objects with `new ObjectComponent<DataType>()`, usually as fields o
 
 An ObjectComponent is an efficient way of rendering Objects to potentially multiple HTMLElements, changes to the value of the underlying Data Object will propogate to all attached elements.
 
+```ts
+type Person = {
+    name: string,
+    address: string,
+    phone: string
+}
+class PersonSelector extends Component<EmptyProps> {
+    selectedPerson = new ObjectComponent<Person | null>(null, function(person: Person | null) {
+        if (!person) {
+            return <div></div>
+        } else {
+            return <div>
+                <div>Person:</div>
+                <div>Name: {person.name}</div>
+                <div>Address: {person.address}</div>
+                <div>Phone: {person.phone}</div>
+            </div>
+        }
+    })
+    override render() {
+        let people = [
+            {name: "One person", address: "somewhere", phone: "123"},
+            {name: "Two person", address: "elsewhere", phone: "456"},
+            {name: "Three person", address: "nowhere", phone: "789"}
+        ]
+        return <div>
+            {people.map((person)=>{
+                <button onClick={()=>{
+                    this.selectedPerson.value=person
+                }}>{person.name}</button>
+            })}
+            <div>Render selected Person in one place: {this.selectedPerson}</div>
+            <div>Render selected Person in another place: {this.selectedPerson}</div>
+        </div>
+    }
+}
+```
+
 ### BasicComponent
 
-A specialization of an ObjectComponent when the DataType is a BasicType
+A specialization of an ObjectComponent when the DataType is a BasicType, it renders its value as `<span>{value}</span>` and supports `getString()` and `setString()` methods.
 
 The BasicTypes are `string | number | bigint | boolean`
 

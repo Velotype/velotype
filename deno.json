@@ -6,6 +6,7 @@
   },
   "license": "MIT",
   "tasks": {
+    "bundle": "deno bundle --minify ./src/tsx-core.ts --output ./dist/tsx-core.min.js --sourcemap",
     "test": "deno test ./tests/"
   },
   "publish": {

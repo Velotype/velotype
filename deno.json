@@ -1,18 +1,19 @@
 {
   "name": "@velotype/browser-tsx-core",
-  "main": "./src/tsx-core.ts",
+  "license": "MIT",
+  "version": "0.0.1",
   "exports": {
     ".": "./src/tsx-core.ts"
-  },
-  "license": "MIT",
-  "tasks": {
-    "bundle": "deno bundle --minify ./src/tsx-core.ts --output ./dist/tsx-core.min.js --sourcemap",
-    "test": "deno test ./tests/"
   },
   "publish": {
     "exclude": [
       "tests/"
     ]
+  },
+  "main": "./src/tsx-core.ts",
+  "tasks": {
+    "bundle": "deno bundle --minify ./src/tsx-core.ts --output ./dist/tsx-core.min.js --sourcemap",
+    "test": "deno test ./tests/"
   },
   "compilerOptions": {
     "jsx": "react",

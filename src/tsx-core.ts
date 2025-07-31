@@ -287,14 +287,6 @@ function vtSetImmediate(callback: () => void): void {
     Promise.resolve().then(callback)
 }
 
-function wrapElementIfNeeded(element: null | undefined): HTMLElement
-function wrapElementIfNeeded(element: HTMLElement): HTMLElement
-function wrapElementIfNeeded(element: SVGSVGElement): AnchorElement
-function wrapElementIfNeeded(element: AnchorElement): AnchorElement
-function wrapElementIfNeeded(element: Component<any,any>): HTMLElement
-function wrapElementIfNeeded(element: ObjectComponent<any,any>): HTMLElement
-function wrapElementIfNeeded(element: Component<any,any> | ObjectComponent<any,any>): HTMLElement
-function wrapElementIfNeeded(element: HTMLElement | Component<any,any> | ObjectComponent<any,any> | null | undefined): HTMLElement
 /**
  * If a render operation returns a Component or ObjectComponent as a result of render then
  * it needs to be wrapped in another HTMLElement for rendering to work properly
@@ -302,6 +294,15 @@ function wrapElementIfNeeded(element: HTMLElement | Component<any,any> | ObjectC
  * @param element The raw rendered element
  * @returns The original element or a wrapped element (or a hidden element if element is falsey)
  */
+function wrapElementIfNeeded(element: null | undefined): HTMLElement
+function wrapElementIfNeeded(element: SVGSVGElement): AnchorElement
+function wrapElementIfNeeded(element: MathMLElement): AnchorElement
+function wrapElementIfNeeded(element: HTMLElement): HTMLElement
+function wrapElementIfNeeded(element: AnchorElement): AnchorElement
+function wrapElementIfNeeded(element: Component<any,any>): HTMLElement
+function wrapElementIfNeeded(element: ObjectComponent<any,any>): HTMLElement
+function wrapElementIfNeeded(element: Component<any,any> | ObjectComponent<any,any>): HTMLElement
+function wrapElementIfNeeded(element: HTMLElement | Component<any,any> | ObjectComponent<any,any> | null | undefined): HTMLElement
 function wrapElementIfNeeded(element: RenderableElements | null | undefined): AnchorElement {
     // Check for falsey
     if (!element) {
@@ -1043,7 +1044,7 @@ function unmountComponentElement(element: AnchorElement): void {
 /**
  * Render a Component into an AnchorElement
  */
-function componentRender(classComponent: InternalComponent, attrs: Readonly<any>, children: ChildrenTypes[]) {
+function componentRender(classComponent: InternalComponent, attrs: Readonly<any>, children: ChildrenTypes[]): AnchorElement {
     const render: AnchorElement = wrapElementIfNeeded(classComponent.c.render(attrs, children))
     setAttributeHelper(render, domKeyName, classComponent.k)
     return render

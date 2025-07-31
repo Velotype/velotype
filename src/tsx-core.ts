@@ -550,7 +550,7 @@ export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiR
      * 
      * THIS IS ADVANCED FUNCTIONALITY - use carefully
      */
-    getElements() {
+    getElements(): AnchorElement[] {
         return Array.from(this.#elements.values())
     }
     /**
@@ -1300,7 +1300,7 @@ export class ObjectComponentArray<DataType, UpdateRefsType = never> extends Obje
         this.value[index].value = newData
     }
     /** Set the current value of this ObjectComponentArray */
-    override get value() {
+    override get value(): ObjectComponent<DataType, UpdateRefsType>[] {
         return super.get()
     }
     /** Set the current value of this ObjectComponentArray */

@@ -86,7 +86,7 @@ class ComplexComponent extends Component<EmptyAttrs> {
 }
 
 //Somewhere else
-const foo: ComplexComponent = getComponent<ComplexComponent>(<ComplexComponent/>)
+const foo: ComplexComponent = getComponent(<ComplexComponent/>)
 foo.someMethod()
 
 //Can then be used in tsx directly:
@@ -124,7 +124,7 @@ class MoreComplexComponent extends Component<MoreComplexAttrsType, HTMLElement> 
     }
     otherMethod = () => {
         console.log("MoreComplexComponent otherMethod() called")
-        // Update the value of the BasicComponent, this will rerender the one {this.otherMethodCallCount} element created by render() above
+        // Update the value of the BasicComponent, this will rerender only the one {this.otherMethodCallCount} element created in render() above
         this.otherMethodCallCount.value+=1
     }
     someMethod = () => {
@@ -142,23 +142,23 @@ class MoreComplexComponent extends Component<MoreComplexAttrsType, HTMLElement> 
 An optimized Component that represents an Array of data points rendered into a wrapperElement (by default a `<div>` tag)
 
 ```ts
-type todo = {
+type Todo = {
     text: string
 }
 
 class TodoList extends Component<EmptyProps> {
-    todos: ObjectComponentArray<todo> = getComponent(<ObjectComponentArray<todo>
-        wrapperElement={<ul/>}
-        renderFunction={function(todo: todo) {
+    todos: ObjectComponentArray<Todo> = new ObjectComponentArray<Todo>({
+        wrapperElementTag="ul"
+        renderFunction={function(todo: Todo) {
             return <li>{todo.text}</li>
         }}
-    />)
+    })
     text: string = ''
     addTodo = () => {
         this.todos.push({text: this.text})
         this.textInput.value = ""
     }
-    textInput: HTMLInputElement = <input value={this.text} onInput={(event: InputEvent)=>{
+    textInput: HTMLInputElement = <input value={this.text} onInput={(event: InputEvent) => {
         if (event.target && (event.target instanceof HTMLInputElement)) {
             this.text = event.target?.value || ""
         }

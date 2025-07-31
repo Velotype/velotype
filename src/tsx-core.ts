@@ -8,7 +8,6 @@
  * - Allow BasicComponent<string|number> to be set as attribute values
  * - Set up types for AddEventListenerOptions
  * - Create a DebugMode flag to enable a few optimizations (like not keeping styleSheetText up to date)
- * - Move ServerObjectComponent to -extended
  * - Figure out a pattern for user-specified custom attributes
  * ---- https://www.typescriptlang.org/docs/handbook/jsx.html
  * ---- Note: If an attribute name is not a valid JS identifier (like a data-* attribute), it is not considered to be an error if it is not found in the element attributes type.
@@ -54,7 +53,7 @@ const consoleError = console.error
 const displayContents = {style: "display:contents;"}
 
 /** Style display:none; */
-const displayNone = {style:"display:none;"}
+const displayNone = {style: "display:none;"}
 
 /** String "div" */
 const divTag = "div"
@@ -419,7 +418,7 @@ export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiR
      * 
      * Used to trigger set of registered onMounts
      */
-    mount() {
+    mount(): void {
         this.#onMounts.forEach(onMount => {onMount()})
     }
     /**
@@ -429,14 +428,18 @@ export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiR
      * 
      * Used to trigger set of registered onUnmounts
      */
-    unmount() {
+    unmount(): void {
         this.#onUnmounts.forEach(onUnmount => {onUnmount()})
     }
     /** Get the current value of this ObjectComponent */
     get value(): DataType {
         return this.#data
     }
-    /** Set the current value of this ObjectComponent */
+    /**
+     * Set the current value of this ObjectComponent
+     * 
+     * Will trigger a rerender if (this.value != newData)
+     */
     set value(newData: DataType) {
         this.set(newData)
     }
@@ -444,53 +447,66 @@ export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiR
     get(): DataType {
         return this.#data
     }
-    /** Set the current value of this ObjectComponent */
-    set(newData: DataType) {
+    /**
+     * Set the current value of this ObjectComponent
+     * 
+     * Will trigger rerenderElements if (this.value != newData)
+     */
+    set(newData: DataType): void {
         if (this.#data != newData) {
-            // Update existing elements
-            Array.from(this.#elements.entries()).forEach(([key, element]) => {
-                if (this.#handleUpdate && this.#updateRefs.has(key)) {
-                    this.#handleUpdate(element, this.#updateRefs.get(key) as UpdateRefsType, this.#data, newData)
+            this.rerenderElements(newData)
+        }
+    }
+    /**
+     * Force a rerender of existing elements and set value to newData
+     * 
+     * This method may need to be used in cases where this.value is a complex object
+     * or other data structure that is manipulated in-place rather than reassigned.
+     */
+    rerenderElements(newData: DataType): void {
+        // Rerender Elements
+        Array.from(this.#elements.entries()).forEach(([key, element]) => {
+            if (this.#handleUpdate && this.#updateRefs.has(key)) {
+                this.#handleUpdate(element, this.#updateRefs.get(key) as UpdateRefsType, this.#data, newData)
+            } else {
+                const render = this.#renderFunction(newData, this)
+                if (render instanceof UpdateHandlerLink) {
+                    const newElement = wrapElementIfNeeded(render.element)
+                    this.#updateRefs.set(key, render.updateRefs)
+                    setAttributeHelper(newElement, domKeyName, key)
+                    replaceElement(element, newElement)
+                    this.#elements.set(key, newElement)
                 } else {
-                    const render = this.#renderFunction(newData, this)
-                    if (render instanceof UpdateHandlerLink) {
-                        const newElement = wrapElementIfNeeded(render.element)
-                        this.#updateRefs.set(key, render.updateRefs)
-                        setAttributeHelper(newElement, domKeyName, key)
-                        replaceElement(element, newElement)
-                        this.#elements.set(key, newElement)
-                    } else {
-                        const newElement = wrapElementIfNeeded(render)
-                        setAttributeHelper(newElement, domKeyName, key)
-                        replaceElement(element, newElement)
-                        this.#elements.set(key, newElement)
-                    }
+                    const newElement = wrapElementIfNeeded(render)
+                    setAttributeHelper(newElement, domKeyName, key)
+                    replaceElement(element, newElement)
+                    this.#elements.set(key, newElement)
                 }
-            })
-            // Set #data
-            this.#data = newData
-            // Trigger EventListeners (if set)
-            if (this.#hasEventListeners) {
-                if (this.#eventDispatchDelay > 0) {
-                    // If a delay is set, then use setTimeout to delay the dispatch
-                    if (!this.#eventDispatched) {
-                        this.#eventDispatched = true
-                        setTimeout(() => {
-                            this.#eventDispatched = false
-                            this.#emitOnChangeEvent()
-                        }, this.#eventDispatchDelay)
-                    }
-                } else {
-                    // No delay is set, so emit the event right away
-                    this.#emitOnChangeEvent()
+            }
+        })
+        // Set data
+        this.#data = newData
+        // Trigger EventListeners (if set)
+        if (this.#hasEventListeners) {
+            if (this.#eventDispatchDelay > 0) {
+                // If a delay is set, then use setTimeout to delay the dispatch
+                if (!this.#eventDispatched) {
+                    this.#eventDispatched = true
+                    setTimeout(() => {
+                        this.#eventDispatched = false
+                        this.#emitOnChangeEvent()
+                    }, this.#eventDispatchDelay)
                 }
+            } else {
+                // No delay is set, so emit the event right away
+                this.#emitOnChangeEvent()
             }
         }
     }
     /**
      * Velotype internal function
      * 
-     * DO NOT CALL
+     * DO NOT CALL directly (will be called by Velotype core)
      * 
      * Used to unmount an instance element of this ObjectComponent
      */
@@ -515,7 +531,7 @@ export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiR
     /**
      * Velotype internal function
      * 
-     * DO NOT CALL
+     * DO NOT CALL directly (will be called by Velotype core)
      * 
      * Used to generate new instance elements of this ObjectComponent
      */
@@ -530,6 +546,14 @@ export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiR
         return newElement
     }
     /**
+     * Get the rendered elements of this ObjectComponent
+     * 
+     * THIS IS ADVANCED FUNCTIONALITY - use carefully
+     */
+    getElements() {
+        return Array.from(this.#elements.values())
+    }
+    /**
      * Removes all instance elements that this ObjectComponent has generated
      */
     removeAll() {
@@ -542,12 +566,13 @@ export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiR
     }
     /**
      * Releases all resources this ObjectComponent is attached to, this ObjectComponent
-     * is not functional after this method is called
+     * is not functional after this method is called!
      * 
      * @param removeElements If set to true then will remove instance elements from the DOM, if false will leave them orphaned (default true)
      */
     release(removeElements: boolean = true) {
         this.unmount()
+        // TODO Check if Array.from() is really needed here (and in a few other places in this class)
         Array.from(this.#elements.entries()).forEach(([key, element]) => {
             if (removeElements) {
                 removeElement(element)
@@ -556,6 +581,7 @@ export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiR
         })
         this.#elements.clear()
         this.#updateRefs.clear()
+        releaseVtKey(this.vtKey)
     }
 }
 
@@ -630,31 +656,38 @@ export type FunctionComponent<AttrsType> = (attrs: Readonly<AttrsType>, children
  */
 export abstract class Component<AttrsType, RenderReturnType extends RenderableElements = HTMLElement> implements HasVtKey, Mountable {
 
+    attrs: AttrsType
+    children: ChildrenTypes[]
+
     /** constructor gets attrs and children */
-    constructor(attrs: Readonly<AttrsType>, children: ChildrenTypes[]){}
+    constructor(attrs: Readonly<AttrsType>, children: ChildrenTypes[]){
+        this.attrs = attrs
+        this.children = children
+    }
 
     /**
-     * Mount is called when this Comonent just after it is attached to the DOM.
-     * May be implemented by a specific Component that extends Component
+     * Mount is called when this Component just after it is attached to the DOM.
+     * May be overriden by a specific Component that extends Component
      */
     mount(){}
 
     /**
-     * Unmount is called when this Comonent just before it is removed from the DOM.
-     * May be implemented by a specific Component that extends Component
+     * Unmount is called when this Component just before it is removed from the DOM.
+     * May be overriden by a specific Component that extends Component
      */
     unmount(){}
 
     /**
-     * Render is called when this Comonent needs to be materialized into Elements.
-     * To be implemented by a specific Component that extends Component
+     * Render is called when this Component needs to be materialized into Elements.
+     * 
+     * To be overriden by a specific Component that extends Component
      * @param {Readonly<AttrsType>} attrs The attrs for this Component
      * @param {ChildrenTypes[]} children Any children of this Component
      */
     abstract render(attrs: Readonly<AttrsType>, children: ChildrenTypes[]): RenderReturnType
 
     /**
-     * Trigger re-rendering of this Comonent and all child Components.
+     * Trigger re-rendering of this Component and all child Components.
      * This will unmount and delete all child Components, then call
      * this.render() and consequently new and mount a fresh set of child Components.
      * 
@@ -719,8 +752,7 @@ export abstract class Component<AttrsType, RenderReturnType extends RenderableEl
      * This is set by Velotype Core on Component construction and is not overridable
      * 
      * @param child a child element of this Component
-     * @param toPrependElement the element to prepend
-     * @returns boolean for if replacement was accepted (will reject if the input child element is not a child of this Component)
+     * @returns boolean for if removal was accepted (will reject if the input child element is not a child of this Component)
      */
     removeChild(child: HTMLElement): boolean {return false}
 }
@@ -908,7 +940,7 @@ class InternalComponent {
  * @param callback the callback to trigger
  */
 function traverseElementChildren(element: Element, callback: (component: InternalComponent | MultiRenderable, key: string) => void) {
-    if (instanceOfHTMLElement(element)) {
+    if (instanceOfHTMLElement(element) || instanceOfSVGSVGElement(element) || instanceOfMathMLElement(element)) {
         for (let i = 0; i < element.children.length; i++) {
             const child = element.children[i]
             traverseElementChildren(child, callback)
@@ -1190,8 +1222,7 @@ export function appendRootComponentTo(rootComponent: AnchorElement, elementId: s
 
 type ComponentArrayRenderFunctionType<DataType, UpdateRefsType> = ((data: DataType) => HTMLElement | UpdateHandlerLink<UpdateRefsType>) | ((data: DataType, objectComponent: ObjectComponent<DataType, UpdateRefsType>) => HTMLElement | UpdateHandlerLink<UpdateRefsType>)
 type ComponentArrayHandleUpdateType<DataType, UpdateRefsType> = (element: AnchorElement, updateRefs: UpdateRefsType, oldData: DataType, newData: DataType) => void
-type ComponentArrayAttrs<DataType, UpdateRefsType> = {
-    wrapperElement?: HTMLElement,
+type ComponentArrayOptions<DataType, UpdateRefsType> = {
     wrapperElementTag?: string,
     wrapperAttrs?: any,
     renderFunction: ComponentArrayRenderFunctionType<DataType, UpdateRefsType>,
@@ -1201,41 +1232,40 @@ type ComponentArrayAttrs<DataType, UpdateRefsType> = {
  * An optimized Component that represents an Array of data points rendered into
  * a wrapperElement (by default a \<div> tag)
  */
-export class ObjectComponentArray<DataType, UpdateRefsType = never> extends Component<ComponentArrayAttrs<DataType, UpdateRefsType>> {
-    data: ObjectComponent<DataType, UpdateRefsType>[] = []
-    #mainElement: HTMLElement
+export class ObjectComponentArray<DataType, UpdateRefsType = never> extends ObjectComponent<ObjectComponent<DataType, UpdateRefsType>[]> {
     #renderFunction: ComponentArrayRenderFunctionType<DataType, UpdateRefsType>
     #handleUpdate?: ComponentArrayHandleUpdateType<DataType, UpdateRefsType>
-    constructor(attrs: Readonly<ComponentArrayAttrs<DataType, UpdateRefsType>>, children: ChildrenTypes[]) {
-        super(attrs, children)
-        this.#renderFunction = attrs.renderFunction
-        this.#handleUpdate = attrs.handleUpdate
-
-        // Create the wrapperElement so that it is ready to use right away after construction
-        this.#mainElement = attrs.wrapperElement || createElement(attrs.wrapperElementTag || divTag, displayContents)
-        setAttrsOnElement(this.#mainElement, attrs.wrapperAttrs)
-    }
-    /**
-     * Returns the wrapper element 
-     */
-    override render(): HTMLElement {
-        return this.#mainElement
+    constructor(options: ComponentArrayOptions<DataType, UpdateRefsType>) {
+        super([], (data: ObjectComponent<DataType, UpdateRefsType>[]) => {
+            const mainElement = createElement(options.wrapperElementTag || divTag, displayContents)
+            setAttrsOnElement(mainElement, options.wrapperAttrs)
+            data.forEach(d => {
+                mainElement.appendChild(renderableElementToElement(d))
+            })
+            return mainElement
+        })
+        this.#renderFunction = options.renderFunction
+        this.#handleUpdate = options.handleUpdate
     }
     /**
      * Push one data point into the Array
      */
     push(newData: DataType) {
         const obj = new ObjectComponent<DataType, UpdateRefsType>(newData, this.#renderFunction, this.#handleUpdate)
-        this.data.push(obj)
-        this.appendToChild(this.#mainElement, obj)
+        this.value.push(obj)
+        this.getElements().forEach(element => {
+            element.appendChild(renderableElementToElement(obj))
+        })
     }
     /**
      * Push all of the data points of newData[] into the Array
      */
     pushAll(newData: DataType[]) {
-        this.data = this.data.concat(newData.map(d => {
+        this.value = this.value.concat(newData.map(d => {
             const obj = new ObjectComponent<DataType, UpdateRefsType>(d, this.#renderFunction)
-            this.appendToChild(this.#mainElement, obj)
+            this.getElements().forEach(element => {
+                element.appendChild(renderableElementToElement(obj))
+            })
             return obj
         }))
     }
@@ -1243,7 +1273,7 @@ export class ObjectComponentArray<DataType, UpdateRefsType = never> extends Comp
      * Delete one or more data points from the Array
      */
     deleteAt(startIndex: number, deleteCount?: number) {
-        const oldData = this.data.splice(startIndex, deleteCount)
+        const oldData = this.value.splice(startIndex, deleteCount)
         oldData.forEach(function(d){d.release(true)})
     }
     /**
@@ -1252,7 +1282,7 @@ export class ObjectComponentArray<DataType, UpdateRefsType = never> extends Comp
      * (note: uses Array.findIndex() so runs in linear time)
      */
     delete(data: DataType) {
-        const found = this.data.findIndex(x=>x.value==data)
+        const found = this.value.findIndex(x=>x.value==data)
         if (found >= 0) {
             this.deleteAt(found, 1)
         }
@@ -1261,27 +1291,50 @@ export class ObjectComponentArray<DataType, UpdateRefsType = never> extends Comp
      * Get the Data value at index
      */
     getAt(index: number): DataType {
-        return this.data[index].value
+        return this.value[index].value
     }
     /**
      * Set the value at index to newData
      */
     setAt(index: number, newData: DataType) {
-        this.data[index].value = newData
+        this.value[index].value = newData
+    }
+    /** Set the current value of this ObjectComponentArray */
+    override get value() {
+        return super.get()
+    }
+    /** Set the current value of this ObjectComponentArray */
+    override set value(newData: ObjectComponent<DataType, UpdateRefsType>[]) {
+        this.set(newData)
+    }
+    /** Set the current value of this ObjectComponentArray */
+    override set(newData: ObjectComponent<DataType, UpdateRefsType>[]) {
+        this.#releaseAll()
+        super.set(newData)
+    }
+    override unmount() {
+        super.unmount()
+        this.#releaseAll()
+    }
+    /** Release the old underlying ObjectComponents */
+    #releaseAll() {
+        this.value.forEach(function(d){d.release(false)})
     }
     /**
      * Gets the length of the Array
      */
     get length(): number {
-        return this.data.length
+        return this.value.length
     }
     /**
      * Clears the Array of all data
      */
     clear() {
-        this.data.forEach(function(d){d.release(false)})
-        this.data = []
-        this.#mainElement.textContent = ""
+        this.#releaseAll()
+        this.getElements().forEach(element => {
+            element.textContent = ""
+        })
+        this.value = []
     }
 }
 

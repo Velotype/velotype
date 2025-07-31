@@ -59,31 +59,31 @@ const displayNone = {style: "display:none;"}
 const divTag = "div"
 
 /** Checks if something is an instanceof HTMLElement */
-const instanceOfHTMLElement = function(something: any) {
+function instanceOfHTMLElement(something: any): something is HTMLElement {
     return something instanceof HTMLElement
 }
 /** Checks if something is an instanceof SVGSVGElement */
-const instanceOfSVGSVGElement = function(something: any) {
+function instanceOfSVGSVGElement(something: any): something is SVGSVGElement {
     return something instanceof SVGSVGElement
 }
 /** Checks if something is an instanceof MathMLElement */
-const instanceOfMathMLElement = function(something: any) {
+function instanceOfMathMLElement(something: any): something is MathMLElement {
     return something instanceof MathMLElement
 }
 /** Checks if something is an instanceof InternalComponent */
-const instanceOfInternalComponent = function(something: any) {
+function instanceOfInternalComponent(something: any): something is InternalComponent {
     return something instanceof InternalComponent
 }
 /** Checks if something is an instanceof ObjectComponent */
-const instanceOfObjectComponent = function(something: any) {
+function instanceOfObjectComponent(something: any): something is ObjectComponent<any, any> {
     return something instanceof ObjectComponent
 }
 /** Checks if something is an instanceof Component */
-const instanceOfComponent = function(something: any) {
+function instanceOfComponent(something: any): something is Component<any, any> {
     return something instanceof Component
 }
 /** Checks if somthing is an instanceof any of the BasicTypes (string, bigint, number, boolean) */
-const instanceOfBasicTypes = function(something: any): something is BasicTypes {
+function instanceOfBasicTypes(something: any): something is BasicTypes {
     if (typeof something === 'string' || typeof something === 'bigint' || typeof something === 'number' || typeof something === 'boolean') {
         return true
     }
@@ -91,16 +91,16 @@ const instanceOfBasicTypes = function(something: any): something is BasicTypes {
 }
 
 /** Call setAttribute() - used for JS minification */
-const setAttributeHelper = function(element: Element | SVGSVGElement | SVGPathElement, qualifiedName: string, value: string) {
+function setAttributeHelper(element: Element | SVGSVGElement | SVGPathElement, qualifiedName: string, value: string): void {
     element.setAttribute(qualifiedName, value)
 }
 /** Call getAttribute() - used for JS minification */
-const getAttributeHelper = function(element: Element, qualifiedName: string) {
+function getAttributeHelper(element: Element, qualifiedName: string): string | null {
     return element.getAttribute(qualifiedName)
 }
 
 /** Call Object.defineProperty() to lock a property so that it cannot be modified later - used for JS minification */
-const defineLockedProperty = (object: any, key: string, value: any) => {
+function defineLockedProperty(object: any, key: string, value: any): void {
     Object.defineProperty(object, key, {
         value: value,
         writable: false,
@@ -110,7 +110,7 @@ const defineLockedProperty = (object: any, key: string, value: any) => {
 }
 
 /** Convert from lowerCamelCase to hypen-case */
-const lowerCamelToHypenCase = function(text: string) {
+function lowerCamelToHypenCase(text: string): string {
     return text.replace(/[A-Z]/g, function(char) {return "-"+char.toLowerCase()})
 }
 
@@ -178,7 +178,7 @@ interface HasVtKey {
 /**
  * domReferences.get(key) - used for JS minification
  */
-function getDOMreference(key: string) {
+function getDOMreference(key: string): InternalComponent | MultiRenderable | undefined {
     return domReferences.get(key)
 }
 /**
@@ -196,13 +196,13 @@ function registerNewVtKey(component: InternalComponent | MultiRenderable, elemen
 /**
  * Release the reference to this componentKey
  */
-function releaseVtKey(vtKey: string) {
+function releaseVtKey(vtKey: string): void {
     domReferences.delete(vtKey)
 }
 /**
  * Release the reference to this object's componentKey
  */
-function releaseVtKeyObject(hasVtKey: HasVtKey) {
+function releaseVtKeyObject(hasVtKey: HasVtKey): void {
     domReferences.delete(hasVtKey.vtKey)
 }
 // ----------------------------------------------------------------------
@@ -250,7 +250,7 @@ function renderableElementToElement(child: RenderableElements): AnchorElement {
  * @param parent HTMLElement to append to
  * @param child Children to append
  */
-const appendChild = function(parent: HTMLElement, child: ChildrenTypes[] | ChildrenTypes) {
+function appendChild(parent: HTMLElement, child: ChildrenTypes[] | ChildrenTypes): void {
     if (Array.isArray(child)) {
         for (let i = 0; i < child.length; i++) {
             appendChild(parent, child[i])
@@ -277,7 +277,7 @@ function hiddenElement(): HTMLElement {
  * 
  * @param callback The function to trigger
  */
-const vtSetImmediate = function(callback: () => void) {
+function vtSetImmediate(callback: () => void): void {
     // Promise.resolve() is faster than setTimeout(x,0) (uses a Microtask instead of a Task)
     // Also, per spec setTimeout may have a min of 4ms delay depending on the current nesting level
     // See:
@@ -556,7 +556,7 @@ export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiR
     /**
      * Removes all instance elements that this ObjectComponent has generated
      */
-    removeAll() {
+    removeAll(): void {
         Array.from(this.#elements.entries()).forEach(([key, element]) => {
             removeElement(element)
             releaseVtKey(key)
@@ -570,7 +570,7 @@ export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiR
      * 
      * @param removeElements If set to true then will remove instance elements from the DOM, if false will leave them orphaned (default true)
      */
-    release(removeElements: boolean = true) {
+    release(removeElements: boolean = true): void {
         this.unmount()
         // TODO Check if Array.from() is really needed here (and in a few other places in this class)
         Array.from(this.#elements.entries()).forEach(([key, element]) => {
@@ -630,7 +630,7 @@ export class BasicComponent<DataType extends BasicTypes> extends ObjectComponent
     /**
      * Set the value of this BasicComponent from a String
      */
-    setString(newDataString: string) {
+    setString(newDataString: string): void {
         const data: DataType = super.get()
         if (typeof data === 'string') {
             this.set(newDataString as DataType)
@@ -669,13 +669,13 @@ export abstract class Component<AttrsType, RenderReturnType extends RenderableEl
      * Mount is called when this Component just after it is attached to the DOM.
      * May be overriden by a specific Component that extends Component
      */
-    mount(){}
+    mount(): void {}
 
     /**
      * Unmount is called when this Component just before it is removed from the DOM.
      * May be overriden by a specific Component that extends Component
      */
-    unmount(){}
+    unmount(): void {}
 
     /**
      * Render is called when this Component needs to be materialized into Elements.
@@ -693,7 +693,7 @@ export abstract class Component<AttrsType, RenderReturnType extends RenderableEl
      * 
      * This is set by Velotype Core on Component construction and is not overridable
      */
-    refresh(){}
+    refresh(): void {}
 
     /**
      * A unique key per instance of each Component.
@@ -762,7 +762,7 @@ export abstract class Component<AttrsType, RenderReturnType extends RenderableEl
  * 
  * Note: this will detect if the element hasFocus and will set newElement.focus() if needed
  */
-function replaceElement(element: AnchorElement, newElement: AnchorElement) {
+function replaceElement(element: AnchorElement, newElement: AnchorElement): AnchorElement {
     const isFocused = document.hasFocus() ? document.activeElement == element : false
     if (instanceOfHTMLElement(element)) {
         unmountComponentElementChildren(element)
@@ -779,14 +779,14 @@ function replaceElement(element: AnchorElement, newElement: AnchorElement) {
 /**
  * Appends a toAppendElement to an element and will mount the appended toAppendElement
  */
-function appendElement(element: HTMLElement, toAppendElement: AnchorElement) {
+function appendElement(element: HTMLElement, toAppendElement: AnchorElement): void {
     element.appendChild(toAppendElement)
     mountComponentElement(toAppendElement)
 }
 /**
  * Prepends a toPrependElement to an element and will mount the prepended toPrependElement
  */
-function prependElement(element: HTMLElement, toPrependElement: AnchorElement) {
+function prependElement(element: HTMLElement, toPrependElement: AnchorElement): void {
     element.prepend(toPrependElement)
     mountComponentElement(toPrependElement)
 }
@@ -795,7 +795,7 @@ function prependElement(element: HTMLElement, toPrependElement: AnchorElement) {
  * 
  * Will unmount the old children, replaceChildren(...newChildren), then mount the newChildren
  */
-function replaceChildren(element: HTMLElement, newChildren: AnchorElement[]) {
+function replaceChildren(element: HTMLElement, newChildren: AnchorElement[]): void {
     unmountComponentElementChildren(element)
     element.replaceChildren(...newChildren)
     mountComponentElementChildren(element)
@@ -803,7 +803,7 @@ function replaceChildren(element: HTMLElement, newChildren: AnchorElement[]) {
 /**
  * Will unmount an element and then .remove() it
  */
-function removeElement(element: AnchorElement) {
+function removeElement(element: AnchorElement): void {
     unmountComponentElement(element)
     element.remove()
 }
@@ -863,21 +863,21 @@ class InternalComponent {
      * Trigger unmount for this Component's children, then re-render
      * this Component and then mount new children.
      */
-    f: () => void = () => {
+    f: () => void = (): void => {
         this.e = replaceElement(this.e, componentRender(this, this.a, this.h))
     }
 
     /**
      * Release this Component's ComponentKey
      */
-    r: () => void = () => {
+    r: () => void = (): void => {
         releaseVtKey(this.k)
     }
 
     /**
      * replaceChild()
      */
-    q = (child: AnchorElement, newChild: RenderableElements): AnchorElement => {
+    q: (child: AnchorElement, newChild: RenderableElements) => AnchorElement = (child: AnchorElement, newChild: RenderableElements): AnchorElement => {
         if (this.e.contains(child)) {
             return replaceElement(child, renderableElementToElement(newChild))
         } else {
@@ -888,7 +888,7 @@ class InternalComponent {
     /**
      * appendToChild()
      */
-    w = (child: HTMLElement, toAppend: RenderableElements): boolean => {
+    w: (child: HTMLElement, toAppend: RenderableElements) => boolean = (child: HTMLElement, toAppend: RenderableElements): boolean => {
         if (this.e.contains(child)) {
             appendElement(child, renderableElementToElement(toAppend))
             return true
@@ -899,7 +899,7 @@ class InternalComponent {
     /**
      * prependToChild()
      */
-    t = (child: HTMLElement, toPreppend: RenderableElements): boolean => {
+    t: (child: HTMLElement, toPreppend: RenderableElements) => boolean = (child: HTMLElement, toPreppend: RenderableElements): boolean => {
         if (this.e.contains(child)) {
             prependElement(child, renderableElementToElement(toPreppend))
             return true
@@ -910,7 +910,7 @@ class InternalComponent {
     /**
      * replaceChildrenOfChild()
      */
-    y = (child: HTMLElement, newChildren: RenderableElements[]): boolean => {
+    y: (child: HTMLElement, newChildren: RenderableElements[]) => boolean = (child: HTMLElement, newChildren: RenderableElements[]): boolean => {
         if (this.e.contains(child)) {
             replaceChildren(child, newChildren.map(c=>renderableElementToElement(c)))
             return true
@@ -921,7 +921,7 @@ class InternalComponent {
     /**
      * removeChild()
      */
-    u = (child: AnchorElement): boolean => {
+    u: (child: AnchorElement) => boolean = (child: AnchorElement): boolean => {
         if (this.e.contains(child)) {
             removeElement(child)
             return true
@@ -939,7 +939,7 @@ class InternalComponent {
  * @param element the element to search through
  * @param callback the callback to trigger
  */
-function traverseElementChildren(element: Element, callback: (component: InternalComponent | MultiRenderable, key: string) => void) {
+function traverseElementChildren(element: Element, callback: (component: InternalComponent | MultiRenderable, key: string) => void): void {
     if (instanceOfHTMLElement(element) || instanceOfSVGSVGElement(element) || instanceOfMathMLElement(element)) {
         for (let i = 0; i < element.children.length; i++) {
             const child = element.children[i]
@@ -958,7 +958,7 @@ function traverseElementChildren(element: Element, callback: (component: Interna
 /**
  * Call .mount() on linked Components
  */
-function mountComponentElementHelper(component: InternalComponent | MultiRenderable, _key: string) {
+function mountComponentElementHelper(component: InternalComponent | MultiRenderable, _key: string): void {
     if (instanceOfInternalComponent(component)) {
         const internalComponent = component as InternalComponent
         // Mount the main Component
@@ -975,7 +975,7 @@ function mountComponentElementHelper(component: InternalComponent | MultiRendera
 /**
  * Mount this element and all children
  */
-function mountComponentElement(element: AnchorElement) {
+function mountComponentElement(element: AnchorElement): void {
     if (instanceOfHTMLElement(element)) {
         mountComponentElementChildren(element)
     }
@@ -990,13 +990,13 @@ function mountComponentElement(element: AnchorElement) {
 /**
  * Mount the children of this element
  */
-function mountComponentElementChildren(element: HTMLElement) {
+function mountComponentElementChildren(element: HTMLElement): void {
     traverseElementChildren(element, mountComponentElementHelper)
 }
 /**
  * Call .unmount() on linked Components and release vtKeys
  */
-function unmountComponentElementHelper(component: InternalComponent | MultiRenderable, key: string) {
+function unmountComponentElementHelper(component: InternalComponent | MultiRenderable, key: string): void {
     if (instanceOfInternalComponent(component)) {
         // component: InternalComponent
         removeComponentListeners(component.c)
@@ -1022,13 +1022,13 @@ function unmountComponentElementHelper(component: InternalComponent | MultiRende
 /**
  * Unount the children of this element
  */
-function unmountComponentElementChildren(element: HTMLElement) {
+function unmountComponentElementChildren(element: HTMLElement): void {
     traverseElementChildren(element, unmountComponentElementHelper)
 }
 /**
  * Unount this element and all children
  */
-function unmountComponentElement(element: AnchorElement) {
+function unmountComponentElement(element: AnchorElement): void {
     if (instanceOfHTMLElement(element)) {
         unmountComponentElementChildren(element)
     }
@@ -1060,7 +1060,7 @@ function componentRender(classComponent: InternalComponent, attrs: Readonly<any>
  * 
  * Boolean values are set as empty attributes when true and unset when false
  */
-function setAttrsOnElement(element: Element, attrs?: Readonly<any> | null) {
+function setAttrsOnElement(element: Element, attrs?: Readonly<any> | null): void {
     if (!attrs) {
         return
     }
@@ -1115,6 +1115,7 @@ function createElement(tag: Type<Component<any,Component<any,any>>>, attrs: Read
 function createElement(tag: Type<Component<any,ObjectComponent<any,any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
 function createElement(tag: Type<Component<any,HTMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
 function createElement(tag: Type<Component<any,SVGSVGElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): SVGSVGElement
+function createElement(tag: Type<Component<any,MathMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): MathMLElement
 function createElement(tag: FunctionComponent<any>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): ChildrenTypes[] | AnchorElement | BasicTypes
 function createElement(tag: Type<Component<any,any>> | FunctionComponent<any> | string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): ChildrenTypes[] | AnchorElement | BasicTypes {
     const notNullAttrs = attrs || {}
@@ -1250,7 +1251,7 @@ export class ObjectComponentArray<DataType, UpdateRefsType = never> extends Obje
     /**
      * Push one data point into the Array
      */
-    push(newData: DataType) {
+    push(newData: DataType): void {
         const obj = new ObjectComponent<DataType, UpdateRefsType>(newData, this.#renderFunction, this.#handleUpdate)
         this.value.push(obj)
         this.getElements().forEach(element => {
@@ -1260,7 +1261,7 @@ export class ObjectComponentArray<DataType, UpdateRefsType = never> extends Obje
     /**
      * Push all of the data points of newData[] into the Array
      */
-    pushAll(newData: DataType[]) {
+    pushAll(newData: DataType[]): void {
         this.value = this.value.concat(newData.map(d => {
             const obj = new ObjectComponent<DataType, UpdateRefsType>(d, this.#renderFunction)
             this.getElements().forEach(element => {
@@ -1272,7 +1273,7 @@ export class ObjectComponentArray<DataType, UpdateRefsType = never> extends Obje
     /**
      * Delete one or more data points from the Array
      */
-    deleteAt(startIndex: number, deleteCount?: number) {
+    deleteAt(startIndex: number, deleteCount?: number): void {
         const oldData = this.value.splice(startIndex, deleteCount)
         oldData.forEach(function(d){d.release(true)})
     }
@@ -1281,7 +1282,7 @@ export class ObjectComponentArray<DataType, UpdateRefsType = never> extends Obje
      * 
      * (note: uses Array.findIndex() so runs in linear time)
      */
-    delete(data: DataType) {
+    delete(data: DataType): void {
         const found = this.value.findIndex(x=>x.value==data)
         if (found >= 0) {
             this.deleteAt(found, 1)
@@ -1296,7 +1297,7 @@ export class ObjectComponentArray<DataType, UpdateRefsType = never> extends Obje
     /**
      * Set the value at index to newData
      */
-    setAt(index: number, newData: DataType) {
+    setAt(index: number, newData: DataType): void {
         this.value[index].value = newData
     }
     /** Set the current value of this ObjectComponentArray */
@@ -1308,16 +1309,16 @@ export class ObjectComponentArray<DataType, UpdateRefsType = never> extends Obje
         this.set(newData)
     }
     /** Set the current value of this ObjectComponentArray */
-    override set(newData: ObjectComponent<DataType, UpdateRefsType>[]) {
+    override set(newData: ObjectComponent<DataType, UpdateRefsType>[]): void {
         this.#releaseAll()
         super.set(newData)
     }
-    override unmount() {
+    override unmount(): void {
         super.unmount()
         this.#releaseAll()
     }
     /** Release the old underlying ObjectComponents */
-    #releaseAll() {
+    #releaseAll(): void {
         this.value.forEach(function(d){d.release(false)})
     }
     /**
@@ -1329,7 +1330,7 @@ export class ObjectComponentArray<DataType, UpdateRefsType = never> extends Obje
     /**
      * Clears the Array of all data
      */
-    clear() {
+    clear(): void {
         this.#releaseAll()
         this.getElements().forEach(element => {
             element.textContent = ""
@@ -1456,14 +1457,14 @@ export type EventListener = (event: VelotypeEvent) => void
  * 
  * Will be automatically cleaned up when the hasVtKey Component is released
  */
-export function registerEventListener(hasVtKey: HasVtKey, listeningKey: string, listener: EventListener) {
+export function registerEventListener(hasVtKey: HasVtKey, listeningKey: string, listener: EventListener): void {
     registerListenerMap(listenersF, listeningKey, hasVtKey.vtKey, listener)
     registerListenerMap(listenersR, hasVtKey.vtKey, listeningKey, listener)
 }
 /**
  * Optimization function to register listeners to double maps
  */
-function registerListenerMap(map: Map<string,Map<string,EventListener>>, firstKey: string, secondKey: string, listener: EventListener) {
+function registerListenerMap(map: Map<string,Map<string,EventListener>>, firstKey: string, secondKey: string, listener: EventListener): void {
     const keyListeners = map.get(firstKey)
     if (keyListeners !== undefined) {
         keyListeners.set(secondKey, listener)
@@ -1477,14 +1478,14 @@ function registerListenerMap(map: Map<string,Map<string,EventListener>>, firstKe
  * Manually remove and clean up all EventListeners that are listening to
  * a particular hasVtKey Component and listeningKey
  */
-export function removeEventListeners(hasVtKey: HasVtKey, listeningKey: string) {
+export function removeEventListeners(hasVtKey: HasVtKey, listeningKey: string): void {
     removeListenerMap(listenersF, listeningKey, hasVtKey.vtKey)
     removeListenerMap(listenersR, hasVtKey.vtKey, listeningKey)
 }
 /**
  * Cleanup all EventListeners that are registered with a hasVtKey Component
  */
-function removeComponentListeners(hasVtKey: HasVtKey) {
+function removeComponentListeners(hasVtKey: HasVtKey): void {
     const keyListeners = listenersR.get(hasVtKey.vtKey)
     if (keyListeners) {
         Array.from(keyListeners.keys()).forEach(listeningKey => {
@@ -1496,7 +1497,7 @@ function removeComponentListeners(hasVtKey: HasVtKey) {
 /**
  * Optimization function to remove listeners from double maps
  */
-function removeListenerMap(map: Map<string,Map<string,EventListener>>, firstKey: string, secondKey: string) {
+function removeListenerMap(map: Map<string,Map<string,EventListener>>, firstKey: string, secondKey: string): void {
     const keyListeners = map.get(firstKey)
     if (keyListeners !== undefined) {
         const listener = keyListeners.get(secondKey)
@@ -1515,7 +1516,7 @@ function removeListenerMap(map: Map<string,Map<string,EventListener>>, firstKey:
 /**
  * Emit a VelotypeEvent on a listeningKey
  */
-export function emitEvent(listeningKey: string, event: VelotypeEvent, hasVtKey?: HasVtKey) {
+export function emitEvent(listeningKey: string, event: VelotypeEvent, hasVtKey?: HasVtKey): void {
     const keyListeners = listenersF.get(listeningKey)
     if (keyListeners !== undefined) {
         keyListeners.entries().forEach(([vtKey, listener]) => {
@@ -1544,7 +1545,7 @@ export function emitEvent(listeningKey: string, event: VelotypeEvent, hasVtKey?:
  * @param sheetKey A unique header, used to detect if this style is already added.
  * @param resetSheet If the Stylesheet should be reset if already set (default: false)
  */
-export function setStylesheet(sheetText: string, sheetKey: string, resetSheet: boolean = false) {
+export function setStylesheet(sheetText: string, sheetKey: string, resetSheet: boolean = false): void {
     const sheet = styleSectionMounted.get(sheetKey)
     if (sheet) {
         // If we should not reset the style, then return

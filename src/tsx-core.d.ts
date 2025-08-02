@@ -5,6 +5,12 @@ import {
     // Debugging access
     __vtAppMetadata,
 
+    // Interfaces
+    MultiRenderable,
+    Mountable,
+    HasVtKey,
+    Type,
+
     // Engine types
     BasicTypes,
     RenderableElements,
@@ -52,6 +58,12 @@ import {
 export {
     // Debugging access
     __vtAppMetadata,
+
+    // Interfaces
+    MultiRenderable,
+    Mountable,
+    HasVtKey,
+    Type,
 
     // Engine types
     BasicTypes,

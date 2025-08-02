@@ -12,6 +12,7 @@
  * ---- https://www.typescriptlang.org/docs/handbook/jsx.html
  * ---- Note: If an attribute name is not a valid JS identifier (like a data-* attribute), it is not considered to be an error if it is not found in the element attributes type.
  * - Better understand https://jsr.io/go/banned-triple-slash-directives
+ * - Test readonly on HasVtKey.vtKey
  */
 
 /**
@@ -27,7 +28,7 @@ export type BasicTypes = string | bigint | number | boolean
 export type RenderableElements = AnchorElement | Component<any,any> | ObjectComponent<any, any>
 
 /** Type used to represent abstract Class passing */
-interface Type<T> extends Function { new (...args: any[]): T }
+export interface Type<T> extends Function { new (...args: any[]): T }
 
 /** Valid child objects of an Element */
 export type ChildTypes = BasicTypes | RenderableElements | null | undefined
@@ -172,7 +173,12 @@ export const __vtAppMetadata = {
 /**
  * An interface for objects that can hold componentKeys
  */
-interface HasVtKey {
+export interface HasVtKey {
+    /**
+     * A unique key per instance of each Velotype renderable object.
+     * 
+     * These keys are read-only and set by Velotype Core on object construction and are not overridable
+     */
     vtKey: string
 }
 /**
@@ -317,17 +323,42 @@ function wrapElementIfNeeded(element: RenderableElements | null | undefined): An
 }
 
 /**
- * Represents a Component that can render into multiple instance elements
+ * Represents an object that can render into multiple instance elements
+ * 
+ * These are Velotype internal functions
+ * 
+ * DO NOT CALL directly (will be called by Velotype core)
  */
-interface MultiRenderable {
+export interface MultiRenderable {
+    /**
+     * Velotype internal function
+     * 
+     * DO NOT CALL directly (will be called by Velotype core)
+     * 
+     * Used to unmount an instance element of a MultiRenderable object
+     */
     unmountKey: (key: string) => void
+    /**
+     * Velotype internal function
+     * 
+     * DO NOT CALL directly (will be called by Velotype core)
+     * 
+     * Used to generate new instance elements of a MultiRenderable object
+     */
     renderNew: () => void
 }
 /**
  * Represents a Component that is mountable / unmountable
  */
-interface Mountable {
+export interface Mountable {
+    /**
+     * Mount is called just after a Component is attached to the DOM.
+     */
     mount: () => void
+
+    /**
+     * Unmount is called just before a Component is removed from the DOM.
+     */
     unmount: () => void
 }
 
@@ -335,8 +366,11 @@ interface Mountable {
  * Generic object to stash metadata when using a handleUpdate method in ObjectComponent
  */
 export class UpdateHandlerLink<UpdateRefsType> {
+    /** Reference to the rendered AnchorElement */
     element: AnchorElement
+    /** Stashed references to make selected updates more performant */
     updateRefs: UpdateRefsType
+    /** Create a new UpdateHandlerLink */
     constructor(element: AnchorElement, updateRefs: UpdateRefsType) {
         this.element = element
         this.updateRefs = updateRefs
@@ -356,6 +390,7 @@ export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiR
     readonly #elements = new Map<string, AnchorElement>()
     readonly #updateRefs = new Map<string, UpdateRefsType>()
     #handleUpdate: ((element: AnchorElement, updateRefs: UpdateRefsType, oldData: DataType, newData: DataType) => void) | undefined
+    /** This ObjectComponent's vtKey */
     readonly vtKey: string = registerNewVtKey(this)
     #hasEventListeners = false
     readonly #onMounts: Array<()=>void> = []
@@ -368,6 +403,7 @@ export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiR
     #emitOnChangeEvent() {
         emitEvent(this.#eventListeningKey(), new VelotypeEvent(this,"onChange"))
     }
+    /** Create a new ObjectComponent */
     constructor(initialData: DataType,
         renderFunction: ((data: DataType) => AnchorElement | UpdateHandlerLink<UpdateRefsType>) | ((data: DataType, objectComponent: ObjectComponent<DataType, UpdateRefsType>) => AnchorElement | UpdateHandlerLink<UpdateRefsType>),
         handleUpdate?: (element: AnchorElement, updateRefs: UpdateRefsType, oldData: DataType, newData: DataType) => void
@@ -592,6 +628,7 @@ export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiR
  * The BasicTypes are string | number | bigint | boolean
  */
 export class BasicComponent<DataType extends BasicTypes> extends ObjectComponent<DataType> implements MultiRenderable, HasVtKey, Mountable {
+    /** Create a new BasicComponent */
     constructor(initialData: DataType) {
         super(initialData, function(data: DataType) {
             return createElement("span", null, data.toString())
@@ -657,7 +694,10 @@ export type FunctionComponent<AttrsType> = (attrs: Readonly<AttrsType>, children
  */
 export abstract class Component<AttrsType, RenderReturnType extends RenderableElements = HTMLElement> implements HasVtKey, Mountable {
 
+    /** The attributes this Component was created with */
     attrs: AttrsType
+
+    /** The children this Component was created with */
     children: ChildrenTypes[]
 
     /** constructor gets attrs and children */
@@ -667,13 +707,13 @@ export abstract class Component<AttrsType, RenderReturnType extends RenderableEl
     }
 
     /**
-     * Mount is called when this Component just after it is attached to the DOM.
+     * Mount is called just after this Component is attached to the DOM.
      * May be overriden by a specific Component that extends Component
      */
     mount(): void {}
 
     /**
-     * Unmount is called when this Component just before it is removed from the DOM.
+     * Unmount is called just before this Component is removed from the DOM.
      * May be overriden by a specific Component that extends Component
      */
     unmount(): void {}
@@ -1158,7 +1198,18 @@ function createElement(tag: Type<Component<any,any>> | FunctionComponent<any> | 
 }
 
 /** Short style tsx createElement */
-export const h = createElement
+export const h:
+    ((tag: "span", attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLSpanElement)
+    | ((tag: "div", attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLDivElement)
+    | ((tag: string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLElement)
+    | ((tag: Type<Component<any,Component<any,any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLElement)
+    | ((tag: Type<Component<any,ObjectComponent<any,any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLElement)
+    | ((tag: Type<Component<any,HTMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLElement)
+    | ((tag: Type<Component<any,SVGSVGElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => SVGSVGElement)
+    | ((tag: Type<Component<any,MathMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => MathMLElement)
+    | ((tag: FunctionComponent<any>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => ChildrenTypes[] | AnchorElement | BasicTypes)
+    | ((tag: Type<Component<any,any>> | FunctionComponent<any> | string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => ChildrenTypes[] | AnchorElement | BasicTypes)
+    = createElement
 
 /**
  * Create an fragment \<></> (which just propagates an array of children[])
@@ -1168,7 +1219,7 @@ function createFragment(_attrs: Readonly<any>, ...children:  ChildrenTypes[]): C
 }
 
 /** Short style tsx createFragment */
-export const f = createFragment
+export const f: (_attrs: Readonly<any>, ...children: ChildrenTypes[]) => ChildrenTypes[] = createFragment
 
 /**
  * Get the js class object of a constructed Component
@@ -1237,6 +1288,7 @@ type ComponentArrayOptions<DataType, UpdateRefsType> = {
 export class ObjectComponentArray<DataType, UpdateRefsType = never> extends ObjectComponent<ObjectComponent<DataType, UpdateRefsType>[]> {
     #renderFunction: ComponentArrayRenderFunctionType<DataType, UpdateRefsType>
     #handleUpdate?: ComponentArrayHandleUpdateType<DataType, UpdateRefsType>
+    /** Create a new ObjectComponentArray */
     constructor(options: ComponentArrayOptions<DataType, UpdateRefsType>) {
         super([], (data: ObjectComponent<DataType, UpdateRefsType>[]) => {
             const mainElement = createElement(options.wrapperElementTag || divTag, displayContents)
@@ -1314,6 +1366,7 @@ export class ObjectComponentArray<DataType, UpdateRefsType = never> extends Obje
         this.#releaseAll()
         super.set(newData)
     }
+    /** Will unmount and release all rendered instances of this ObjectComponentArray */
     override unmount(): void {
         super.unmount()
         this.#releaseAll()
@@ -1340,6 +1393,7 @@ export class ObjectComponentArray<DataType, UpdateRefsType = never> extends Obje
     }
 }
 
+/** Attributes type for the HTML Component */
 export type HTMLAttrsType = {
     /** which html tag to use for this element (defaults to \<div>, does not support \<svg> or \<math>) */
     tag?: string
@@ -1356,6 +1410,9 @@ export type HTMLAttrsType = {
  * html:string - content to use in innerHTML
  */
 export class HTML<AttrsType extends HTMLAttrsType = HTMLAttrsType> extends Component<AttrsType> {
+    /**
+     * Renders this into a generic HTML element
+     */
     override render(attrs: AttrsType): HTMLElement {
         const html = attrs.html
         const tag = attrs.tag
@@ -1368,6 +1425,7 @@ export class HTML<AttrsType extends HTMLAttrsType = HTMLAttrsType> extends Compo
     }
 }
 
+/** Attributes type for the SVG Component */
 export type SVGAttrsType = {
     /** content to use in innerHTML of the \<svg> element */
     svg: string
@@ -1381,8 +1439,11 @@ export type SVGAttrsType = {
  * svg:string - content to use in innerHTML of the \<svg> element
  */
 export class SVG<AttrsType extends SVGAttrsType = SVGAttrsType> extends Component<AttrsType,SVGSVGElement> {
-    override render(attrs: Readonly<AttrsType> | null): SVGSVGElement {
-        const svg = attrs?.svg
+    /**
+     * Renders this into a \<svg\> element
+     */
+    override render(attrs: Readonly<AttrsType>): SVGSVGElement {
+        const svg = attrs.svg
         const tempAttrs: any = {...attrs}
         delete tempAttrs.svg
         const container = document.createElementNS("http://www.w3.org/2000/svg", "svg") as SVGSVGElement
@@ -1392,6 +1453,7 @@ export class SVG<AttrsType extends SVGAttrsType = SVGAttrsType> extends Componen
     }
 }
 
+/** Attributes type for the MATH Component */
 export type MATHAttrsType = {
     /** content to use in innerHTML of the \<math> element */
     math: string
@@ -1404,8 +1466,11 @@ export type MATHAttrsType = {
  * svg:string - content to use in innerHTML of the svg element
  */
 export class MATH<AttrsType extends MATHAttrsType = MATHAttrsType> extends Component<AttrsType,MathMLElement> {
-    override render(attrs: Readonly<AttrsType> | null): MathMLElement {
-        const math = attrs?.math
+    /**
+     * Renders this into a \<math\> element
+     */
+    override render(attrs: Readonly<AttrsType>): MathMLElement {
+        const math = attrs.math
         const tempAttrs: any = {...attrs}
         delete tempAttrs.math
         const container = document.createElementNS("http://www.w3.org/1998/Math/MathML", "math") as MathMLElement
@@ -1439,6 +1504,9 @@ export class VelotypeEvent {
      * Generic metadata about the event
      */
     data: any | undefined
+    /**
+     * Create a new VelotypeEvent
+     */
     constructor(emittingObject: Component<any,any> | ObjectComponent<any,any>, event: string, data?: any) {
         this.emittingObject = emittingObject
         this.event = event

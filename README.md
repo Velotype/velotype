@@ -1,7 +1,7 @@
-# browser-tsx-core
-Fast and small TSX framework for creating high performance websites
+# Velotype
+Fast and small full stack TSX and webserver framework for creating high performance websites using Deno
 
-** NPM Package export is currently under testing and is not stable yet **
+** JSR Package export is currently under testing and is not stable yet **
 
 Differences from react/preact:
 * Focuses on Object Oriented Classes (no use*() function calls)

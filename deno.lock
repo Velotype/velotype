@@ -1,22 +1,7 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@std/assert@*": "1.0.13",
-    "jsr:@std/assert@^1.0.13": "1.0.13",
-    "jsr:@std/internal@^1.0.6": "1.0.6",
-    "npm:tslib@^2.8.1": "2.8.1",
-    "npm:typescript@^5.8.3": "5.8.3"
-  },
-  "jsr": {
-    "@std/assert@1.0.13": {
-      "integrity": "ae0d31e41919b12c656c742b22522c32fb26ed0cba32975cb0de2a273cb68b29",
-      "dependencies": [
-        "jsr:@std/internal"
-      ]
-    },
-    "@std/internal@1.0.6": {
-      "integrity": "9533b128f230f73bd209408bb07a4b12f8d4255ab2a4d22a1fd6d87304aca9a4"
-    }
+    "npm:tslib@^2.8.1": "2.8.1"
   },
   "npm": {
     "@rollup/rollup-android-arm-eabi@4.44.0": {
@@ -226,18 +211,9 @@
     },
     "tslib@2.8.1": {
       "integrity": "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="
-    },
-    "typescript@5.8.3": {
-      "integrity": "sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==",
-      "bin": true
     }
   },
   "workspace": {
-    "dependencies": [
-      "jsr:@std/assert@^1.0.13",
-      "npm:tslib@^2.8.1",
-      "npm:typescript@^5.8.3"
-    ],
     "packageJson": {
       "dependencies": [
         "npm:tslib@^2.8.1"

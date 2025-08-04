@@ -1,31 +1,24 @@
 {
-  "name": "@velotype/browser-tsx-core",
+  "name": "@velotype/velotype",
   "license": "MIT",
   "version": "0.0.1",
   "exports": {
-    ".": "./src/tsx-core.ts"
+    ".": "./src/tsx/tsx-core.ts",
+    "tsx": "./src/tsx/tsx-core.ts"
   },
   "publish": {
     "exclude": [
+      "docs/",
       "tests/"
     ]
   },
-  "main": "./src/tsx-core.ts",
   "tasks": {
-    "bundle": "deno bundle --minify ./src/tsx-core.ts --output ./dist/tsx-core.min.js --sourcemap",
+    "bundle-tsx-core": "deno bundle --minify ./src/tsx/tsx-core.ts --output ./dist/tsx-core.min.js --sourcemap",
     "test": "deno test ./tests/"
   },
   "compilerOptions": {
-    "jsx": "react",
-    "jsxFactory": "h",
-    "jsxFragmentFactory": "f",
     "lib": ["dom", "esnext"],
     "target": "esnext"
-  },
-  "imports": {
-    "@std/assert": "jsr:@std/assert@^1.0.13",
-    "tslib": "npm:tslib@^2.8.1",
-    "typescript": "npm:typescript@^5.8.3"
   },
   "lint": {
     "rules": {

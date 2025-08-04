@@ -1,19 +1,7 @@
 {
-  "name": "@velotype/browser-tsx-core",
-  "version": "0.0.1",
-  "description": "Fast and small TSX framework for creating high performance websites",
-  "main": "./src/tsx-core.ts",
-  "types": "./src/tsx-core.d.ts",
-  "exports": {
-    "types": "./src/tsx-core.d.ts",
-    "default": "./src/tsx-core.ts"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/velotype/browser-tsx-core.git"
+    "url": "git+https://github.com/velotype/velotype.git"
   },
   "keywords": [
     "jsx",
@@ -25,10 +13,7 @@
   "author": "Argoday",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/velotype/browser-tsx-core/issues"
+    "url": "https://github.com/velotype/velotype/issues"
   },
-  "homepage": "https://github.com/velotype/browser-tsx-core#readme",
-  "devDependencies": {
-    "tslib": "^2.8.1"
-  }
+  "homepage": "https://github.com/velotype/velotype#readme"
 }

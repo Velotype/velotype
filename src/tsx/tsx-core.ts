@@ -13,6 +13,8 @@
  * ---- Note: If an attribute name is not a valid JS identifier (like a data-* attribute), it is not considered to be an error if it is not found in the element attributes type.
  * - Better understand https://jsr.io/go/banned-triple-slash-directives
  * - Test readonly on HasVtKey.vtKey
+ * - Make attrs a more specific type than any
+ * - Test code similar to https://github.com/preactjs/preact/issues/3927
  */
 
 /**
@@ -25,7 +27,7 @@ export type AnchorElement = HTMLElement | SVGSVGElement | MathMLElement
 export type BasicTypes = string | bigint | number | boolean
 
 /** These are things that can be returned from Component.render() */
-export type RenderableElements = AnchorElement | Component<any,any> | ObjectComponent<any, any>
+export type RenderableElements = AnchorElement | Component<any,any> | RenderObject<any, any>
 
 /** Type used to represent abstract Class passing */
 export interface Type<T> extends Function { new (...args: any[]): T }
@@ -75,9 +77,9 @@ function instanceOfMathMLElement(something: any): something is MathMLElement {
 function instanceOfInternalComponent(something: any): something is InternalComponent {
     return something instanceof InternalComponent
 }
-/** Checks if something is an instanceof ObjectComponent */
-function instanceOfObjectComponent(something: any): something is ObjectComponent<any, any> {
-    return something instanceof ObjectComponent
+/** Checks if something is an instanceof RenderObject */
+function instanceOfRenderObject(something: any): something is RenderObject<any, any> {
+    return something instanceof RenderObject
 }
 /** Checks if something is an instanceof Component */
 function instanceOfComponent(something: any): something is Component<any, any> {
@@ -235,7 +237,7 @@ function childToNode(child: ChildTypes): AnchorElement | Text | undefined {
 function renderableElementToElement(child: RenderableElements): AnchorElement {
     if (instanceOfHTMLElement(child) || instanceOfSVGSVGElement(child) || instanceOfMathMLElement(child)) {
         return child
-    } else if (instanceOfObjectComponent(child)) {
+    } else if (instanceOfRenderObject(child)) {
         return child.renderNew()
     } else if (instanceOfComponent(child)) {
         // Get InternalComponent reference from Component's vtKey
@@ -251,7 +253,7 @@ function renderableElementToElement(child: RenderableElements): AnchorElement {
 }
 /**
  * Appends children to an HTMLElement (unwraps Arrays, generates new instance components for
- * ObjectComponents, wraps BasicTypes in TextNodes)
+ * RenderObjects, wraps BasicTypes in TextNodes)
  * 
  * @param parent HTMLElement to append to
  * @param child Children to append
@@ -294,7 +296,7 @@ function vtSetImmediate(callback: () => void): void {
 }
 
 /**
- * If a render operation returns a Component or ObjectComponent as a result of render then
+ * If a render operation returns a Component or RenderObject as a result of render then
  * it needs to be wrapped in another HTMLElement for rendering to work properly
  * 
  * @param element The raw rendered element
@@ -306,17 +308,17 @@ function wrapElementIfNeeded(element: MathMLElement): AnchorElement
 function wrapElementIfNeeded(element: HTMLElement): HTMLElement
 function wrapElementIfNeeded(element: AnchorElement): AnchorElement
 function wrapElementIfNeeded(element: Component<any,any>): HTMLElement
-function wrapElementIfNeeded(element: ObjectComponent<any,any>): HTMLElement
-function wrapElementIfNeeded(element: Component<any,any> | ObjectComponent<any,any>): HTMLElement
-function wrapElementIfNeeded(element: HTMLElement | Component<any,any> | ObjectComponent<any,any> | null | undefined): HTMLElement
+function wrapElementIfNeeded(element: RenderObject<any,any>): HTMLElement
+function wrapElementIfNeeded(element: Component<any,any> | RenderObject<any,any>): HTMLElement
+function wrapElementIfNeeded(element: HTMLElement | Component<any,any> | RenderObject<any,any> | null | undefined): HTMLElement
 function wrapElementIfNeeded(element: RenderableElements | null | undefined): AnchorElement {
     // Check for falsey
     if (!element) {
         return hiddenElement()
     }
-    // If a Component returns a Component or ObjectComponent as a result of render
+    // If a Component returns a Component or RenderObject as a result of render
     // then it needs to be wrapped in another HTMLElement for rendering to work properly
-    if (instanceOfComponent(element) || instanceOfObjectComponent(element) || element.hasAttribute(domKeyName)) {
+    if (instanceOfComponent(element) || instanceOfRenderObject(element) || element.hasAttribute(domKeyName)) {
         return createElement(divTag,displayContents,element)
     }
     return element
@@ -363,7 +365,7 @@ export interface Mountable {
 }
 
 /**
- * Generic object to stash metadata when using a handleUpdate method in ObjectComponent
+ * Generic object to stash metadata when using a handleUpdate method in RenderObject
  */
 export class UpdateHandlerLink<UpdateRefsType> {
     /** Reference to the rendered AnchorElement */
@@ -378,19 +380,24 @@ export class UpdateHandlerLink<UpdateRefsType> {
 }
 
 /**
- * An ObjectComponent is an efficient way of rendering Objects to potentially multiple HTMLElements
+ * Advanced functionality used to more efficiently rerender instance elements in RenderObjects
+ */
+export type RenderObjectHandleUpdateType<DataType, UpdateRefsType> = (element: AnchorElement, updateRefs: UpdateRefsType, oldData: DataType, newData: DataType) => void
+
+/**
+ * An RenderObject is an efficient way of rendering Objects to potentially multiple HTMLElements
  * changes to the value of the underlying Data Object will propogate to all attached elements.
  * 
  * @template DataType The type of the underlying Data Object
- * @template UpdateRefsType An advanced capability of ObjectComponent to more efficiently re-render instance elements
+ * @template UpdateRefsType An advanced capability of RenderObject to more efficiently re-render instance elements
  */
-export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiRenderable, HasVtKey, Mountable {
+export class RenderObject<DataType, UpdateRefsType = never> implements MultiRenderable, HasVtKey, Mountable {
     #data: DataType
-    #renderFunction: ((data: DataType) => AnchorElement | UpdateHandlerLink<UpdateRefsType>) | ((data: DataType, objectComponent: ObjectComponent<DataType, UpdateRefsType>) => AnchorElement | UpdateHandlerLink<UpdateRefsType>)
+    #renderFunction: ((data: DataType) => AnchorElement | UpdateHandlerLink<UpdateRefsType>) | ((data: DataType, renderObject: RenderObject<DataType, UpdateRefsType>) => AnchorElement | UpdateHandlerLink<UpdateRefsType>)
     readonly #elements = new Map<string, AnchorElement>()
     readonly #updateRefs = new Map<string, UpdateRefsType>()
-    #handleUpdate: ((element: AnchorElement, updateRefs: UpdateRefsType, oldData: DataType, newData: DataType) => void) | undefined
-    /** This ObjectComponent's vtKey */
+    #handleUpdate?: RenderObjectHandleUpdateType<DataType, UpdateRefsType>
+    /** This RenderObject's vtKey */
     readonly vtKey: string = registerNewVtKey(this)
     #hasEventListeners = false
     readonly #onMounts: Array<()=>void> = []
@@ -403,10 +410,16 @@ export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiR
     #emitOnChangeEvent() {
         emitEvent(this.#eventListeningKey(), new VelotypeEvent(this,"onChange"))
     }
-    /** Create a new ObjectComponent */
+    /**
+     * Create a new RenderObject
+     * 
+     * @param initialData the initial data to use to render this RenderObject with
+     * @param renderFunction a function that renders a data value into an AnchorElement
+     * @param handleUpdate advanced functionality used to highly optimize rendering on value updates
+     */
     constructor(initialData: DataType,
-        renderFunction: ((data: DataType) => AnchorElement | UpdateHandlerLink<UpdateRefsType>) | ((data: DataType, objectComponent: ObjectComponent<DataType, UpdateRefsType>) => AnchorElement | UpdateHandlerLink<UpdateRefsType>),
-        handleUpdate?: (element: AnchorElement, updateRefs: UpdateRefsType, oldData: DataType, newData: DataType) => void
+        renderFunction: ((data: DataType) => AnchorElement | UpdateHandlerLink<UpdateRefsType>) | ((data: DataType, renderObject: RenderObject<DataType, UpdateRefsType>) => AnchorElement | UpdateHandlerLink<UpdateRefsType>),
+        handleUpdate?: RenderObjectHandleUpdateType<DataType, UpdateRefsType>
     ) {
         this.#data = initialData
         this.#renderFunction = renderFunction
@@ -415,15 +428,15 @@ export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiR
 
     /**
      * Register an EventListener to receive an onChange event when the value of
-     * this ObjectComponent changes.
+     * this RenderObject changes.
      * 
-     * @param component the Component this ObjectComponent is created within or a child of the owning Component (has undefined behavior if registered to a non-child of the owning Component)
+     * @param component the Component this RenderObject is created within or a child of the owning Component (has undefined behavior if registered to a non-child of the owning Component)
      * @param listener the EventListener to register
      * @param triggerOnRegistration should an onChange event be emitted immediately upon registration? (default: false)
      * @param eventDispatchDelay to delay (in ms) onChange event dispatch, will dispatch at most one change event per eventDispatchDelay (default: 0)
      * @returns this
      */
-    registerOnChangeListener(component: Component<any,any>, listener: EventListener, triggerOnRegistration?: boolean, eventDispatchDelay?: number): ObjectComponent<DataType, UpdateRefsType> {
+    registerOnChangeListener(component: Component<any,any>, listener: EventListener, triggerOnRegistration?: boolean, eventDispatchDelay?: number): RenderObject<DataType, UpdateRefsType> {
         this.#hasEventListeners = true
         this.#eventDispatchDelay = (eventDispatchDelay && eventDispatchDelay>0)?eventDispatchDelay:0
         registerEventListener(component, this.#eventListeningKey(), listener)
@@ -433,13 +446,13 @@ export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiR
         return this
     }
     /**
-     * Register a mount/unmount pair to be triggered when the Component that this ObjectComponent is created within gets mounted / unmounted
+     * Register a mount/unmount pair to be triggered when the Component that this RenderObject is created within gets mounted / unmounted
      * 
-     * @param onMount callback to be triggered when the Component that this ObjectComponent is created within gets mounted
-     * @param onUnmount callback to be triggered when the Component that this ObjectComponent is created within gets unmounted
+     * @param onMount callback to be triggered when the Component that this RenderObject is created within gets mounted
+     * @param onUnmount callback to be triggered when the Component that this RenderObject is created within gets unmounted
      * @returns this
      */
-    registerOnMount(onMount?: () => void, onUnmount?: () => void): ObjectComponent<DataType, UpdateRefsType> {
+    registerOnMount(onMount?: () => void, onUnmount?: () => void): RenderObject<DataType, UpdateRefsType> {
         if (onMount) {
             this.#onMounts.push(onMount)
         }
@@ -468,24 +481,24 @@ export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiR
     unmount(): void {
         this.#onUnmounts.forEach(onUnmount => {onUnmount()})
     }
-    /** Get the current value of this ObjectComponent */
+    /** Get the current value of this RenderObject */
     get value(): DataType {
         return this.#data
     }
     /**
-     * Set the current value of this ObjectComponent
+     * Set the current value of this RenderObject
      * 
      * Will trigger a rerender if (this.value != newData)
      */
     set value(newData: DataType) {
         this.set(newData)
     }
-    /** Get the current value of this ObjectComponent */
+    /** Get the current value of this RenderObject */
     get(): DataType {
         return this.#data
     }
     /**
-     * Set the current value of this ObjectComponent
+     * Set the current value of this RenderObject
      * 
      * Will trigger rerenderElements if (this.value != newData)
      */
@@ -545,7 +558,7 @@ export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiR
      * 
      * DO NOT CALL directly (will be called by Velotype core)
      * 
-     * Used to unmount an instance element of this ObjectComponent
+     * Used to unmount an instance element of this RenderObject
      */
     unmountKey(key: string): boolean {
         const element = this.#elements.get(key)
@@ -570,7 +583,7 @@ export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiR
      * 
      * DO NOT CALL directly (will be called by Velotype core)
      * 
-     * Used to generate new instance elements of this ObjectComponent
+     * Used to generate new instance elements of this RenderObject
      */
     renderNew(): AnchorElement {
         const render = this.#renderFunction(this.#data, this)
@@ -583,7 +596,7 @@ export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiR
         return newElement
     }
     /**
-     * Get the rendered elements of this ObjectComponent
+     * Get the rendered elements of this RenderObject
      * 
      * THIS IS ADVANCED FUNCTIONALITY - use carefully
      */
@@ -591,7 +604,7 @@ export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiR
         return Array.from(this.#elements.values())
     }
     /**
-     * Removes all instance elements that this ObjectComponent has generated
+     * Removes all instance elements that this RenderObject has generated
      */
     removeAll(): void {
         Array.from(this.#elements.entries()).forEach(([key, element]) => {
@@ -602,7 +615,7 @@ export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiR
         this.#updateRefs.clear()
     }
     /**
-     * Releases all resources this ObjectComponent is attached to, this ObjectComponent
+     * Releases all resources this RenderObject is attached to, this RenderObject
      * is not functional after this method is called!
      * 
      * @param removeElements If set to true then will remove instance elements from the DOM, if false will leave them orphaned (default true)
@@ -623,11 +636,11 @@ export class ObjectComponent<DataType, UpdateRefsType = never> implements MultiR
 }
 
 /**
- * A specialization of an ObjectComponent when the DataType is a BasicType
+ * A specialization of an RenderObject when the DataType is a BasicType
  * 
  * The BasicTypes are string | number | bigint | boolean
  */
-export class BasicComponent<DataType extends BasicTypes> extends ObjectComponent<DataType> implements MultiRenderable, HasVtKey, Mountable {
+export class RenderBasic<DataType extends BasicTypes> extends RenderObject<DataType> implements MultiRenderable, HasVtKey, Mountable {
     /** Create a new BasicComponent */
     constructor(initialData: DataType) {
         super(initialData, function(data: DataType) {
@@ -636,26 +649,26 @@ export class BasicComponent<DataType extends BasicTypes> extends ObjectComponent
     }
     /**
      * Register an EventListener to receive an onChange event when the value of
-     * this ObjectComponent changes.
+     * this RenderBasic changes.
      * 
-     * @param component the Component this ObjectComponent is created within or a child of the owning Component (has undefined behavior if registered to a non-child of the owning Component)
+     * @param component the Component this RenderBasic is created within or a child of the owning Component (has undefined behavior if registered to a non-child of the owning Component)
      * @param listener the EventListener to register
      * @param triggerOnRegistration should an onChange event be emitted immediately upon registration? (default: false)
      * @param eventDispatchDelay to delay (in ms) onChange event dispatch, will dispatch at most one change event per eventDispatchDelay (default: 0)
      * @returns this
      */
-    override registerOnChangeListener(component: Component<any,any>, listener: EventListener, triggerOnRegistration?: boolean): BasicComponent<DataType> {
+    override registerOnChangeListener(component: Component<any,any>, listener: EventListener, triggerOnRegistration?: boolean): RenderBasic<DataType> {
         super.registerOnChangeListener(component, listener, triggerOnRegistration)
         return this
     }
     /**
-     * Register a mount/unmount pair to be triggered when the Component that this ObjectComponent is created within gets mounted / unmounted
+     * Register a mount/unmount pair to be triggered when the Component that this RenderBasic is created within gets mounted / unmounted
      * 
-     * @param onMount callback to be triggered when the Component that this ObjectComponent is created within gets mounted
-     * @param onUnmount callback to be triggered when the Component that this ObjectComponent is created within gets unmounted
+     * @param onMount callback to be triggered when the Component that this RenderBasic is created within gets mounted
+     * @param onUnmount callback to be triggered when the Component that this RenderBasic is created within gets unmounted
      * @returns this
      */
-    override registerOnMount(onMount: () => void, onUnmount: () => void): BasicComponent<DataType> {
+    override registerOnMount(onMount: () => void, onUnmount: () => void): RenderBasic<DataType> {
         super.registerOnMount(onMount, onUnmount)
         return this
     }
@@ -708,12 +721,14 @@ export abstract class Component<AttrsType, RenderReturnType extends RenderableEl
 
     /**
      * Mount is called just after this Component is attached to the DOM.
+     * 
      * May be overriden by a specific Component that extends Component
      */
     mount(): void {}
 
     /**
      * Unmount is called just before this Component is removed from the DOM.
+     * 
      * May be overriden by a specific Component that extends Component
      */
     unmount(): void {}
@@ -1007,7 +1022,7 @@ function mountComponentElementHelper(component: InternalComponent | MultiRendera
         // Iterate component fields and trigger their mounts
         Object.entries(internalComponent.c).forEach(array => {
             const enumberableValue = array[1]
-            if (instanceOfObjectComponent(enumberableValue)) {
+            if (instanceOfRenderObject(enumberableValue)) {
                 enumberableValue.mount()
             }
         })
@@ -1046,7 +1061,7 @@ function unmountComponentElementHelper(component: InternalComponent | MultiRende
         // Iterate component fields and trigger their unmounts
         Object.entries(component.c).forEach(array => {
             const enumberableValue = array[1]
-            if (instanceOfObjectComponent(enumberableValue)) {
+            if (instanceOfRenderObject(enumberableValue)) {
                 enumberableValue.unmount()
                 releaseVtKeyObject(enumberableValue)
             } else if (instanceOfComponent(enumberableValue)) {
@@ -1153,7 +1168,7 @@ function createElement(tag: "span", attrs: Readonly<any> | null, ...children: Ch
 function createElement(tag: "div", attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLDivElement
 function createElement(tag: string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
 function createElement(tag: Type<Component<any,Component<any,any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
-function createElement(tag: Type<Component<any,ObjectComponent<any,any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
+function createElement(tag: Type<Component<any,RenderObject<any,any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
 function createElement(tag: Type<Component<any,HTMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
 function createElement(tag: Type<Component<any,SVGSVGElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): SVGSVGElement
 function createElement(tag: Type<Component<any,MathMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): MathMLElement
@@ -1203,7 +1218,7 @@ export const h:
     | ((tag: "div", attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLDivElement)
     | ((tag: string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLElement)
     | ((tag: Type<Component<any,Component<any,any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLElement)
-    | ((tag: Type<Component<any,ObjectComponent<any,any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLElement)
+    | ((tag: Type<Component<any,RenderObject<any,any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLElement)
     | ((tag: Type<Component<any,HTMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLElement)
     | ((tag: Type<Component<any,SVGSVGElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => SVGSVGElement)
     | ((tag: Type<Component<any,MathMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => MathMLElement)
@@ -1273,24 +1288,39 @@ export function appendRootComponentTo(rootComponent: AnchorElement, elementId: s
     }
 }
 
-type ComponentArrayRenderFunctionType<DataType, UpdateRefsType> = ((data: DataType) => HTMLElement | UpdateHandlerLink<UpdateRefsType>) | ((data: DataType, objectComponent: ObjectComponent<DataType, UpdateRefsType>) => HTMLElement | UpdateHandlerLink<UpdateRefsType>)
-type ComponentArrayHandleUpdateType<DataType, UpdateRefsType> = (element: AnchorElement, updateRefs: UpdateRefsType, oldData: DataType, newData: DataType) => void
-type ComponentArrayOptions<DataType, UpdateRefsType> = {
+/**
+ * Type for a renderFunction in a RenderObjectArray
+ * 
+ * (currently only supports rendering to HTMLElements for RenderObjectArray)
+ */
+export type RenderObjectArrayRenderFunctionType<DataType, UpdateRefsType> = ((data: DataType) => HTMLElement | UpdateHandlerLink<UpdateRefsType>) | ((data: DataType, renderObject: RenderObject<DataType, UpdateRefsType>) => HTMLElement | UpdateHandlerLink<UpdateRefsType>)
+/**
+ * Parameters used on RenderObjectArray construction
+ * 
+ * @wrapperElementTag the HTML tag to use for the wrapper element (defaults to a \<div/> tag)
+ * @wrapperAttrs attributes to set on the wrapper element
+ * @renderFunction the renderFunction to pass to the underlying RenderObject instances on each data point
+ * @handleUpdate advanced functionality used to more efficiently rerender instance elements
+ */
+export type RenderObjectArrayOptions<DataType, UpdateRefsType> = {
     wrapperElementTag?: string,
     wrapperAttrs?: any,
-    renderFunction: ComponentArrayRenderFunctionType<DataType, UpdateRefsType>,
-    handleUpdate?: ComponentArrayHandleUpdateType<DataType, UpdateRefsType>
+    renderFunction: RenderObjectArrayRenderFunctionType<DataType, UpdateRefsType>,
+    handleUpdate?: RenderObjectHandleUpdateType<DataType, UpdateRefsType>
 }
 /**
- * An optimized Component that represents an Array of data points rendered into
+ * An optimized RenderObject that represents an Array of data points rendered into
  * a wrapperElement (by default a \<div> tag)
+ * 
+ * @template DataType The type of the underlying Data Object
+ * @template UpdateRefsType An advanced capability of RenderObjectArray to more efficiently rerender instance elements
  */
-export class ObjectComponentArray<DataType, UpdateRefsType = never> extends ObjectComponent<ObjectComponent<DataType, UpdateRefsType>[]> {
-    #renderFunction: ComponentArrayRenderFunctionType<DataType, UpdateRefsType>
-    #handleUpdate?: ComponentArrayHandleUpdateType<DataType, UpdateRefsType>
-    /** Create a new ObjectComponentArray */
-    constructor(options: ComponentArrayOptions<DataType, UpdateRefsType>) {
-        super([], (data: ObjectComponent<DataType, UpdateRefsType>[]) => {
+export class RenderObjectArray<DataType, UpdateRefsType = never> extends RenderObject<RenderObject<DataType, UpdateRefsType>[]> {
+    #renderFunction: RenderObjectArrayRenderFunctionType<DataType, UpdateRefsType>
+    #handleUpdate?: RenderObjectHandleUpdateType<DataType, UpdateRefsType>
+    /** Create a new RenderObjectArray */
+    constructor(options: RenderObjectArrayOptions<DataType, UpdateRefsType>) {
+        super([], (data: RenderObject<DataType, UpdateRefsType>[]) => {
             const mainElement = createElement(options.wrapperElementTag || divTag, displayContents)
             setAttrsOnElement(mainElement, options.wrapperAttrs)
             data.forEach(d => {
@@ -1305,7 +1335,7 @@ export class ObjectComponentArray<DataType, UpdateRefsType = never> extends Obje
      * Push one data point into the Array
      */
     push(newData: DataType): void {
-        const obj = new ObjectComponent<DataType, UpdateRefsType>(newData, this.#renderFunction, this.#handleUpdate)
+        const obj = new RenderObject<DataType, UpdateRefsType>(newData, this.#renderFunction, this.#handleUpdate)
         this.value.push(obj)
         this.getElements().forEach(element => {
             element.appendChild(renderableElementToElement(obj))
@@ -1316,7 +1346,7 @@ export class ObjectComponentArray<DataType, UpdateRefsType = never> extends Obje
      */
     pushAll(newData: DataType[]): void {
         this.value = this.value.concat(newData.map(d => {
-            const obj = new ObjectComponent<DataType, UpdateRefsType>(d, this.#renderFunction)
+            const obj = new RenderObject<DataType, UpdateRefsType>(d, this.#renderFunction)
             this.getElements().forEach(element => {
                 element.appendChild(renderableElementToElement(obj))
             })
@@ -1353,25 +1383,25 @@ export class ObjectComponentArray<DataType, UpdateRefsType = never> extends Obje
     setAt(index: number, newData: DataType): void {
         this.value[index].value = newData
     }
-    /** Set the current value of this ObjectComponentArray */
-    override get value(): ObjectComponent<DataType, UpdateRefsType>[] {
+    /** Set the current value of this RenderObjectArray */
+    override get value(): RenderObject<DataType, UpdateRefsType>[] {
         return super.get()
     }
-    /** Set the current value of this ObjectComponentArray */
-    override set value(newData: ObjectComponent<DataType, UpdateRefsType>[]) {
+    /** Set the current value of this RenderObjectArray */
+    override set value(newData: RenderObject<DataType, UpdateRefsType>[]) {
         this.set(newData)
     }
-    /** Set the current value of this ObjectComponentArray */
-    override set(newData: ObjectComponent<DataType, UpdateRefsType>[]): void {
+    /** Set the current value of this RenderObjectArray */
+    override set(newData: RenderObject<DataType, UpdateRefsType>[]): void {
         this.#releaseAll()
         super.set(newData)
     }
-    /** Will unmount and release all rendered instances of this ObjectComponentArray */
+    /** Will unmount and release all rendered instances of this RenderObjectArray */
     override unmount(): void {
         super.unmount()
         this.#releaseAll()
     }
-    /** Release the old underlying ObjectComponents */
+    /** Release the old underlying RenderObjects */
     #releaseAll(): void {
         this.value.forEach(function(d){d.release(false)})
     }
@@ -1495,7 +1525,7 @@ export class VelotypeEvent {
     /**
      * Link to the emitting object
      */
-    emittingObject: Component<any,any> | ObjectComponent<any,any>
+    emittingObject: Component<any,any> | RenderObject<any,any>
     /**
      * A simple string representing the type of event
      */
@@ -1507,7 +1537,7 @@ export class VelotypeEvent {
     /**
      * Create a new VelotypeEvent
      */
-    constructor(emittingObject: Component<any,any> | ObjectComponent<any,any>, event: string, data?: any) {
+    constructor(emittingObject: Component<any,any> | RenderObject<any,any>, event: string, data?: any) {
         this.emittingObject = emittingObject
         this.event = event
         this.data = data

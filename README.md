@@ -7,7 +7,7 @@ Differences from react/preact:
 * Focuses on Object Oriented Classes (no use*() function calls)
 * Create and manipulate DOM elements directly (no Virtal DOM, no reconsiliation engine)
 * Write the same as if you are writing native HTML (use element Attributes instead of Properties)
-* No state management (use Classes as they are intended)
+* No state management (use Classes as they are intended with fields and methods)
 * High performance (same performance as pure javascript)
 * Small payload (minimizes to ~9kb)
 
@@ -15,7 +15,7 @@ Differences from react/preact:
 
 ### TSX Returns HTMLElements directly
 
-Velotype is built to be nearly native javascript and will return HTMLElements
+Velotype is built to be nearly native javascript and will return raw HTMLElements directly
 
 ```tsx
 const divTag: HTMLDivElement = <div>this is a div</div>
@@ -45,13 +45,36 @@ const divTag: HTMLDivElement = <div style="display:inline;margin-top:4pm;">this 
 
 ## Types of Components
 
-Create these objects as Tags in tsx `<tag></tag>`
+Components are the objects that can be created as Tags in tsx `<tag></tag>`
 
 ### Function Components
 
-A Velotype Function Component that can be used in .tsx files to render HTML Components.
+A FunctionComponent can be used in .tsx files to render simple HTML Components.
 
-Does not support mount and unmount lifecycle events.
+Note that FunctionComponents must be idempotent with no side affects and do not support mount and unmount lifecycle events.
+
+```tsx
+type UserProfile = {
+    name: string
+    email?: string
+    address?: string
+}
+type UserProfileAttrsType = {
+    user: UserProfile
+}
+export const UserProfile: FunctionComponent<UserProfileAttrsType> = function(attrs: UserProfileAttrsType) {
+    return <div>
+        <div>Name: {attrs.name}</div>
+        {attrs.email && <div>Email: {attrs.email}</div>}
+        {attrs.address && <div>Address: {attrs.address}</div>}
+    </div>
+}
+
+//Can then be constructed via tsx:
+return <div>
+    <UserProfile user={{name: "foo", email: "bar@exmaple.com"}} />
+</div>
+```
 
 ### Class Components
 
@@ -89,7 +112,7 @@ class ComplexComponent extends Component<EmptyAttrs> {
 const foo: ComplexComponent = getComponent(<ComplexComponent/>)
 foo.someMethod()
 
-//Can then be used in tsx directly:
+//And can be used in tsx directly:
 const someVariable = <div>{foo}</div>
 ```
 
@@ -103,8 +126,9 @@ type MoreComplexAttrsType = {
     optionalAttr?: string
 }
 class MoreComplexComponent extends Component<MoreComplexAttrsType, HTMLElement> {
+    renderCallCount: number = 0
     someMethodCallCount: number = 0
-    otherMethodCallCount = new BasicComponent<number>(0)
+    otherMethodCallCount = new RenderBasic<number>(0)
     override mount() {
         console.log("This component was just added to the DOM")
     }
@@ -112,10 +136,12 @@ class MoreComplexComponent extends Component<MoreComplexAttrsType, HTMLElement> 
         console.log("This component is about to be removed from the DOM")
     }
     override render(attrs: Readonly<MoreComplexAttrsType>, children: ChildrenTypes[]) {
+        this.renderCallCount++
         return <div>
             This is a more complex Component
-            <button onClick={this.otherMethod}>click me {this.otherMethodCallCount}</button>
-            <button onClick={this.someMethod}>click me {this.someMethodCallCount}</button>
+            <div>render() has been called: {this.renderCallCount} times</div>
+            <button onClick={this.otherMethod}>click me (RenderBasic) {this.otherMethodCallCount}</button>
+            <button onClick={this.someMethod}>click me (refresh) {this.someMethodCallCount}</button>
             <div>
                 Children here:
                 <div>{children}</div>
@@ -124,7 +150,7 @@ class MoreComplexComponent extends Component<MoreComplexAttrsType, HTMLElement> 
     }
     otherMethod = () => {
         console.log("MoreComplexComponent otherMethod() called")
-        // Update the value of the BasicComponent, this will rerender only the one {this.otherMethodCallCount} element created in render() above
+        // Update the value of the RenderBasic, this will rerender only the one {this.otherMethodCallCount} element created in render() above
         this.otherMethodCallCount.value+=1
     }
     someMethod = () => {
@@ -137,9 +163,74 @@ class MoreComplexComponent extends Component<MoreComplexAttrsType, HTMLElement> 
 }
 ```
 
-### ObjectComponentArray
+## Types of RenderObjects
 
-An optimized Component that represents an Array of data points rendered into a wrapperElement (by default a `<div>` tag)
+Create these objects with `new RenderObject<DataType>()` as fields of Component classes (it is advanced behavior to create these in any other way). These can then be used in tsx and will render using the provided render function as many times as that object needs to be rendered and mounted to the DOM. Updates to `obj.value` will trigger rerendering to each rendered instance's location in the DOM.
+
+### RenderObject
+
+An RenderObject is an efficient way of rendering Objects to potentially multiple HTMLElements, changes to the value of the underlying Data Object will propogate to all instance elements.
+
+```ts
+type Person = {
+    name: string,
+    address: string,
+    phone: string
+}
+class PersonSelector extends Component<EmptyProps> {
+    selectedPerson = new RenderObject<Person | null>(null, function(person: Person | null) {
+        if (!person) {
+            return <div></div>
+        } else {
+            return <div>
+                <div>Person:</div>
+                <div>Name: {person.name}</div>
+                <div>Address: {person.address}</div>
+                <div>Phone: {person.phone}</div>
+            </div>
+        }
+    })
+    override render() {
+        let people = [
+            {name: "One person", address: "somewhere", phone: "123"},
+            {name: "Two person", address: "elsewhere", phone: "456"},
+            {name: "Three person", address: "nowhere", phone: "789"}
+        ]
+        return <div>
+            {people.map((person)=>{
+                <button onClick={()=>{
+                    this.selectedPerson.value = person // <-- this is where the RenderObject will trigger rerendering in both the "one place" and the "another place" locations below
+                }}>{person.name}</button>
+            })}
+            <div>Render selected Person in one place: {this.selectedPerson}</div>
+            <div>Render selected Person in another place: {this.selectedPerson}</div>
+        </div>
+    }
+}
+```
+
+### RenderBasic
+
+A specialization of an RenderObject when the DataType is a BasicType, it renders its value as `<span>{value}</span>` and supports `getString()` and `setString()` methods.
+
+The BasicTypes are `string | number | bigint | boolean`
+
+```ts
+class Counter extends Component<EmptyProps> {
+    count = new RenderBasic<number>(0)
+    override render() {
+        return <div>
+            <div>Counter value: {this.count}</div>
+            <button type="button" onClick={() => this.count.value+=1}>Increment</button>
+            <button type="button" onClick={() => this.count.value-=1}>Decrement</button>
+        </div>
+    }
+}
+```
+
+### RenderObjectArray
+
+An optimized RenderObject that represents an Array of data points rendered into a wrapperElement (by default a `<div>` tag)
 
 ```ts
 type Todo = {
@@ -147,7 +238,7 @@ type Todo = {
 }
 
 class TodoList extends Component<EmptyProps> {
-    todos: ObjectComponentArray<Todo> = new ObjectComponentArray<Todo>({
+    todos: RenderObjectArray<Todo> = new RenderObjectArray<Todo>({
         wrapperElementTag="ul"
         renderFunction={function(todo: Todo) {
             return <li>{todo.text}</li>
@@ -172,71 +263,6 @@ class TodoList extends Component<EmptyProps> {
             <button type="submit">Add</button>
             {this.todos}
         </form>
-    }
-}
-```
-
-## Types of Signal-like Components
-
-Create these objects with `new ObjectComponent<DataType>()`, usually as fields of Component classes. These can then be used in tsx and will render using the provided render function as many times as that object needs to be rendered. Then later updates to `obj.value` will trigger rerendering to each of those DOM locations.
-
-### ObjectComponent
-
-An ObjectComponent is an efficient way of rendering Objects to potentially multiple HTMLElements, changes to the value of the underlying Data Object will propogate to all attached elements.
-
-```ts
-type Person = {
-    name: string,
-    address: string,
-    phone: string
-}
-class PersonSelector extends Component<EmptyProps> {
-    selectedPerson = new ObjectComponent<Person | null>(null, function(person: Person | null) {
-        if (!person) {
-            return <div></div>
-        } else {
-            return <div>
-                <div>Person:</div>
-                <div>Name: {person.name}</div>
-                <div>Address: {person.address}</div>
-                <div>Phone: {person.phone}</div>
-            </div>
-        }
-    })
-    override render() {
-        let people = [
-            {name: "One person", address: "somewhere", phone: "123"},
-            {name: "Two person", address: "elsewhere", phone: "456"},
-            {name: "Three person", address: "nowhere", phone: "789"}
-        ]
-        return <div>
-            {people.map((person)=>{
-                <button onClick={()=>{
-                    this.selectedPerson.value=person
-                }}>{person.name}</button>
-            })}
-            <div>Render selected Person in one place: {this.selectedPerson}</div>
-            <div>Render selected Person in another place: {this.selectedPerson}</div>
-        </div>
-    }
-}
-```
-
-### BasicComponent
-
-A specialization of an ObjectComponent when the DataType is a BasicType, it renders its value as `<span>{value}</span>` and supports `getString()` and `setString()` methods.
-
-The BasicTypes are `string | number | bigint | boolean`
-
-```ts
-class Counter extends Component<EmptyProps> {
-    count = new BasicComponent<number>(0)
-    override render() {
-        return <div>
-            <div>Counter: {this.count}</div>
-            <button type="button" onClick={() => this.count.value+=1}>Increment</button>
-            <button type="button" onClick={() => this.count.value-=1}>Decrement</button>
-        </div>
     }
 }
 ```

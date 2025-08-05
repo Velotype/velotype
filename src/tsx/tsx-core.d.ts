@@ -19,16 +19,19 @@ import {
     ChildrenTypes,
     CSSProperties,
 
-    // Core types
+    // Component types
     FunctionComponent,
     Component,
     EmptyAttrs,
-    ObjectComponent,
-    UpdateHandlerLink,
 
-    // Specialized
-    BasicComponent,
-    ObjectComponentArray,
+    // Render Objects
+    RenderObject,
+    UpdateHandlerLink,
+    RenderObjectHandleUpdateType,
+    RenderBasic,
+    RenderObjectArray,
+    RenderObjectArrayRenderFunctionType,
+    RenderObjectArrayOptions,
 
     // TSX integration
     h,
@@ -73,16 +76,19 @@ export {
     ChildrenTypes,
     CSSProperties,
 
-    // Core types
+    // Component types
     FunctionComponent,
     Component,
     EmptyAttrs,
-    ObjectComponent,
-    UpdateHandlerLink,
 
-    // Specialized
-    BasicComponent,
-    ObjectComponentArray,
+    // Render Objects
+    RenderObject,
+    UpdateHandlerLink,
+    RenderObjectHandleUpdateType,
+    RenderBasic,
+    RenderObjectArray,
+    RenderObjectArrayRenderFunctionType,
+    RenderObjectArrayOptions,
 
     // TSX integration
     h,

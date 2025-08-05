@@ -29,8 +29,11 @@ export type BasicTypes = string | bigint | number | boolean
 /** These are things that can be returned from Component.render() */
 export type RenderableElements = AnchorElement | Component<any,any> | RenderObject<any, any>
 
+/** Type used to represent a constructor function for a Class */
+export type TypeConstructor<T> = new (...args: any[]) => T
+
 /** Type used to represent abstract Class passing */
-export interface Type<T> extends Function { new (...args: any[]): T }
+export interface Type<T> extends TypeConstructor<T>{}
 
 /** Valid child objects of an Element */
 export type ChildTypes = BasicTypes | RenderableElements | null | undefined

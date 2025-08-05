@@ -9,6 +9,7 @@ import {
     MultiRenderable,
     Mountable,
     HasVtKey,
+    TypeConstructor,
     Type,
 
     // Engine types
@@ -66,6 +67,7 @@ export {
     MultiRenderable,
     Mountable,
     HasVtKey,
+    TypeConstructor,
     Type,
 
     // Engine types

@@ -1,5 +1,5 @@
-# Velotype
-Fast and small full stack TSX and webserver framework for creating high performance websites using Deno
+# Velotype TSX
+Fast and small TSX framework for creating high performance websites
 
 ** JSR Package export is currently under testing and is not stable yet **
 

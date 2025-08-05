@@ -13,7 +13,7 @@
     ]
   },
   "tasks": {
-    "bundle-tsx-core": "deno bundle --minify ./src/tsx/tsx-core.ts --output ./dist/tsx-core.min.js --sourcemap",
+    "tsx/bundle": "deno bundle --minify ./src/tsx/tsx-core.ts --output ./dist/tsx-core.min.js --sourcemap",
     "test": "deno test ./tests/"
   },
   "compilerOptions": {

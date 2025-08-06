@@ -15,6 +15,7 @@
  * - Test readonly on HasVtKey.vtKey
  * - Make attrs a more specific type than any
  * - Test code similar to https://github.com/preactjs/preact/issues/3927
+ * - Test https://custom-elements-everywhere.com/
  */
 
 /**

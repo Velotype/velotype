@@ -16,6 +16,9 @@
  * - Test code similar to https://github.com/preactjs/preact/issues/3927
  * - Test https://custom-elements-everywhere.com/
  * - Figure out how to get JSX.IntrinsicElements moved to a different file
+ * - Understand https://deno.com/blog/v1.38#fastest-jsx-transform
+ * ---- https://github.com/preactjs/preact/blob/main/jsx-runtime/src/index.js#L185-L187
+ * - Use Source and this in jsxDEV in jsx-runtime
  */
 
 /**
@@ -281,7 +284,7 @@ function appendChild(parent: HTMLElement, child: ChildrenTypes[] | ChildrenTypes
  * @returns \<div style="display:none;"/>
  */
 function hiddenElement(): HTMLElement {
-    return createElement(divTag,displayNone)
+    return createElement(divTag,displayNone) as HTMLDivElement
 }
 
 /**
@@ -323,7 +326,7 @@ function wrapElementIfNeeded(element: RenderableElements | null | undefined): An
     // If a Component returns a Component or RenderObject as a result of render
     // then it needs to be wrapped in another HTMLElement for rendering to work properly
     if (instanceOfComponent(element) || instanceOfRenderObject(element) || element.hasAttribute(domKeyName)) {
-        return createElement(divTag,displayContents,element)
+        return createElement(divTag,displayContents,element) as HTMLDivElement
     }
     return element
 }
@@ -648,7 +651,7 @@ export class RenderBasic<DataType extends BasicTypes> extends RenderObject<DataT
     /** Create a new BasicComponent */
     constructor(initialData: DataType) {
         super(initialData, function(data: DataType) {
-            return createElement("span", null, data.toString())
+            return createElement("span", null, data.toString()) as HTMLSpanElement
         })
     }
     /**
@@ -1163,21 +1166,24 @@ function setAttrsOnElement(element: Element, attrs?: Readonly<any> | null): void
     }
 }
 
+// Note: the react-jsx transform can in an edge case call createElement()
+// so this must be exported
+// See: https://github.com/facebook/react/issues/20031#issuecomment-710346866
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
  * \<tag attrOne={} attrTwo={}>{children}\</tag>
  */
-function createElement(tag: "span", attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLSpanElement
-function createElement(tag: "div", attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLDivElement
-function createElement(tag: string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
-function createElement(tag: Type<Component<any,Component<any,any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
-function createElement(tag: Type<Component<any,RenderObject<any,any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
-function createElement(tag: Type<Component<any,HTMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
-function createElement(tag: Type<Component<any,SVGSVGElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): SVGSVGElement
-function createElement(tag: Type<Component<any,MathMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): MathMLElement
-function createElement(tag: FunctionComponent<any>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): ChildrenTypes[] | AnchorElement | BasicTypes
-function createElement(tag: Type<Component<any,any>> | FunctionComponent<any> | string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): ChildrenTypes[] | AnchorElement | BasicTypes {
+export function createElement(tag: "span", attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLSpanElement
+export function createElement(tag: "div", attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLDivElement
+export function createElement(tag: string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
+export function createElement(tag: Type<Component<any,Component<any,any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
+export function createElement(tag: Type<Component<any,RenderObject<any,any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
+export function createElement(tag: Type<Component<any,HTMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
+export function createElement(tag: Type<Component<any,SVGSVGElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): SVGSVGElement
+export function createElement(tag: Type<Component<any,MathMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): MathMLElement
+export function createElement(tag: FunctionComponent<any>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): ChildrenTypes[] | AnchorElement | BasicTypes
+export function createElement(tag: Type<Component<any,any>> | FunctionComponent<any> | string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): ChildrenTypes[] | AnchorElement | BasicTypes {
     const notNullAttrs = attrs || {}
     if (typeof tag === 'string') {
         // Base HTML Element
@@ -1218,7 +1224,6 @@ function createElement(tag: Type<Component<any,any>> | FunctionComponent<any> | 
 
 /** Short style tsx createElement */
 export const h:
-    ((tag: "span", attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLSpanElement)
     | ((tag: "div", attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLDivElement)
     | ((tag: string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLElement)
     | ((tag: Type<Component<any,Component<any,any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLElement)
@@ -1325,7 +1330,7 @@ export class RenderObjectArray<DataType, UpdateRefsType = never> extends RenderO
     /** Create a new RenderObjectArray */
     constructor(options: RenderObjectArrayOptions<DataType, UpdateRefsType>) {
         super([], (data: RenderObject<DataType, UpdateRefsType>[]) => {
-            const mainElement = createElement(options.wrapperElementTag || divTag, displayContents)
+            const mainElement: HTMLElement = createElement(options.wrapperElementTag || divTag, displayContents) as HTMLElement
             setAttrsOnElement(mainElement, options.wrapperAttrs)
             data.forEach(d => {
                 mainElement.appendChild(renderableElementToElement(d))
@@ -1453,7 +1458,7 @@ export class HTML<AttrsType extends HTMLAttrsType = HTMLAttrsType> extends Compo
         const tempAttrs: any = {...attrs}
         delete tempAttrs.html
         delete tempAttrs.tag
-        const container = createElement(tag || divTag, tempAttrs)
+        const container = createElement(tag || divTag, tempAttrs) as HTMLElement
         container.innerHTML = html || ""
         return container
     }

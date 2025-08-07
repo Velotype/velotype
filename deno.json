@@ -4,7 +4,9 @@
   "version": "0.0.1",
   "exports": {
     ".": "./src/tsx/tsx-core.ts",
-    "./tsx": "./src/tsx/tsx-core.ts"
+    "./tsx": "./src/tsx/tsx-core.ts",
+    "./jsx-runtime": "./src/jsx-runtime/jsx-runtime.ts",
+    "./jsx-dev-runtime": "./src/jsx-dev-runtime/jsx-dev-runtime.ts"
   },
   "publish": {
     "exclude": [
@@ -13,12 +15,11 @@
     ]
   },
   "tasks": {
-    "tsx/bundle": "deno bundle --minify ./src/tsx/tsx-core.ts --output ./dist/tsx-core.min.js --sourcemap",
+    "tsx-bundle": "deno bundle --minify ./src/tsx/tsx-core.ts --output ./dist/tsx-core.min.js --sourcemap",
     "test": "deno test ./tests/"
   },
   "compilerOptions": {
-    "lib": ["dom", "esnext"],
-    "target": "esnext"
+    "lib": ["dom", "esnext"]
   },
   "lint": {
     "rules": {

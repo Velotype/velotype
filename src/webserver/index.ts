@@ -1,5 +1,3 @@
-/// <reference lib="deno.ns" />
-
 import {Mode} from "./mode.ts"
 import {Context} from "./context.ts"
 import {

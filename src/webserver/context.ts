@@ -8,16 +8,16 @@ export class Context {
     constructor(request: Request) {
         this.url = new URL(request.url)
     }
-    getPathParts() {
+    getPathParts(): string[] {
         return (this.url.pathname || "/").split("/")
     }
-    addPathVariable(pathVariableName: string, pathVariableValue: string) {
+    addPathVariable(pathVariableName: string, pathVariableValue: string): void {
         if (!this.pathVariables) {
             this.pathVariables = new Map<string,string>()
         }
         this.pathVariables.set(pathVariableName, pathVariableValue)
     }
-    addMetadata(key: string, data: any) {
+    addMetadata(key: string, data: any): void {
         this.metadata.set(key, data)
     }
 }

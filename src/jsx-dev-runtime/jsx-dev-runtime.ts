@@ -2,7 +2,7 @@
 
 import { h, f } from "../tsx/tsx-core.ts"
 
-import type { ChildrenTypes } from "../tsx/tsx-core.ts"
+import type { AnchorElement, BasicTypes, ChildrenTypes } from "../tsx/tsx-core.ts"
 
 type Source = {
     fileName: string,
@@ -15,7 +15,7 @@ type Source = {
  * 
  * \<tag attrOne={} attrTwo={}>{children}\</tag>
  */
-export function jsxDEV(tag: any, attrs: any, key: string | undefined, _isStaticChildren: boolean, _source: Source, _this: any) {
+export function jsxDEV(tag: any, attrs: any, key: string | undefined, _isStaticChildren: boolean, _source: Source, _this: any): ChildrenTypes[] | AnchorElement | BasicTypes {
     // Pull children out of attrs
     const children = attrs.children
     delete attrs.children

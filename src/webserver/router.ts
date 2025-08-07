@@ -33,39 +33,39 @@ export class RouteNode {
     inspectors: Inspector[] = []
     childNodes: RouteNode[] = []
     handler: Handler | undefined = undefined
-    setPathSegment(pathSegment: string) {
+    setPathSegment(pathSegment: string): void {
         this.pathSegment = pathSegment
     }
-    setIsWildcard(isWildcard: boolean, pathVariable?: string) {
+    setIsWildcard(isWildcard: boolean, pathVariable?: string): void {
         this.isWildcard = isWildcard
         if (pathVariable) {
             this.pathVariable = pathVariable
         }
     }
-    addInspector = (inspector: Inspector) => {
+    addInspector(inspector: Inspector): void {
         this.inspectors.push(inspector)
     }
-    setHandler = (handler: Handler) => {
+    setHandler(handler: Handler): void {
         if (this.handler) {
             console.log("ERROR RouteNode setHandler called twice for the same route",this)
         } else {
             this.handler = handler
         }
     }
-    addChildNode(routeNode: RouteNode) {
+    addChildNode(routeNode: RouteNode): void {
         this.childNodes.push(routeNode)
     }
-    addPathHandler(pathSegments: string[], handler: Handler) {
+    addPathHandler(pathSegments: string[], handler: Handler): void {
         this.addPathPropertyHelper(pathSegments, (node: RouteNode) => {
             node.setHandler(handler)
         })
     }
-    addPathInspector(pathSegments: string[], inspector: Inspector) {
+    addPathInspector(pathSegments: string[], inspector: Inspector): void {
         this.addPathPropertyHelper(pathSegments, (node: RouteNode) => {
             node.addInspector(inspector)
         })
     }
-    addPathPropertyHelper(pathSegments: string[], setClosure: (node: RouteNode) => void) {
+    addPathPropertyHelper(pathSegments: string[], setClosure: (node: RouteNode) => void): void {
         if (pathSegments.length == 0) {
             setClosure(this)
             return
@@ -167,31 +167,31 @@ export class Router {
         this.#server_error_handler = server_error_handler
     }
 
-    static jsonResponse(data: any) {
+    static jsonResponse(data: any): Response {
         const response = new Response(JSON.stringify(data),{status:200})
         response.headers.set("content-type", "text/json; charset=utf-8")
         return response
     }
 
-    get(path: string, handler: Handler) {
+    get(path: string, handler: Handler): void {
         this.get_routes.addPathHandler(pathSegmentsFromPath(path), handler)
     }
-    head(path: string, handler: Handler) {
+    head(path: string, handler: Handler): void {
         this.head_routes.addPathHandler(pathSegmentsFromPath(path), handler)
     }
-    post(path: string, handler: Handler) {
+    post(path: string, handler: Handler): void {
         this.post_routes.addPathHandler(pathSegmentsFromPath(path), handler)
     }
-    addGetInspector(path: string, inspector: Inspector) {
+    addGetInspector(path: string, inspector: Inspector): void {
         this.get_routes.addPathInspector(pathSegmentsFromPath(path), inspector)
     }
-    addHeadInspector(path: string, inspector: Inspector) {
+    addHeadInspector(path: string, inspector: Inspector): void {
         this.head_routes.addPathInspector(pathSegmentsFromPath(path), inspector)
     }
-    addPostInspector(path: string, inspector: Inspector) {
+    addPostInspector(path: string, inspector: Inspector): void {
         this.post_routes.addPathInspector(pathSegmentsFromPath(path), inspector)
     }
-    addAllInspector(path: string, inspector: Inspector) {
+    addAllInspector(path: string, inspector: Inspector): void {
         this.addGetInspector(path,inspector)
         this.addHeadInspector(path,inspector)
         this.addPostInspector(path,inspector)
@@ -267,7 +267,7 @@ export class Router {
         }
     }
 
-    mountFiles(mountDir: string, targetDir: string) {
+    mountFiles(mountDir: string, targetDir: string): void {
         console.log(`Mounting target dir: ${targetDir} to mount: ${mountDir}`)
         for (const dirEntry of Deno.readDirSync(targetDir)) {
             if (dirEntry.isFile) {
@@ -279,7 +279,7 @@ export class Router {
             }
         }
     }
-    async mountMemoizedFiles(mountDir: string, targetDir: string) {
+    async mountMemoizedFiles(mountDir: string, targetDir: string): Promise<void> {
         console.log(`Mounting memoized target dir: ${targetDir} to mount: ${mountDir}`)
         for (const dirEntry of Deno.readDirSync(targetDir)) {
             if (dirEntry.isFile) {

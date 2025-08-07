@@ -1,4 +1,3 @@
-/// <reference types="./index.d.ts"/>
 /// <reference lib="deno.ns" />
 
 import {Mode} from "./mode.ts"

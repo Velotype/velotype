@@ -10,9 +10,12 @@ import type { AnchorElement, BasicTypes, ChildrenTypes } from "../tsx/tsx-core.t
  * \<tag attrOne={} attrTwo={}>{children}\</tag>
  */
 export function jsx(tag: any, attrs: any, key?: string | undefined): ChildrenTypes[] | AnchorElement | BasicTypes {
+    // Pull children out of attrs
     const children = attrs.children
     delete attrs.children
-    if (key) {
+
+    // Reattach key into attrs if defined
+    if (key !== undefined) {
         attrs.key = key
     }
     return h(tag, attrs, children)
@@ -31,9 +34,13 @@ export const jsxs: (tag: any, attrs: any, key?: string | undefined) => ChildrenT
  */
 export const Fragment: (_attrs: Readonly<any>, ...children: ChildrenTypes[]) => ChildrenTypes[] = f
 
-// Note: this is a test,.. don't think it works properly just yet
-export declare namespace JSX {
-    export interface IntrinsicElements {
-        [tag: string]: any
-    }
-}
+// Note: this is a test,.. not sure if this variation will work properly just yet
+import type { JSXInternal } from "../tsx/jsx-types.d.ts"
+export type { JSXInternal as JSX }
+
+// Note: this variation does work
+//export declare namespace JSX {
+//    export interface IntrinsicElements {
+//        [tag: string]: any
+//    }
+//}

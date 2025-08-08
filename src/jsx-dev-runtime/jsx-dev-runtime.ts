@@ -32,9 +32,13 @@ export function jsxDEV(tag: any, attrs: any, key: string | undefined, _isStaticC
  */
 export const Fragment: (_attrs: Readonly<any>, ...children: ChildrenTypes[]) => ChildrenTypes[] = f
 
-// Note: this is a test,.. don't think it works properly just yet
-export declare namespace JSX {
-    export interface IntrinsicElements {
-        [tag: string]: any
-    }
-}
+// Note: this is a test,.. not sure if this variation will work properly just yet
+import type { JSXInternal } from "../tsx/jsx-types.d.ts"
+export type { JSXInternal as JSX }
+
+// Note: this variation does work
+//export declare namespace JSX {
+//    export interface IntrinsicElements {
+//        [tag: string]: any
+//    }
+//}

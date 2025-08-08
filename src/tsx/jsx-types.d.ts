@@ -47,11 +47,8 @@ export namespace JSXInternal {
     type TargetedWheelEvent<Target extends EventTarget> = TargetedEvent<Target, WheelEvent>
     type TargetedPictureInPictureEvent<Target extends EventTarget> = TargetedEvent<Target, PictureInPictureEvent>
 
-    // XXX TODO - figure out what this bivariance hack is
-    /*export type EventHandler<E extends TargetedEvent> = {
-        bivarianceHack(event: E): void
-    }['bivarianceHack']*/
-    type EventHandler<E extends TargetedEvent> = (event: E) => void
+    type EventHandlerOptions<E extends TargetedEvent> = {handler: (event: E) => void, options: AddEventListenerOptions | boolean}
+    type EventHandler<E extends TargetedEvent> = ((event: E) => void) | EventHandlerOptions<E>
 
     type AnimationEventHandler<Target extends EventTarget> = EventHandler<TargetedAnimationEvent<Target>>
     type ClipboardEventHandler<Target extends EventTarget> = EventHandler<TargetedClipboardEvent<Target>>

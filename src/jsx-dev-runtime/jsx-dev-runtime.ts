@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 
-import { h, f } from "../tsx/tsx-core.ts"
+import { createElement, createFragment } from "../tsx/tsx-core.ts"
 
 import type { AnchorElement, BasicTypes, ChildrenTypes, ChildTypes } from "../tsx/tsx-core.ts"
 export type { AnchorElement, BasicTypes, ChildrenTypes, ChildTypes }
@@ -16,7 +16,7 @@ type Source = {
  * 
  * \<tag attrOne={} attrTwo={}>{children}\</tag>
  */
-export function jsxDEV(tag: any, attrs: any, key: string | undefined, _isStaticChildren: boolean, _source: Source, _this: any): ChildrenTypes[] | AnchorElement | BasicTypes {
+export function jsxDEV(tag: any, attrs: any, key: string | undefined, _isStaticChildren: boolean, _source: Source, _parentThis: any): ChildrenTypes[] | AnchorElement | BasicTypes {
     // Pull children out of attrs
     const children = attrs.children
     delete attrs.children
@@ -25,14 +25,14 @@ export function jsxDEV(tag: any, attrs: any, key: string | undefined, _isStaticC
     if (key !== undefined) {
         attrs.key = key
     }
-    return h(tag, attrs, children)
+    return createElement(tag, attrs, children)
 }
 
 /**
  * Create an fragment \<></> (which just propagates an array of children[])
  */
-export const Fragment: (_attrs: Readonly<any>, ...children: ChildrenTypes[]) => ChildrenTypes[] = f
+export const Fragment: (_attrs: Readonly<any>, ...children: ChildrenTypes[]) => ChildrenTypes[] = createFragment
 
 // Export the JSX namespace for JSX type checking
-import type { JSXInternal } from "../tsx/jsx-types.d.ts"
+import type { JSXInternal } from "../jsx-types/jsx-types.d.ts"
 export type { JSXInternal as JSX }

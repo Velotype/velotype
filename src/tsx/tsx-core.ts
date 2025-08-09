@@ -2,8 +2,10 @@
 
 /**
  * Implementation TODOs:
- * - Finish cleanup jsx-types.d.ts
+ * - Finish cleanup and symbol documentation of jsx-types.d.ts
  * - Set up deno publish CI https://jsr.io/docs/trust
+ * - Add test framework
+ * - Consider making CSSProperties more specific
  * 
  * Categories of support TODOs:
  * - Support DevTools
@@ -14,15 +16,14 @@
  * ---- https://github.com/preactjs/preact/blob/main/jsx-runtime/src/index.js#L185-L187
  * - Support react-jsx transform
  * ---- Use Source and this in jsxDEV in jsx-dev-runtime
- * - Support react transform
- * ---- If there is a way to export h.JSX.IntrinsicElements here without a full copy
- * ---- of jsx-types.d.ts then the react transform can be supported
  * 
  * Ecosystem TODOs:
  * - Pass web components tests:
  * ---- Similar to:https://preactjs.com/guide/v10/web-components/
  * ---- Test https://custom-elements-everywhere.com/
- * ---- Check event type case sensitivity (TODO marked below)
+ * ---- Check event type case sensitivity (TODO marked below in the code)
+ * ---- See: https://preactjs.com/guide/v10/web-components/#triggering-custom-events
+ * ---- And: https://github.com/preactjs/preact/blob/main/src/diff/props.js#L71
  * - Pass performance tests:
  * ---- https://github.com/krausest/js-framework-benchmark
  * 
@@ -281,6 +282,8 @@ function renderableElementToElement(child: RenderableElements): AnchorElement {
             }
         }
     }
+    // If TypeScript is working properly this case should never be hit since
+    // we checked all of the case types above
     consoleError("Internal typescript error")
     return hiddenElement()
 }
@@ -1326,29 +1329,12 @@ export function createElement(tag: Type<Component<any, any>> | FunctionComponent
     return hiddenElement()
 }
 
-/** Short style tsx createElement */
-export const h:
-    | ((tag: "div", attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLDivElement)
-    | ((tag: string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLElement)
-    | ((tag: Type<Component<any,Component<any,any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLElement)
-    | ((tag: Type<Component<any,RenderObject<any, any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLElement)
-    | ((tag: Type<Component<any,RenderObject<any, never>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLElement)
-    | ((tag: Type<Component<any,HTMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLElement)
-    | ((tag: Type<Component<any,SVGSVGElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => SVGSVGElement)
-    | ((tag: Type<Component<any,MathMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => MathMLElement)
-    | ((tag: FunctionComponent<any>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => ChildrenTypes[] | AnchorElement | BasicTypes)
-    | ((tag: Type<Component<any,any>> | FunctionComponent<any> | string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => ChildrenTypes[] | AnchorElement | BasicTypes)
-    = createElement
-
 /**
  * Create an fragment \<></> (which just propagates an array of children[])
  */
-function createFragment(_attrs: Readonly<any>, ...children:  ChildrenTypes[]): ChildrenTypes[] {
+export function createFragment(_attrs: Readonly<any>, ...children:  ChildrenTypes[]): ChildrenTypes[] {
     return children
 }
-
-/** Short style tsx createFragment */
-export const f: (_attrs: Readonly<any>, ...children: ChildrenTypes[]) => ChildrenTypes[] = createFragment
 
 /**
  * Get the js class object of a constructed Component

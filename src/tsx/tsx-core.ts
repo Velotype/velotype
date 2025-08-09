@@ -2,10 +2,9 @@
 
 /**
  * Implementation TODOs:
- * - Allow RenderBasic<> to be set as attribute values
- * - Make attrs a more specific type than any
+ * - Finish cleanup jsx-types.d.ts
  * 
- * Categories of support:
+ * Categories of support TODOs:
  * - Support DevTools
  * - Support HMR
  * - Support SSR
@@ -22,7 +21,7 @@
  * - Pass web components tests:
  * ---- Similar to:https://preactjs.com/guide/v10/web-components/
  * ---- Test https://custom-elements-everywhere.com/
- * ---- Check event type case sensitivity
+ * ---- Check event type case sensitivity (TODO marked below)
  * - Pass performance tests:
  * ---- https://github.com/krausest/js-framework-benchmark
  * 

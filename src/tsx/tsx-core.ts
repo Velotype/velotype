@@ -428,6 +428,13 @@ export class UpdateHandlerLink<UpdateRefsType> {
 export type RenderObjectHandleUpdateType<DataType, UpdateRefsType> = (element: AnchorElement, updateRefs: UpdateRefsType, oldData: DataType, newData: DataType) => void
 
 /**
+ * Type for a renderFunction in a RenderObject
+ * 
+ * (currently only supports rendering to HTMLElements for RenderObjectArray)
+ */
+export type RenderObjectRenderFunctionType<DataType, UpdateRefsType> = (data: DataType, renderObject?: RenderObject<DataType, UpdateRefsType>) => HTMLElement | UpdateHandlerLink<UpdateRefsType>
+
+/**
  * An RenderObject is an efficient way of rendering Objects to potentially multiple HTMLElements
  * changes to the value of the underlying Data Object will propogate to all attached elements.
  * 
@@ -436,7 +443,7 @@ export type RenderObjectHandleUpdateType<DataType, UpdateRefsType> = (element: A
  */
 export class RenderObject<DataType, UpdateRefsType = never> implements MultiRenderable, HasVtKey, Mountable {
     #data: DataType
-    #renderFunction: ((data: DataType) => AnchorElement | UpdateHandlerLink<UpdateRefsType>) | ((data: DataType, renderObject: RenderObject<DataType, UpdateRefsType>) => AnchorElement | UpdateHandlerLink<UpdateRefsType>)
+    #renderFunction: RenderObjectRenderFunctionType<DataType, UpdateRefsType>
     readonly #elements = new Map<string, AnchorElement>()
     readonly #updateRefs = new Map<string, UpdateRefsType>()
     #handleUpdate?: RenderObjectHandleUpdateType<DataType, UpdateRefsType>
@@ -461,7 +468,7 @@ export class RenderObject<DataType, UpdateRefsType = never> implements MultiRend
      * @param handleUpdate advanced functionality used to highly optimize rendering on value updates
      */
     constructor(initialData: DataType,
-        renderFunction: ((data: DataType) => AnchorElement | UpdateHandlerLink<UpdateRefsType>) | ((data: DataType, renderObject: RenderObject<DataType, UpdateRefsType>) => AnchorElement | UpdateHandlerLink<UpdateRefsType>),
+        renderFunction: RenderObjectRenderFunctionType<DataType, UpdateRefsType>,
         handleUpdate?: RenderObjectHandleUpdateType<DataType, UpdateRefsType>
     ) {
         this.#data = initialData
@@ -1398,12 +1405,6 @@ export function appendRootComponentTo(rootComponent: AnchorElement, elementId: s
 }
 
 /**
- * Type for a renderFunction in a RenderObjectArray
- * 
- * (currently only supports rendering to HTMLElements for RenderObjectArray)
- */
-export type RenderObjectArrayRenderFunctionType<DataType, UpdateRefsType> = ((data: DataType) => HTMLElement | UpdateHandlerLink<UpdateRefsType>) | ((data: DataType, renderObject: RenderObject<DataType, UpdateRefsType>) => HTMLElement | UpdateHandlerLink<UpdateRefsType>)
-/**
  * Parameters used on RenderObjectArray construction
  * 
  * @wrapperElementTag the HTML tag to use for the wrapper element (defaults to a \<div/> tag)
@@ -1414,7 +1415,7 @@ export type RenderObjectArrayRenderFunctionType<DataType, UpdateRefsType> = ((da
 export type RenderObjectArrayOptions<DataType, UpdateRefsType> = {
     wrapperElementTag?: string,
     wrapperAttrs?: any,
-    renderFunction: RenderObjectArrayRenderFunctionType<DataType, UpdateRefsType>,
+    renderFunction: RenderObjectRenderFunctionType<DataType, UpdateRefsType>,
     handleUpdate?: RenderObjectHandleUpdateType<DataType, UpdateRefsType>
 }
 /**
@@ -1425,7 +1426,7 @@ export type RenderObjectArrayOptions<DataType, UpdateRefsType> = {
  * @template UpdateRefsType An advanced capability of RenderObjectArray to more efficiently rerender instance elements
  */
 export class RenderObjectArray<DataType, UpdateRefsType = never> extends RenderObject<RenderObject<DataType, UpdateRefsType>[]> {
-    #renderFunction: RenderObjectArrayRenderFunctionType<DataType, UpdateRefsType>
+    #renderFunction: RenderObjectRenderFunctionType<DataType, UpdateRefsType>
     #handleUpdate?: RenderObjectHandleUpdateType<DataType, UpdateRefsType>
     /**
      * Create a new RenderObjectArray

@@ -4,7 +4,7 @@
 // it is a placeholder for when I can figure out how to
 // export import JSX.IntrinsicElements
 
-import type {CSSProperties, Component, FunctionComponent} from "./tsx-core.ts"
+import type {CSSProperties, ChildrenAttr, Component, FunctionComponent} from "./tsx-core.ts"
 
 /** [MDN Reference](https://developer.mozilla.org/en-US/docs/Web/API/CommandEvent) */
 interface CommandEvent extends Event {
@@ -1314,120 +1314,136 @@ export namespace JSXInternal {
      * \<tag {attrs}/>
      */
     export interface IntrinsicElements {
-        a: AnchorHTMLAttributes<HTMLAnchorElement>
-        abbr: HTMLAttributes<HTMLElement>
-        address: HTMLAttributes<HTMLElement>
-        area: AreaHTMLAttributes<HTMLAreaElement>
-        article: ArticleHTMLAttributes<HTMLElement>
-        aside: AsideHTMLAttributes<HTMLElement>
-        audio: AudioHTMLAttributes<HTMLAudioElement>
-        b: HTMLAttributes<HTMLElement>
-        base: BaseHTMLAttributes<HTMLBaseElement>
-        bdi: HTMLAttributes<HTMLElement>
-        bdo: HTMLAttributes<HTMLElement>
-        big: HTMLAttributes<HTMLElement>
-        blockquote: BlockquoteHTMLAttributes<HTMLQuoteElement>
-        body: HTMLAttributes<HTMLBodyElement>
-        br: BrHTMLAttributes<HTMLBRElement>
-        button: ButtonHTMLAttributes<HTMLButtonElement>
-        canvas: CanvasHTMLAttributes<HTMLCanvasElement>
-        caption: CaptionHTMLAttributes<HTMLTableCaptionElement>
-        cite: HTMLAttributes<HTMLElement>
-        code: HTMLAttributes<HTMLElement>
-        col: ColHTMLAttributes<HTMLTableColElement>
-        colgroup: ColgroupHTMLAttributes<HTMLTableColElement>
-        data: DataHTMLAttributes<HTMLDataElement>
-        datalist: DataListHTMLAttributes<HTMLDataListElement>
-        dd: DdHTMLAttributes<HTMLElement>
-        del: DelHTMLAttributes<HTMLModElement>
-        details: DetailsHTMLAttributes<HTMLDetailsElement>
-        dfn: HTMLAttributes<HTMLElement>
-        dialog: DialogHTMLAttributes<HTMLDialogElement>
-        div: HTMLAttributes<HTMLDivElement>
-        dl: DlHTMLAttributes<HTMLDListElement>
-        dt: DtHTMLAttributes<HTMLElement>
-        em: HTMLAttributes<HTMLElement>
-        embed: EmbedHTMLAttributes<HTMLEmbedElement>
-        fieldset: FieldsetHTMLAttributes<HTMLFieldSetElement>
-        figcaption: FigcaptionHTMLAttributes<HTMLElement>
-        figure: HTMLAttributes<HTMLElement>
-        footer: FooterHTMLAttributes<HTMLElement>
-        form: FormHTMLAttributes<HTMLFormElement>
-        h1: HeadingHTMLAttributes<HTMLHeadingElement>
-        h2: HeadingHTMLAttributes<HTMLHeadingElement>
-        h3: HeadingHTMLAttributes<HTMLHeadingElement>
-        h4: HeadingHTMLAttributes<HTMLHeadingElement>
-        h5: HeadingHTMLAttributes<HTMLHeadingElement>
-        h6: HeadingHTMLAttributes<HTMLHeadingElement>
-        head: HeadHTMLAttributes<HTMLHeadElement>
-        header: HeaderHTMLAttributes<HTMLElement>
-        hgroup: HTMLAttributes<HTMLElement>
-        hr: HrHTMLAttributes<HTMLHRElement>
-        html: HtmlHTMLAttributes<HTMLHtmlElement>
-        i: HTMLAttributes<HTMLElement>
-        iframe: IframeHTMLAttributes<HTMLIFrameElement>
-        img: ImgHTMLAttributes<HTMLImageElement>
-        input: InputHTMLAttributes<HTMLInputElement>
-        ins: InsHTMLAttributes<HTMLModElement>
-        kbd: HTMLAttributes<HTMLElement>
-        keygen: KeygenHTMLAttributes<HTMLUnknownElement>
-        label: LabelHTMLAttributes<HTMLLabelElement>
-        legend: LegendHTMLAttributes<HTMLLegendElement>
-        li: LiHTMLAttributes<HTMLLIElement>
-        link: LinkHTMLAttributes<HTMLLinkElement>
-        main: MainHTMLAttributes<HTMLElement>
-        map: MapHTMLAttributes<HTMLMapElement>
-        mark: HTMLAttributes<HTMLElement>
-        menu: MenuHTMLAttributes<HTMLMenuElement>
-        menuitem: HTMLAttributes<HTMLUnknownElement>
-        meta: MetaHTMLAttributes<HTMLMetaElement>
-        meter: MeterHTMLAttributes<HTMLMeterElement>
-        nav: NavHTMLAttributes<HTMLElement>
-        noscript: NoScriptHTMLAttributes<HTMLElement>
-        object: ObjectHTMLAttributes<HTMLObjectElement>
-        ol: OlHTMLAttributes<HTMLOListElement>
-        optgroup: OptgroupHTMLAttributes<HTMLOptGroupElement>
-        option: OptionHTMLAttributes<HTMLOptionElement>
-        output: OutputHTMLAttributes<HTMLOutputElement>
-        p: HTMLAttributes<HTMLParagraphElement>
-        picture: PictureHTMLAttributes<HTMLPictureElement>
-        pre: HTMLAttributes<HTMLPreElement>
-        progress: ProgressHTMLAttributes<HTMLProgressElement>
-        q: QuoteHTMLAttributes<HTMLQuoteElement>
-        rp: HTMLAttributes<HTMLElement>
-        rt: HTMLAttributes<HTMLElement>
-        ruby: HTMLAttributes<HTMLElement> // XXX TODO ?
-        s: HTMLAttributes<HTMLElement>
-        samp: HTMLAttributes<HTMLElement>
-        script: ScriptHTMLAttributes<HTMLScriptElement>
-        search: SearchHTMLAttributes<HTMLElement>
-        section: HTMLAttributes<HTMLElement>
-        select: SelectHTMLAttributes<HTMLSelectElement>
-        slot: SlotHTMLAttributes<HTMLSlotElement>
-        small: HTMLAttributes<HTMLElement>
-        source: SourceHTMLAttributes<HTMLSourceElement>
-        span: HTMLAttributes<HTMLSpanElement>
-        strong: HTMLAttributes<HTMLElement>
-        style: StyleHTMLAttributes<HTMLStyleElement>
-        sub: HTMLAttributes<HTMLElement>
-        summary: HTMLAttributes<HTMLElement>
-        sup: HTMLAttributes<HTMLElement>
-        table: TableHTMLAttributes<HTMLTableElement>
-        tbody: HTMLAttributes<HTMLTableSectionElement>
-        td: TdHTMLAttributes<HTMLTableCellElement>
-        template: TemplateHTMLAttributes<HTMLTemplateElement>
-        textarea: TextareaHTMLAttributes<HTMLTextAreaElement>
-        tfoot: HTMLAttributes<HTMLTableSectionElement>
-        th: ThHTMLAttributes<HTMLTableCellElement>
-        thead: HTMLAttributes<HTMLTableSectionElement>
-        time: TimeHTMLAttributes<HTMLTimeElement>
-        title: TitleHTMLAttributes<HTMLTitleElement>
-        tr: HTMLAttributes<HTMLTableRowElement>
-        track: TrackHTMLAttributes<HTMLTrackElement>
-        u: UlHTMLAttributes<HTMLElement>
-        ul: HTMLAttributes<HTMLUListElement>
-        var: HTMLAttributes<HTMLElement>
-        video: VideoHTMLAttributes<HTMLVideoElement>
-        wbr: WbrHTMLAttributes<HTMLElement>
+        a: AnchorHTMLAttributes<HTMLAnchorElement> & ChildrenAttr
+        abbr: HTMLAttributes<HTMLElement> & ChildrenAttr
+        address: HTMLAttributes<HTMLElement> & ChildrenAttr
+        area: AreaHTMLAttributes<HTMLAreaElement> // void element (no children allowed)
+        article: ArticleHTMLAttributes<HTMLElement> & ChildrenAttr
+        aside: AsideHTMLAttributes<HTMLElement> & ChildrenAttr
+        audio: AudioHTMLAttributes<HTMLAudioElement> & ChildrenAttr
+        b: HTMLAttributes<HTMLElement> & ChildrenAttr
+        base: BaseHTMLAttributes<HTMLBaseElement> // void element (no children allowed)
+        bdi: HTMLAttributes<HTMLElement> & ChildrenAttr
+        bdo: HTMLAttributes<HTMLElement> & ChildrenAttr
+        // big is deprecated
+        blockquote: BlockquoteHTMLAttributes<HTMLQuoteElement> & ChildrenAttr
+        body: HTMLAttributes<HTMLBodyElement> & ChildrenAttr
+        br: BrHTMLAttributes<HTMLBRElement> // void element (no children allowed)
+        button: ButtonHTMLAttributes<HTMLButtonElement> & ChildrenAttr
+        canvas: CanvasHTMLAttributes<HTMLCanvasElement> & ChildrenAttr
+        caption: CaptionHTMLAttributes<HTMLTableCaptionElement> & ChildrenAttr
+        cite: HTMLAttributes<HTMLElement> & ChildrenAttr
+        code: HTMLAttributes<HTMLElement> & ChildrenAttr
+        col: ColHTMLAttributes<HTMLTableColElement> // void element (no children allowed)
+        colgroup: ColgroupHTMLAttributes<HTMLTableColElement> & ChildrenAttr
+        data: DataHTMLAttributes<HTMLDataElement> & ChildrenAttr
+        datalist: DataListHTMLAttributes<HTMLDataListElement> & ChildrenAttr
+        dd: DdHTMLAttributes<HTMLElement> & ChildrenAttr
+        del: DelHTMLAttributes<HTMLModElement> & ChildrenAttr
+        details: DetailsHTMLAttributes<HTMLDetailsElement> & ChildrenAttr
+        dfn: HTMLAttributes<HTMLElement> & ChildrenAttr
+        dialog: DialogHTMLAttributes<HTMLDialogElement> & ChildrenAttr
+        // dir is deprecated
+        div: HTMLAttributes<HTMLDivElement> & ChildrenAttr
+        dl: DlHTMLAttributes<HTMLDListElement> & ChildrenAttr
+        dt: DtHTMLAttributes<HTMLElement> & ChildrenAttr
+        em: HTMLAttributes<HTMLElement> & ChildrenAttr
+        embed: EmbedHTMLAttributes<HTMLEmbedElement> // void element (no children allowed)
+        fieldset: FieldsetHTMLAttributes<HTMLFieldSetElement> & ChildrenAttr
+        figcaption: FigcaptionHTMLAttributes<HTMLElement> & ChildrenAttr
+        figure: HTMLAttributes<HTMLElement> & ChildrenAttr
+        // font is deprecated
+        footer: FooterHTMLAttributes<HTMLElement> & ChildrenAttr
+        form: FormHTMLAttributes<HTMLFormElement> & ChildrenAttr
+        // frame is deprecated
+        // frameset is deprecated
+        h1: HeadingHTMLAttributes<HTMLHeadingElement> & ChildrenAttr
+        h2: HeadingHTMLAttributes<HTMLHeadingElement> & ChildrenAttr
+        h3: HeadingHTMLAttributes<HTMLHeadingElement> & ChildrenAttr
+        h4: HeadingHTMLAttributes<HTMLHeadingElement> & ChildrenAttr
+        h5: HeadingHTMLAttributes<HTMLHeadingElement> & ChildrenAttr
+        h6: HeadingHTMLAttributes<HTMLHeadingElement> & ChildrenAttr
+        head: HeadHTMLAttributes<HTMLHeadElement> & ChildrenAttr
+        header: HeaderHTMLAttributes<HTMLElement> & ChildrenAttr
+        hgroup: HTMLAttributes<HTMLElement> & ChildrenAttr
+        hr: HrHTMLAttributes<HTMLHRElement> // void element (no children allowed)
+        html: HtmlHTMLAttributes<HTMLHtmlElement> & ChildrenAttr
+        i: HTMLAttributes<HTMLElement> & ChildrenAttr
+        iframe: IframeHTMLAttributes<HTMLIFrameElement> & ChildrenAttr
+        img: ImgHTMLAttributes<HTMLImageElement> // void element (no children allowed)
+        input: InputHTMLAttributes<HTMLInputElement> // void element (no children allowed)
+        ins: InsHTMLAttributes<HTMLModElement> & ChildrenAttr
+        kbd: HTMLAttributes<HTMLElement> & ChildrenAttr
+        keygen: KeygenHTMLAttributes<HTMLUnknownElement> & ChildrenAttr
+        label: LabelHTMLAttributes<HTMLLabelElement> & ChildrenAttr
+        legend: LegendHTMLAttributes<HTMLLegendElement> & ChildrenAttr
+        li: LiHTMLAttributes<HTMLLIElement> & ChildrenAttr
+        link: LinkHTMLAttributes<HTMLLinkElement> // void element (no children allowed)
+        main: MainHTMLAttributes<HTMLElement> & ChildrenAttr
+        map: MapHTMLAttributes<HTMLMapElement> & ChildrenAttr
+        mark: HTMLAttributes<HTMLElement> & ChildrenAttr
+        // marquee is deprecated
+        menu: MenuHTMLAttributes<HTMLMenuElement> & ChildrenAttr
+        menuitem: HTMLAttributes<HTMLUnknownElement> & ChildrenAttr
+        meta: MetaHTMLAttributes<HTMLMetaElement> // void element (no children allowed)
+        meter: MeterHTMLAttributes<HTMLMeterElement> & ChildrenAttr
+        nav: NavHTMLAttributes<HTMLElement> & ChildrenAttr
+        // nobr is deprecated
+        // noembed is deprecated
+        // noiframe is deprecated
+        noscript: NoScriptHTMLAttributes<HTMLElement> & ChildrenAttr
+        object: ObjectHTMLAttributes<HTMLObjectElement> & ChildrenAttr
+        ol: OlHTMLAttributes<HTMLOListElement> & ChildrenAttr
+        optgroup: OptgroupHTMLAttributes<HTMLOptGroupElement> & ChildrenAttr
+        option: OptionHTMLAttributes<HTMLOptionElement> & ChildrenAttr
+        output: OutputHTMLAttributes<HTMLOutputElement> & ChildrenAttr
+        p: HTMLAttributes<HTMLParagraphElement> & ChildrenAttr
+        // param is deprecated
+        picture: PictureHTMLAttributes<HTMLPictureElement> & ChildrenAttr
+        // plaintext is deprecated
+        pre: HTMLAttributes<HTMLPreElement> & ChildrenAttr
+        progress: ProgressHTMLAttributes<HTMLProgressElement> & ChildrenAttr
+        q: QuoteHTMLAttributes<HTMLQuoteElement> & ChildrenAttr
+        // rp is deprecated
+        rp: HTMLAttributes<HTMLElement> & ChildrenAttr
+        rt: HTMLAttributes<HTMLElement> & ChildrenAttr
+        // rtc is deprecated
+        ruby: HTMLAttributes<HTMLElement> & ChildrenAttr
+        s: HTMLAttributes<HTMLElement> & ChildrenAttr
+        samp: HTMLAttributes<HTMLElement> & ChildrenAttr
+        script: ScriptHTMLAttributes<HTMLScriptElement> & ChildrenAttr
+        search: SearchHTMLAttributes<HTMLElement> & ChildrenAttr
+        section: HTMLAttributes<HTMLElement> & ChildrenAttr
+        select: SelectHTMLAttributes<HTMLSelectElement> & ChildrenAttr
+        // selectedcontent has limited availability - TODO, implement: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/selectedcontent
+        slot: SlotHTMLAttributes<HTMLSlotElement> & ChildrenAttr
+        small: HTMLAttributes<HTMLElement> & ChildrenAttr
+        source: SourceHTMLAttributes<HTMLSourceElement> // void element (no children allowed)
+        span: HTMLAttributes<HTMLSpanElement> & ChildrenAttr
+        // strike is deprecated
+        strong: HTMLAttributes<HTMLElement> & ChildrenAttr
+        style: StyleHTMLAttributes<HTMLStyleElement> & ChildrenAttr
+        sub: HTMLAttributes<HTMLElement> & ChildrenAttr
+        summary: HTMLAttributes<HTMLElement> & ChildrenAttr
+        sup: HTMLAttributes<HTMLElement> & ChildrenAttr
+        table: TableHTMLAttributes<HTMLTableElement> & ChildrenAttr
+        tbody: HTMLAttributes<HTMLTableSectionElement> & ChildrenAttr
+        td: TdHTMLAttributes<HTMLTableCellElement> & ChildrenAttr
+        template: TemplateHTMLAttributes<HTMLTemplateElement> & ChildrenAttr
+        textarea: TextareaHTMLAttributes<HTMLTextAreaElement> & ChildrenAttr
+        tfoot: HTMLAttributes<HTMLTableSectionElement> & ChildrenAttr
+        th: ThHTMLAttributes<HTMLTableCellElement> & ChildrenAttr
+        thead: HTMLAttributes<HTMLTableSectionElement> & ChildrenAttr
+        time: TimeHTMLAttributes<HTMLTimeElement> & ChildrenAttr
+        title: TitleHTMLAttributes<HTMLTitleElement> & ChildrenAttr
+        tr: HTMLAttributes<HTMLTableRowElement> & ChildrenAttr
+        track: TrackHTMLAttributes<HTMLTrackElement> // void element (no children allowed)
+        // tt is deprecated
+        u: UlHTMLAttributes<HTMLElement> & ChildrenAttr
+        ul: HTMLAttributes<HTMLUListElement> & ChildrenAttr
+        var: HTMLAttributes<HTMLElement> & ChildrenAttr
+        video: VideoHTMLAttributes<HTMLVideoElement> & ChildrenAttr
+        wbr: WbrHTMLAttributes<HTMLElement> // void element (no children allowed)
+        // xmp is deprecated
     }
 }

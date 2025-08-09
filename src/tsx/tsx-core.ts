@@ -38,7 +38,7 @@ export type AnchorElement = HTMLElement | SVGSVGElement | MathMLElement
 export type BasicTypes = string | bigint | number | boolean
 
 /** These are things that can be returned from Component.render() */
-export type RenderableElements = AnchorElement | Component<any,any> | RenderObject<any, any> | RenderBasic<any>
+export type RenderableElements = AnchorElement | Component<any,any> | RenderObject<any, any> | RenderBasic<any> | RenderObjectArray<any, any>
 
 /** Type used to represent a constructor function for a Class */
 export type TypeConstructor<T> = new (...args: any[]) => T
@@ -100,6 +100,10 @@ function instanceOfRenderObject(something: any): something is RenderObject<any, 
 /** Checks if something is an instanceof RenderBasic */
 function instanceOfRenderBasic(something: any): something is RenderBasic<any> {
     return something instanceof RenderBasic
+}
+/** Checks if something is an instanceof RenderBasic */
+function instanceOfRenderObjectArray(something: any): something is RenderObjectArray<any, any> {
+    return something instanceof RenderObjectArray
 }
 /** Checks if something is an instanceof Component */
 function instanceOfComponent(something: any): something is Component<any, any> {
@@ -347,8 +351,9 @@ function wrapElementIfNeeded(element: AnchorElement): AnchorElement
 function wrapElementIfNeeded(element: Component<any,any>): HTMLElement
 function wrapElementIfNeeded(element: RenderObject<any,any>): HTMLElement
 function wrapElementIfNeeded(element: RenderBasic<any>): HTMLElement
-function wrapElementIfNeeded(element: Component<any,any> | RenderObject<any,any> | RenderBasic<any>): HTMLElement
-function wrapElementIfNeeded(element: HTMLElement | Component<any,any> | RenderObject<any,any> | RenderBasic<any> | null | undefined): HTMLElement
+function wrapElementIfNeeded(element: RenderObjectArray<any,any>): HTMLElement
+function wrapElementIfNeeded(element: Component<any,any> | RenderObject<any,any> | RenderBasic<any> | RenderObjectArray<any,any>): HTMLElement
+function wrapElementIfNeeded(element: HTMLElement | Component<any,any> | RenderObject<any,any> | RenderBasic<any> | RenderObjectArray<any,any> | null | undefined): HTMLElement
 function wrapElementIfNeeded(element: RenderableElements | null | undefined): AnchorElement {
     // Check for falsey
     if (!element) {
@@ -356,7 +361,7 @@ function wrapElementIfNeeded(element: RenderableElements | null | undefined): An
     }
     // If a Component returns a Component or RenderObject as a result of render
     // then it needs to be wrapped in another HTMLElement for rendering to work properly
-    if (instanceOfComponent(element) || instanceOfRenderObject(element) || instanceOfRenderBasic(element) || element.hasAttribute(domKeyName)) {
+    if (instanceOfComponent(element) || instanceOfRenderObject(element) || instanceOfRenderBasic(element) || instanceOfRenderObjectArray(element) || element.hasAttribute(domKeyName)) {
         return createElement(divTag,displayContents,element) as HTMLDivElement
     }
     return element
@@ -1422,7 +1427,16 @@ export type RenderObjectArrayOptions<DataType, UpdateRefsType> = {
 export class RenderObjectArray<DataType, UpdateRefsType = never> extends RenderObject<RenderObject<DataType, UpdateRefsType>[]> {
     #renderFunction: RenderObjectArrayRenderFunctionType<DataType, UpdateRefsType>
     #handleUpdate?: RenderObjectHandleUpdateType<DataType, UpdateRefsType>
-    /** Create a new RenderObjectArray */
+    /**
+     * Create a new RenderObjectArray
+     * 
+     * Options parameters used on RenderObjectArray construction:
+     * 
+     * @wrapperElementTag the HTML tag to use for the wrapper element (defaults to a \<div/> tag)
+     * @wrapperAttrs attributes to set on the wrapper element
+     * @renderFunction the renderFunction to pass to the underlying RenderObject instances on each data point
+     * @handleUpdate advanced functionality used to more efficiently rerender instance elements
+     */
     constructor(options: RenderObjectArrayOptions<DataType, UpdateRefsType>) {
         super([], (data: RenderObject<DataType, UpdateRefsType>[]) => {
             const mainElement: HTMLElement = createElement(options.wrapperElementTag || divTag, displayContents) as HTMLElement

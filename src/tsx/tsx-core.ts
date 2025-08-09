@@ -3,6 +3,7 @@
 /**
  * Implementation TODOs:
  * - Finish cleanup jsx-types.d.ts
+ * - Set up deno publish CI https://jsr.io/docs/trust
  * 
  * Categories of support TODOs:
  * - Support DevTools
@@ -59,6 +60,8 @@ export type CSSProperties = {
 /** Type used to represent that no Attrs are accepted for a Component */
 export type EmptyAttrs = Record<string | number | symbol, never>
 
+/** Type used to represent that children are accepted */
+export type ChildrenAttr = { children: any[] }
 
 /** Regular console.log() - used for JS minification */
 const consoleLog = console.log

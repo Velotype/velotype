@@ -8,8 +8,11 @@ export type BasicTypes = string | bigint | number | boolean
 /** These are things that can be returned from Component.render() */
 export type RenderableElements = HTMLElement | Component<any,any>
 
+/** Type used to represent a constructor function for a Class */
+export type TypeConstructor<T> = new (...args: any[]) => T
+
 /** Type used to represent abstract Class passing */
-interface Type<T> extends Function { new (...args: any[]): T }
+export interface Type<T> extends TypeConstructor<T>{}
 
 /** Valid child objects of an Element */
 export type ChildTypes = BasicTypes | RenderableElements | null | undefined
@@ -28,17 +31,13 @@ function instanceOfBasicTypes(something: any): something is BasicTypes {
     return false
 }
 
-/** Convert from lowerCamelCase to hypen-case */
-function lowerCamelToHypenCase(text: string) {
-    return text.replace(/[A-Z]/g, function(char) {return "-"+char.toLowerCase()})
-}
-
 /** Map of DOM keys to Velotype Component references */
 const domReferences: Map<string, Component<any,any>> = new Map<string, Component<any,any>>()
 
 /** The next key to use for DOM bindings */
 let domNextKey: bigint = 1n
 
+/** Attribute name to use for DOM -> Component bindings */
 const domKeyName = "vk"
 
 /**
@@ -49,7 +48,7 @@ const domKeyName = "vk"
  */
 export const __vtAppMetadata = {
     // ------- For Velotype Core -------
-    /** Key name for DOM bindings, only changeable prior to mounting any Components */
+    /** Key name for DOM bindings */
     domKeyName: domKeyName,
     /** Map of DOM keys to Velotype Component references */
     domReferences: domReferences,

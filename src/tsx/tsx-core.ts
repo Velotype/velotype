@@ -2,22 +2,30 @@
 
 /**
  * Implementation TODOs:
- * 
- * - Support web components similar to: https://preactjs.com/guide/v10/web-components/
  * - Allow RenderBasic<> to be set as attribute values
- * - Create a DebugMode flag to enable a few optimizations (like not keeping styleSheetText up to date)
- * ---- Maybe identify this signal via usage of jsxDEV / jsx-dev-runtime ?
- * - Figure out a pattern for user-specified custom attributes
- * ---- https://www.typescriptlang.org/docs/handbook/jsx.html
- * ---- Note: If an attribute name is not a valid JS identifier (like a data-* attribute), it is not considered to be an error if it is not found in the element attributes type.
- * - Better understand https://jsr.io/go/banned-triple-slash-directives
  * - Make attrs a more specific type than any
- * - Test https://custom-elements-everywhere.com/
- * - Understand https://deno.com/blog/v1.38#fastest-jsx-transform
+ * 
+ * Categories of support:
+ * - Support DevTools
+ * - Support HMR
+ * - Support SSR
+ * - Support precompile transform
+ * ---- Understand https://deno.com/blog/v1.38#fastest-jsx-transform
  * ---- https://github.com/preactjs/preact/blob/main/jsx-runtime/src/index.js#L185-L187
- * - Use Source and this in jsxDEV in jsx-runtime
- * - Remove all "DO NOT CALL" methods
- * - If there is a way to export h.JSX.IntrinsicElements here without a full copy of jsx-types.d.ts then the react transform can be supported
+ * - Support react-jsx transform
+ * ---- Use Source and this in jsxDEV in jsx-dev-runtime
+ * - Support react transform
+ * ---- If there is a way to export h.JSX.IntrinsicElements here without a full copy
+ * ---- of jsx-types.d.ts then the react transform can be supported
+ * 
+ * Ecosystem TODOs:
+ * - Pass web components tests:
+ * ---- Similar to:https://preactjs.com/guide/v10/web-components/
+ * ---- Test https://custom-elements-everywhere.com/
+ * ---- Check event type case sensitivity
+ * - Pass performance tests:
+ * ---- https://github.com/krausest/js-framework-benchmark
+ * 
  */
 
 /**
@@ -99,9 +107,27 @@ function instanceOfBasicTypes(something: any): something is BasicTypes {
     return false
 }
 
-/** Call setAttribute() - used for JS minification */
-function setAttributeHelper(element: Element | SVGSVGElement | SVGPathElement, qualifiedName: string, value: string): void {
-    element.setAttribute(qualifiedName, value)
+function hasSetterInPrototypeChain(object: any, fieldName: string): boolean {
+    let currentObject = object
+    while (currentObject) {
+        const descriptor = Object.getOwnPropertyDescriptor(currentObject, fieldName)
+        if (descriptor && (descriptor.set || descriptor.writable)) {
+            return true // Setter found
+        }
+        currentObject = Object.getPrototypeOf(currentObject)
+    }
+    return false // No setter found in the prototype chain
+}
+
+/**
+ * Call either setAttribute() of a setter on element (if defined)
+ */
+function setAttributeHelper(element: Element | SVGSVGElement | SVGPathElement, qualifiedName: string, value: any): void {
+    if (hasSetterInPrototypeChain(element, qualifiedName)) {
+        ;(element as any)[qualifiedName] = value
+    } else {
+        element.setAttribute(qualifiedName, value.toString())
+    }
 }
 /** Call getAttribute() - used for JS minification */
 function getAttributeHelper(element: Element, qualifiedName: string): string | null {
@@ -137,12 +163,13 @@ const listenersF: Map<string, Map<string, EventListener>> = new Map<string,Map<s
 /** Velotype Event bus - Reverse map vtKey -> listeningKey -> listener */
 const listenersR: Map<string, Map<string, EventListener>> = new Map<string,Map<string,EventListener>>()
 
-/** String representing mounted CSS style content */
-let styleSheetText = ""
-
-type StyleSection = {
-    index: number
+/** Represents a mounted CSS StyleSheet object */
+export type StyleSection = {
+    /** Created CSSStyleSheet object that got mounted */
     sheet: CSSStyleSheet
+    /** Original CSS text used to create the sheet */
+    text: string
+    /** Unique key for this sheet */
     key: string
 }
 /** Map of style keys to ensure each style key is only mounted once */
@@ -168,8 +195,6 @@ export const __vtAppMetadata = {
     listenersR: listenersR,
 
     // ------- For Styles -------
-    /** String representing mounted CSS style content */
-    styleSheetText: styleSheetText,
     /** Map of style keys to ensure each style key is only mounted once */
     styleSectionMounted: styleSectionMounted,
 
@@ -244,7 +269,7 @@ function renderableElementToElement(child: RenderableElements): AnchorElement {
     if (instanceOfHTMLElement(child) || instanceOfSVGSVGElement(child) || instanceOfMathMLElement(child)) {
         return child
     } else if (instanceOfRenderObject(child)) {
-        return child.renderNew()
+        return child.__renderNew()
     } else if (instanceOfComponent(child)) {
         // Get InternalComponent reference from Component's vtKey
         const component = getDOMreference(child.vtKey)
@@ -264,7 +289,7 @@ function renderableElementToElement(child: RenderableElements): AnchorElement {
  * @param parent HTMLElement to append to
  * @param child Children to append
  */
-function appendChild(parent: HTMLElement, child: ChildrenTypes[] | ChildrenTypes): void {
+function appendChild(parent: HTMLElement | DocumentFragment, child: ChildrenTypes[] | ChildrenTypes): void {
     if (Array.isArray(child)) {
         for (let i = 0; i < child.length; i++) {
             appendChild(parent, child[i])
@@ -335,7 +360,7 @@ function wrapElementIfNeeded(element: RenderableElements | null | undefined): An
  * 
  * These are Velotype internal functions
  * 
- * DO NOT CALL directly (will be called by Velotype core)
+ * DO NOT CALL these methods directly (will be called by Velotype core)
  */
 export interface MultiRenderable {
     /**
@@ -345,7 +370,7 @@ export interface MultiRenderable {
      * 
      * Used to unmount an instance element of a MultiRenderable object
      */
-    unmountKey: (key: string) => void
+    __unmountKey: (key: string) => void
     /**
      * Velotype internal function
      * 
@@ -353,7 +378,7 @@ export interface MultiRenderable {
      * 
      * Used to generate new instance elements of a MultiRenderable object
      */
-    renderNew: () => void
+    __renderNew: () => void
 }
 /**
  * Represents a Component that is mountable / unmountable
@@ -566,7 +591,7 @@ export class RenderObject<DataType, UpdateRefsType = never> implements MultiRend
      * 
      * Used to unmount an instance element of this RenderObject
      */
-    unmountKey(key: string): boolean {
+    __unmountKey(key: string): boolean {
         const element = this.#elements.get(key)
         if (element) {
             const componentKey = getAttributeHelper(element, domKeyName)
@@ -576,7 +601,7 @@ export class RenderObject<DataType, UpdateRefsType = never> implements MultiRend
                 releaseVtKey(componentKey||"")
                 return true
             } else {
-                consoleError("Invalid state", key, componentKey)
+                consoleError("Invalid state", key, componentKey, element)
                 return false
             }
         } else {
@@ -591,7 +616,7 @@ export class RenderObject<DataType, UpdateRefsType = never> implements MultiRend
      * 
      * Used to generate new instance elements of this RenderObject
      */
-    renderNew(): AnchorElement {
+    __renderNew(): AnchorElement {
         const render = this.#renderFunction(this.#data, this)
         const newElement = wrapElementIfNeeded((instanceOfHTMLElement(render) || instanceOfSVGSVGElement(render) || instanceOfMathMLElement(render))?render:render.element)
         const componentKey = registerNewVtKey(this, newElement)
@@ -1077,7 +1102,7 @@ function unmountComponentElementHelper(component: InternalComponent | MultiRende
         component.r()
     } else {
         // component: MultiRenderable
-        component.unmountKey(key)
+        component.__unmountKey(key)
     }
 }
 /**
@@ -1140,14 +1165,23 @@ function setAttrsOnElement(element: AnchorElement, attrs?: Readonly<any> | null)
                     handler = value.handler
                     options = value.options
                 }
+                // TODO the toLowerCase() may be incorrect here (or require more nuance)
+                // See: https://github.com/preactjs/preact/blob/main/src/diff/props.js#L71
+                // and: https://github.com/webcomponents/custom-elements-everywhere/blob/main/libraries/preact/src/components.js#L201
                 element.addEventListener(name.toLowerCase().substring(2) as keyof HTMLElementEventMap, handler, options)
             }
         } else if (name == "style" && value instanceof Object) {
             // Special handling for style object
             for (const key of Object.keys(value)) {
                 const keyValue = value[key]
-                if (keyValue && keyValue.endsWith(" !important")) {
-                    element.style.setProperty(lowerCamelToHypenCase(key), keyValue.substring(0,keyValue.length - 11), "important")
+                if (keyValue && keyValue.endsWith("!important")) {
+                    // Important requires setProperty() call
+                    element.style.setProperty(lowerCamelToHypenCase(key), keyValue.substring(0,keyValue.length - 10), "important")
+                } else if (key[0] == '-') {
+                    // Support CSS properties that start with dash
+                    element.style.setProperty(key, keyValue == null ? "" : keyValue)
+                } else if (keyValue == null) {
+                    element.style[key as any] = ""
                 } else {
                     // Note: any is used here because "keyof typeof element.style" clashes with "length" and "parentRule" being readonly
                     element.style[key as any] = keyValue
@@ -1164,8 +1198,8 @@ function setAttrsOnElement(element: AnchorElement, attrs?: Readonly<any> | null)
         } else if (typeof value == "function") {
             // Avoid setting the attribute if the value is a function
         } else if (value) {
-            // Regular string-based attribute
-            setAttributeHelper(element, name, value.toString())
+            // Regular attribute
+            setAttributeHelper(element, name, value)
         }
     }
 }
@@ -1193,8 +1227,13 @@ export function createElement(tag: Type<Component<any,any>> | FunctionComponent<
         // Base HTML Element
         const element = document.createElement(tag)
         setAttrsOnElement(element, notNullAttrs)
-        // Append children
-        appendChild(element, children)
+        if (tag == "template") {
+            // Template elements' children get attached to the DocumentFragment content
+            appendChild((element as HTMLTemplateElement).content, children)
+        } else {
+            // Append children to the element
+            appendChild(element, children)
+        }
         return element
     } else if (instanceOfComponent(tag.prototype)) {
         // Create and register Component
@@ -1665,18 +1704,17 @@ export function setStylesheet(sheetText: string, sheetKey: string, resetSheet: b
             return
         }
         // Remove old stylesheet, then continue
-        document.adoptedStyleSheets.splice(sheet.index, 1)
+        const index = document.adoptedStyleSheets.findIndex(sh=>sh==sheet.sheet)
+        document.adoptedStyleSheets.splice(index, 1)
     }
     const styleSheet = new CSSStyleSheet()
     styleSheet.replace(sheetText)
     document.adoptedStyleSheets.push(styleSheet)
-    styleSectionMounted.set(sheetKey, {index: document.adoptedStyleSheets.length, sheet: styleSheet, key: sheetKey})
-
-    //Update a running copy of all StyleSheet text for debugging
-    styleSheetText = Array.from(styleSectionMounted.values().map(sheet=>{return `
-/* ${sheet.key} */
-${sheet.sheet}`
-    })).join("")
+    styleSectionMounted.set(sheetKey, {
+        sheet: styleSheet,
+        text: sheetText,
+        key: sheetKey
+    })
 }
 
 // ----------------------------------------------------------------------

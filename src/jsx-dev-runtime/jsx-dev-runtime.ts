@@ -5,9 +5,15 @@ import { createElement, createFragment } from "../tsx/tsx-core.ts"
 import type { AnchorElement, BasicTypes, ChildrenTypes, ChildTypes } from "../tsx/tsx-core.ts"
 export type { AnchorElement, BasicTypes, ChildrenTypes, ChildTypes }
 
-type Source = {
+/**
+ * Represents the Source passed to jsxDEV on element creation
+ */
+export type Source = {
+    /** The originating file name */
     fileName: string,
+    /** The originating line number */
     lineNumber: number,
+    /** The originating column number */
     columnNumber: number
 }
 

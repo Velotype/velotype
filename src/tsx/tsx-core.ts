@@ -1215,14 +1215,59 @@ function setAttrsOnElement(element: AnchorElement, attrs?: Readonly<any> | null)
  * \<tag attrOne={} attrTwo={}>{children}\</tag>
  */
 export function createElement(tag: "span", attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLSpanElement
+/**
+ * Create an element with a tag, set it's attributes using attrs, then append children
+ * 
+ * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ */
 export function createElement(tag: "div", attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLDivElement
+/**
+ * Create an element with a tag, set it's attributes using attrs, then append children
+ * 
+ * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ */
 export function createElement(tag: string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
+/**
+ * Create an element with a tag, set it's attributes using attrs, then append children
+ * 
+ * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ */
 export function createElement(tag: Type<Component<any,Component<any,any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
+/**
+ * Create an element with a tag, set it's attributes using attrs, then append children
+ * 
+ * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ */
 export function createElement(tag: Type<Component<any,RenderObject<any,any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
+/**
+ * Create an element with a tag, set it's attributes using attrs, then append children
+ * 
+ * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ */
 export function createElement(tag: Type<Component<any,HTMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
+/**
+ * Create an element with a tag, set it's attributes using attrs, then append children
+ * 
+ * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ */
 export function createElement(tag: Type<Component<any,SVGSVGElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): SVGSVGElement
+/**
+ * Create an element with a tag, set it's attributes using attrs, then append children
+ * 
+ * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ */
 export function createElement(tag: Type<Component<any,MathMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): MathMLElement
+/**
+ * Create an element with a tag, set it's attributes using attrs, then append children
+ * 
+ * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ */
 export function createElement(tag: FunctionComponent<any>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): ChildrenTypes[] | AnchorElement | BasicTypes
+/**
+ * Create an element with a tag, set it's attributes using attrs, then append children
+ * 
+ * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ */
 export function createElement(tag: Type<Component<any,any>> | FunctionComponent<any> | string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): ChildrenTypes[] | AnchorElement | BasicTypes {
     const notNullAttrs = attrs || {}
     if (typeof tag === 'string') {

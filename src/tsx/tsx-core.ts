@@ -61,7 +61,7 @@ export type CSSProperties = {
 export type EmptyAttrs = Record<string | number | symbol, never>
 
 /** Type used to represent that children are accepted */
-export type ChildrenAttr = { children: any[] }
+export type ChildrenAttr = { children: ChildrenTypes[] | ChildrenTypes }
 
 /** Regular console.log() - used for JS minification */
 const consoleLog = console.log

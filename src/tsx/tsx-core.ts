@@ -5,6 +5,8 @@
  * - Finish cleanup and symbol documentation of jsx-types.d.ts
  * - Set up deno publish CI https://jsr.io/docs/trust
  * - Add test framework
+ * ---- Possibly by using https://jsr.io/@astral/astral
+ * ---- See: https://deno-blog.com/End-to-end_test_a_Deno_webapp_using_deno-puppeteer.2022-08-21
  * - Consider making CSSProperties more specific
  * 
  * Categories of support TODOs:
@@ -12,8 +14,8 @@
  * - Support HMR
  * - Support SSR
  * - Support precompile transform
- * ---- Understand https://deno.com/blog/v1.38#fastest-jsx-transform
- * ---- https://github.com/preactjs/preact/blob/main/jsx-runtime/src/index.js#L185-L187
+ * ---- See: https://deno.com/blog/v1.38#fastest-jsx-transform
+ * ---- And: https://github.com/preactjs/preact/blob/main/jsx-runtime/src/index.js#L185-L187
  * - Support react-jsx transform
  * ---- Use Source and this in jsxDEV in jsx-dev-runtime
  * 
@@ -158,7 +160,7 @@ const domReferences: Map<string, InternalComponent | MultiRenderable> = new Map<
 /** The next key to use for DOM bindings */
 let domNextKey: bigint = 1n
 
-// deno-lint-ignore prefer-const
+/** Attribute name to use for DOM -> Component bindings */
 let domKeyName = "vk"
 
 /** Velotype Event bus - Forward map listeningKey -> vtKey -> listener */
@@ -186,7 +188,7 @@ const styleSectionMounted: Map<string, StyleSection> = new Map<string, StyleSect
  */
 export const __vtAppMetadata = {
     // ------- For Velotype Core -------
-    /** Key name for DOM bindings, only changeable prior to mounting any Components */
+    /** Key name for DOM bindings, only changeable prior to mounting any Components using `setDomKey()` */
     domKeyName: domKeyName,
     /** Map of DOM keys to Velotype Component references */
     domReferences: domReferences,
@@ -201,6 +203,20 @@ export const __vtAppMetadata = {
     /** Map of style keys to ensure each style key is only mounted once */
     styleSectionMounted: styleSectionMounted,
 
+}
+
+/**
+ * Change the attribute name used for DOM -> Component bindings
+ * 
+ * ADVANCED - Usage of this should be rare and must be done prior to construction of any Components
+ */
+export function setDomKey(newKeyName: string) {
+    // Only accept new names when domReferences is empty
+    if (domReferences.size == 0) {
+        domKeyName = newKeyName
+    } else {
+        consoleError("Name not accepted", newKeyName, domReferences.size)
+    }
 }
 
 // ----------------------------------------------------------------------

@@ -38,7 +38,7 @@ export type AnchorElement = HTMLElement | SVGSVGElement | MathMLElement
 export type BasicTypes = string | bigint | number | boolean
 
 /** These are things that can be returned from Component.render() */
-export type RenderableElements = AnchorElement | Component<any,any> | RenderObject<any, any> | RenderBasic<any> | RenderObjectArray<any, any>
+export type RenderableElements = AnchorElement | Component<any, any> | RenderObject<any, any|never>
 
 /** Type used to represent a constructor function for a Class */
 export type TypeConstructor<T> = new (...args: any[]) => T
@@ -94,16 +94,8 @@ function instanceOfInternalComponent(something: any): something is InternalCompo
     return something instanceof InternalComponent
 }
 /** Checks if something is an instanceof RenderObject */
-function instanceOfRenderObject(something: any): something is RenderObject<any, any> {
+function instanceOfRenderObject(something: any): something is RenderObject<any, any|never> {
     return something instanceof RenderObject
-}
-/** Checks if something is an instanceof RenderBasic */
-function instanceOfRenderBasic(something: any): something is RenderBasic<any> {
-    return something instanceof RenderBasic
-}
-/** Checks if something is an instanceof RenderBasic */
-function instanceOfRenderObjectArray(something: any): something is RenderObjectArray<any, any> {
-    return something instanceof RenderObjectArray
 }
 /** Checks if something is an instanceof Component */
 function instanceOfComponent(something: any): something is Component<any, any> {
@@ -348,12 +340,10 @@ function wrapElementIfNeeded(element: SVGSVGElement): AnchorElement
 function wrapElementIfNeeded(element: MathMLElement): AnchorElement
 function wrapElementIfNeeded(element: HTMLElement): HTMLElement
 function wrapElementIfNeeded(element: AnchorElement): AnchorElement
-function wrapElementIfNeeded(element: Component<any,any>): HTMLElement
-function wrapElementIfNeeded(element: RenderObject<any,any>): HTMLElement
-function wrapElementIfNeeded(element: RenderBasic<any>): HTMLElement
-function wrapElementIfNeeded(element: RenderObjectArray<any,any>): HTMLElement
-function wrapElementIfNeeded(element: Component<any,any> | RenderObject<any,any> | RenderBasic<any> | RenderObjectArray<any,any>): HTMLElement
-function wrapElementIfNeeded(element: HTMLElement | Component<any,any> | RenderObject<any,any> | RenderBasic<any> | RenderObjectArray<any,any> | null | undefined): HTMLElement
+function wrapElementIfNeeded(element: Component<any, any>): HTMLElement
+function wrapElementIfNeeded(element: RenderObject<any, any|never>): HTMLElement
+function wrapElementIfNeeded(element: Component<any, any> | RenderObject<any, any|never>): HTMLElement
+function wrapElementIfNeeded(element: HTMLElement | Component<any, any> | RenderObject<any, any|never> | null | undefined): HTMLElement
 function wrapElementIfNeeded(element: RenderableElements | null | undefined): AnchorElement {
     // Check for falsey
     if (!element) {
@@ -361,7 +351,7 @@ function wrapElementIfNeeded(element: RenderableElements | null | undefined): An
     }
     // If a Component returns a Component or RenderObject as a result of render
     // then it needs to be wrapped in another HTMLElement for rendering to work properly
-    if (instanceOfComponent(element) || instanceOfRenderObject(element) || instanceOfRenderBasic(element) || instanceOfRenderObjectArray(element) || element.hasAttribute(domKeyName)) {
+    if (instanceOfComponent(element) || instanceOfRenderObject(element) || element.hasAttribute(domKeyName)) {
         return createElement(divTag,displayContents,element) as HTMLDivElement
     }
     return element
@@ -1249,31 +1239,31 @@ export function createElement(tag: string, attrs: Readonly<any> | null, ...child
  * 
  * \<tag attrOne={} attrTwo={}>{children}\</tag>
  */
-export function createElement(tag: Type<Component<any,Component<any,any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
+export function createElement(tag: Type<Component<any, Component<any, any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
  * \<tag attrOne={} attrTwo={}>{children}\</tag>
  */
-export function createElement(tag: Type<Component<any,RenderObject<any,any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
+export function createElement(tag: Type<Component<any, RenderObject<any, any|never>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
  * \<tag attrOne={} attrTwo={}>{children}\</tag>
  */
-export function createElement(tag: Type<Component<any,HTMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
+export function createElement(tag: Type<Component<any, HTMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
  * \<tag attrOne={} attrTwo={}>{children}\</tag>
  */
-export function createElement(tag: Type<Component<any,SVGSVGElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): SVGSVGElement
+export function createElement(tag: Type<Component<any, SVGSVGElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): SVGSVGElement
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
  * \<tag attrOne={} attrTwo={}>{children}\</tag>
  */
-export function createElement(tag: Type<Component<any,MathMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): MathMLElement
+export function createElement(tag: Type<Component<any, MathMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): MathMLElement
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
@@ -1285,7 +1275,7 @@ export function createElement(tag: FunctionComponent<any>, attrs: Readonly<any> 
  * 
  * \<tag attrOne={} attrTwo={}>{children}\</tag>
  */
-export function createElement(tag: Type<Component<any,any>> | FunctionComponent<any> | string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): ChildrenTypes[] | AnchorElement | BasicTypes {
+export function createElement(tag: Type<Component<any, any>> | FunctionComponent<any> | string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): ChildrenTypes[] | AnchorElement | BasicTypes {
     const notNullAttrs = attrs || {}
     if (typeof tag === 'string') {
         // Base HTML Element
@@ -1334,7 +1324,7 @@ export const h:
     | ((tag: "div", attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLDivElement)
     | ((tag: string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLElement)
     | ((tag: Type<Component<any,Component<any,any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLElement)
-    | ((tag: Type<Component<any,RenderObject<any,any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLElement)
+    | ((tag: Type<Component<any,RenderObject<any, any|never>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLElement)
     | ((tag: Type<Component<any,HTMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => HTMLElement)
     | ((tag: Type<Component<any,SVGSVGElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => SVGSVGElement)
     | ((tag: Type<Component<any,MathMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => MathMLElement)
@@ -1644,7 +1634,7 @@ export class VelotypeEvent {
     /**
      * Link to the emitting object
      */
-    emittingObject: Component<any,any> | RenderObject<any,any>
+    emittingObject: Component<any,any> | RenderObject<any, any|never>
     /**
      * A simple string representing the type of event
      */
@@ -1656,7 +1646,7 @@ export class VelotypeEvent {
     /**
      * Create a new VelotypeEvent
      */
-    constructor(emittingObject: Component<any,any> | RenderObject<any,any>, event: string, data?: any) {
+    constructor(emittingObject: Component<any,any> | RenderObject<any, any|never>, event: string, data?: any) {
         this.emittingObject = emittingObject
         this.event = event
         this.data = data

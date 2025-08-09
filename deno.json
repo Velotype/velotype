@@ -5,6 +5,7 @@
   "exports": {
     ".": "./src/tsx/tsx-core.ts",
     "./tsx": "./src/tsx/tsx-core.ts",
+    "./tsx-micro": "./src/tsx/tsx-micro.ts",
     "./jsx-runtime": "./src/jsx-runtime/jsx-runtime.ts",
     "./jsx-dev-runtime": "./src/jsx-dev-runtime/jsx-dev-runtime.ts",
     "./webserver": "./src/webserver/index.ts"

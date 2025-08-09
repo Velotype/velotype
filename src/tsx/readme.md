@@ -171,7 +171,7 @@ Create these objects with `new RenderObject<DataType>()` as fields of Component 
 
 An RenderObject is an efficient way of rendering Objects to potentially multiple HTMLElements, changes to the value of the underlying Data Object will propogate to all instance elements.
 
-```ts
+```tsx
 type Person = {
     name: string,
     address: string,
@@ -215,7 +215,7 @@ A specialization of an RenderObject when the DataType is a BasicType, it renders
 
 The BasicTypes are `string | number | bigint | boolean`
 
-```ts
+```tsx
 class Counter extends Component<EmptyAttrs> {
     count = new RenderBasic<number>(0)
     override render() {
@@ -232,7 +232,7 @@ class Counter extends Component<EmptyAttrs> {
 
 An optimized RenderObject that represents an Array of data points rendered into a wrapperElement (by default a `<div>` tag)
 
-```ts
+```tsx
 type Todo = {
     text: string
 }

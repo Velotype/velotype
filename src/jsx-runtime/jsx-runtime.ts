@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 
-import { h, f } from "../tsx/tsx-core.ts"
+import { createElement, createFragment } from "../tsx/tsx-core.ts"
 
 import type { AnchorElement, BasicTypes, ChildrenTypes, ChildTypes } from "../tsx/tsx-core.ts"
 export type { AnchorElement, BasicTypes, ChildrenTypes, ChildTypes }
@@ -19,7 +19,7 @@ export function jsx(tag: any, attrs: any, key?: string | undefined): ChildrenTyp
     if (key !== undefined) {
         attrs.key = key
     }
-    return h(tag, attrs, children)
+    return createElement(tag, attrs, children)
 }
 
 // Velotype does not distinguish between static and dynamic children arrays
@@ -33,8 +33,8 @@ export const jsxs: (tag: any, attrs: any, key?: string | undefined) => ChildrenT
 /**
  * Create an fragment \<></> (which just propagates an array of children[])
  */
-export const Fragment: (_attrs: Readonly<any>, ...children: ChildrenTypes[]) => ChildrenTypes[] = f
+export const Fragment: (_attrs: Readonly<any>, ...children: ChildrenTypes[]) => ChildrenTypes[] = createFragment
 
 // Export the JSX namespace for JSX type checking
-import type { JSXInternal } from "../tsx/jsx-types.d.ts"
+import type { JSXInternal } from "../jsx-types/jsx-types.d.ts"
 export type { JSXInternal as JSX }

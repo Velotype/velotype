@@ -2,7 +2,8 @@
 
 import { h, f } from "../tsx/tsx-core.ts"
 
-import type { AnchorElement, BasicTypes, ChildrenTypes } from "../tsx/tsx-core.ts"
+import type { AnchorElement, BasicTypes, ChildrenTypes, ChildTypes } from "../tsx/tsx-core.ts"
+export type { AnchorElement, BasicTypes, ChildrenTypes, ChildTypes }
 
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
@@ -34,13 +35,6 @@ export const jsxs: (tag: any, attrs: any, key?: string | undefined) => ChildrenT
  */
 export const Fragment: (_attrs: Readonly<any>, ...children: ChildrenTypes[]) => ChildrenTypes[] = f
 
-// Note: this is a test,.. not sure if this variation will work properly just yet
+// Export the JSX namespace for JSX type checking
 import type { JSXInternal } from "../tsx/jsx-types.d.ts"
 export type { JSXInternal as JSX }
-
-// Note: this variation does work
-//export declare namespace JSX {
-//    export interface IntrinsicElements {
-//        [tag: string]: any
-//    }
-//}

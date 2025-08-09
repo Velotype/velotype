@@ -3,6 +3,10 @@ const domainName: string = Deno.env.get("DOMAIN_NAME") || "http://localhost"
 
 console.log(`Running in run mode: ${runMode} on domain: ${domainName}`)
 
+/**
+ * Represents the running mode of the server, used for detecting
+ * if the server should run optimized or for debugging
+ */
 export const Mode: {
     runMode: string | undefined;
     isLocal: boolean | undefined;

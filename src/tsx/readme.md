@@ -177,7 +177,7 @@ type Person = {
     address: string,
     phone: string
 }
-class PersonSelector extends Component<EmptyProps> {
+class PersonSelector extends Component<EmptyAttrs> {
     selectedPerson = new RenderObject<Person | null>(null, function(person: Person | null) {
         if (!person) {
             return <div></div>
@@ -216,7 +216,7 @@ A specialization of an RenderObject when the DataType is a BasicType, it renders
 The BasicTypes are `string | number | bigint | boolean`
 
 ```ts
-class Counter extends Component<EmptyProps> {
+class Counter extends Component<EmptyAttrs> {
     count = new RenderBasic<number>(0)
     override render() {
         return <div>
@@ -237,7 +237,7 @@ type Todo = {
     text: string
 }
 
-class TodoList extends Component<EmptyProps> {
+class TodoList extends Component<EmptyAttrs> {
     todos: RenderObjectArray<Todo> = new RenderObjectArray<Todo>({
         wrapperElementTag="ul"
         renderFunction={function(todo: Todo) {

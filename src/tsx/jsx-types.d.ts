@@ -8,67 +8,106 @@ import type {CSSProperties, ChildrenAttr, Component, FunctionComponent} from "./
 export type {CSSProperties, ChildrenAttr, Component, FunctionComponent}
 
 /** [MDN Reference](https://developer.mozilla.org/en-US/docs/Web/API/CommandEvent) */
-interface CommandEvent extends Event {
+export interface CommandEvent extends Event {
     /** [MDN Reference](https://developer.mozilla.org/en-US/docs/Web/API/CommandEvent/source) */
     readonly source: Element | null
     /** [MDN Reference](https://developer.mozilla.org/en-US/docs/Web/API/CommandEvent/command) */
     readonly command: string
 }
 
-declare const CommandEvent: {
+export declare const CommandEvent: {
     prototype: CommandEvent
     new (type: string, eventInitDict?: CommandEventInit): CommandEvent
 }
 
-interface CommandEventInit extends EventInit {
+export interface CommandEventInit extends EventInit {
     source: Element | null;
     command: string
 }
 
-type Booleanish = boolean | 'true' | 'false'
+/** Either a boolean or a string with `'true' | 'false'` */
+export type Booleanish = boolean | 'true' | 'false'
 
 /** A wrapper namespace to be exported as the JSX namespace */
 export namespace JSXInternal {
+    /** A Targeted Event */
     type TargetedEvent<Target extends EventTarget = EventTarget, TypedEvent extends Event = Event> = Omit<TypedEvent, 'currentTarget'> & {readonly currentTarget: Target}
 
+    /** A targeted event with AnimationEvent event type */
     type TargetedAnimationEvent<Target extends EventTarget> = TargetedEvent<Target, AnimationEvent>
+    /** A targeted event with ClipboardEvent event type */
     type TargetedClipboardEvent<Target extends EventTarget> = TargetedEvent<Target, ClipboardEvent>
+    /** A targeted event with CommandEvent event type */
     type TargetedCommandEvent<Target extends EventTarget> = TargetedEvent<Target, CommandEvent>
+    /** A targeted event with CompositionEvent event type */
     type TargetedCompositionEvent<Target extends EventTarget> = TargetedEvent<Target, CompositionEvent>
+    /** A targeted event with DragEvent event type */
     type TargetedDragEvent<Target extends EventTarget> = TargetedEvent<Target, DragEvent>
+    /** A targeted event with FocusEvent event type */
     type TargetedFocusEvent<Target extends EventTarget> = TargetedEvent<Target, FocusEvent>
+    /** A targeted event with InputEvent event type */
     type TargetedInputEvent<Target extends EventTarget> = TargetedEvent<Target, InputEvent>
+    /** A targeted event with KeyboardEvent event type */
     type TargetedKeyboardEvent<Target extends EventTarget> = TargetedEvent<Target, KeyboardEvent>
+    /** A targeted event with MouseEvent event type */
     type TargetedMouseEvent<Target extends EventTarget> = TargetedEvent<Target, MouseEvent>
+    /** A targeted event with PointerEvent event type */
     type TargetedPointerEvent<Target extends EventTarget> = TargetedEvent<Target, PointerEvent>
+    /** A targeted event with SubmitEvent event type */
     type TargetedSubmitEvent<Target extends EventTarget> = TargetedEvent<Target, SubmitEvent>
+    /** A targeted event with TouchEvent event type */
     type TargetedTouchEvent<Target extends EventTarget> = TargetedEvent<Target, TouchEvent>
+    /** A targeted event with ToggleEvent event type */
     type TargetedToggleEvent<Target extends EventTarget> = TargetedEvent<Target, ToggleEvent>
+    /** A targeted event with TransitionEvent event type */
     type TargetedTransitionEvent<Target extends EventTarget> = TargetedEvent<Target, TransitionEvent>
+    /** A targeted event with UIEvent event type */
     type TargetedUIEvent<Target extends EventTarget> = TargetedEvent<Target, UIEvent>
+    /** A targeted event with WheelEvent event type */
     type TargetedWheelEvent<Target extends EventTarget> = TargetedEvent<Target, WheelEvent>
+    /** A targeted event with PictureInPictureEvent event type */
     type TargetedPictureInPictureEvent<Target extends EventTarget> = TargetedEvent<Target, PictureInPictureEvent>
 
+    /** A pair of an EventHandler and options of `AddEventListenerOptions | boolean` */
     type EventHandlerOptions<E extends TargetedEvent> = {handler: (event: E) => void, options: AddEventListenerOptions | boolean}
+    /** An event handler */
     type EventHandler<E extends TargetedEvent> = ((event: E) => void) | EventHandlerOptions<E>
 
+    /** An event handler for an AnimationEvent */
     type AnimationEventHandler<Target extends EventTarget> = EventHandler<TargetedAnimationEvent<Target>>
+    /** An event handler for an ClipboardEvent */
     type ClipboardEventHandler<Target extends EventTarget> = EventHandler<TargetedClipboardEvent<Target>>
+    /** An event handler for an CommandEvent */
     type CommandEventHandler<Target extends EventTarget> = EventHandler<TargetedCommandEvent<Target>>
+    /** An event handler for an CompositionEvent */
     type CompositionEventHandler<Target extends EventTarget> = EventHandler<TargetedCompositionEvent<Target>>
+    /** An event handler for an DragEvent */
     type DragEventHandler<Target extends EventTarget> = EventHandler<TargetedDragEvent<Target>>
+    /** An event handler for an ToggleEvent */
     type ToggleEventHandler<Target extends EventTarget> = EventHandler<TargetedToggleEvent<Target>>
+    /** An event handler for an FocusEvent */
     type FocusEventHandler<Target extends EventTarget> = EventHandler<TargetedFocusEvent<Target>>
+    /** An event handler for a generic event */
     type GenericEventHandler<Target extends EventTarget> = EventHandler<TargetedEvent<Target>>
+    /** An event handler for an InputEvent */
     type InputEventHandler<Target extends EventTarget> = EventHandler<TargetedInputEvent<Target>>
+    /** An event handler for an KeyboardEvent */
     type KeyboardEventHandler<Target extends EventTarget> = EventHandler<TargetedKeyboardEvent<Target>>
+    /** An event handler for an MouseEvent */
     type MouseEventHandler<Target extends EventTarget> = EventHandler<TargetedMouseEvent<Target>>
+    /** An event handler for an PointerEvent */
     type PointerEventHandler<Target extends EventTarget> = EventHandler<TargetedPointerEvent<Target>>
+    /** An event handler for an SubmitEvent */
     type SubmitEventHandler<Target extends EventTarget> = EventHandler<TargetedSubmitEvent<Target>>
+    /** An event handler for an TouchEvent */
     type TouchEventHandler<Target extends EventTarget> = EventHandler<TargetedTouchEvent<Target>>
+    /** An event handler for an TransitionEvent */
     type TransitionEventHandler<Target extends EventTarget> = EventHandler<TargetedTransitionEvent<Target>>
+    /** An event handler for an UIEvent */
     type UIEventHandler<Target extends EventTarget> = EventHandler<TargetedUIEvent<Target>>
+    /** An event handler for an WheelEvent */
     type WheelEventHandler<Target extends EventTarget> = EventHandler<TargetedWheelEvent<Target>>
+    /** An event handler for an PictureInPictureEvent */
     type PictureInPictureEventHandler<Target extends EventTarget> = EventHandler<TargetedPictureInPictureEvent<Target>>
 
     interface DOMAttributes<Target extends EventTarget> {

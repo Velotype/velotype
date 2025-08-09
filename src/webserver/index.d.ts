@@ -4,7 +4,6 @@ import {Context} from "./context.ts"
 import {
     RequestInspectorResponse,
     Inspector,
-    RouteNode,
     Router
 } from "./router.ts"
 import {App} from "./app.ts"
@@ -20,7 +19,6 @@ export {
     Context,
     RequestInspectorResponse,
     Inspector,
-    RouteNode,
     Router
 }
 

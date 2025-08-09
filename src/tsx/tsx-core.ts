@@ -38,7 +38,7 @@ export type AnchorElement = HTMLElement | SVGSVGElement | MathMLElement
 export type BasicTypes = string | bigint | number | boolean
 
 /** These are things that can be returned from Component.render() */
-export type RenderableElements = AnchorElement | Component<any,any> | RenderObject<any, any>
+export type RenderableElements = AnchorElement | Component<any,any> | RenderObject<any, any> | RenderBasic<any>
 
 /** Type used to represent a constructor function for a Class */
 export type TypeConstructor<T> = new (...args: any[]) => T
@@ -61,7 +61,7 @@ export type CSSProperties = {
 export type EmptyAttrs = Record<string | number | symbol, never>
 
 /** Type used to represent that children are accepted */
-export type ChildrenAttr = { children: ChildrenTypes[] | ChildrenTypes }
+export type ChildrenAttr = { children?: ChildrenTypes[] | ChildrenTypes }
 
 /** Regular console.log() - used for JS minification */
 const consoleLog = console.log
@@ -96,6 +96,10 @@ function instanceOfInternalComponent(something: any): something is InternalCompo
 /** Checks if something is an instanceof RenderObject */
 function instanceOfRenderObject(something: any): something is RenderObject<any, any> {
     return something instanceof RenderObject
+}
+/** Checks if something is an instanceof RenderBasic */
+function instanceOfRenderBasic(something: any): something is RenderBasic<any> {
+    return something instanceof RenderBasic
 }
 /** Checks if something is an instanceof Component */
 function instanceOfComponent(something: any): something is Component<any, any> {
@@ -329,8 +333,8 @@ function vtSetImmediate(callback: () => void): void {
 }
 
 /**
- * If a render operation returns a Component or RenderObject as a result of render then
- * it needs to be wrapped in another HTMLElement for rendering to work properly
+ * If a render operation returns a Component, RenderObject, or RenderBasic as a result of
+ * render then it needs to be wrapped in another HTMLElement for rendering to work properly
  * 
  * @param element The raw rendered element
  * @returns The original element or a wrapped element (or a hidden element if element is falsey)
@@ -342,8 +346,9 @@ function wrapElementIfNeeded(element: HTMLElement): HTMLElement
 function wrapElementIfNeeded(element: AnchorElement): AnchorElement
 function wrapElementIfNeeded(element: Component<any,any>): HTMLElement
 function wrapElementIfNeeded(element: RenderObject<any,any>): HTMLElement
-function wrapElementIfNeeded(element: Component<any,any> | RenderObject<any,any>): HTMLElement
-function wrapElementIfNeeded(element: HTMLElement | Component<any,any> | RenderObject<any,any> | null | undefined): HTMLElement
+function wrapElementIfNeeded(element: RenderBasic<any>): HTMLElement
+function wrapElementIfNeeded(element: Component<any,any> | RenderObject<any,any> | RenderBasic<any>): HTMLElement
+function wrapElementIfNeeded(element: HTMLElement | Component<any,any> | RenderObject<any,any> | RenderBasic<any> | null | undefined): HTMLElement
 function wrapElementIfNeeded(element: RenderableElements | null | undefined): AnchorElement {
     // Check for falsey
     if (!element) {
@@ -351,7 +356,7 @@ function wrapElementIfNeeded(element: RenderableElements | null | undefined): An
     }
     // If a Component returns a Component or RenderObject as a result of render
     // then it needs to be wrapped in another HTMLElement for rendering to work properly
-    if (instanceOfComponent(element) || instanceOfRenderObject(element) || element.hasAttribute(domKeyName)) {
+    if (instanceOfComponent(element) || instanceOfRenderObject(element) || instanceOfRenderBasic(element) || element.hasAttribute(domKeyName)) {
         return createElement(divTag,displayContents,element) as HTMLDivElement
     }
     return element

@@ -252,8 +252,14 @@ function createElement(tag: Type<Component<any,any>> | FunctionComponent<any> | 
     return createElement("div",{style:"display:none;"})
 }
 
-/** Short style tsx createElement */
-export const h = createElement
+/**
+ * Short style tsx createElement
+ * 
+ * Create an element with a tag, set it's attributes using attrs, then append children
+ * 
+ * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ */
+export const h: (tag: Type<Component<any,any>> | FunctionComponent<any> | string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => any = createElement
 
 /**
  * Create a fragment \<></> (which just propagates an array of children[])
@@ -262,17 +268,12 @@ function createFragment(_attrs: null, ...children:  ChildrenTypes[]): ChildrenTy
     return children
 }
 
-/** Short style tsx createFragment */
-export const f = createFragment
-
-/** Basic JSX types */
-export declare namespace h {
-    export namespace JSX {
-        interface IntrinsicElements {
-            [elemName: string]: any
-        }
-    }
-}
+/**
+ * Short style tsx createFragment
+ * 
+ * Create a fragment \<></> (which just propagates an array of children[])
+ */
+export const f: (_attrs: null, ...children:  ChildrenTypes[]) => ChildrenTypes[] = createFragment
 
 /**
  * Get the js class object of a constructed Component
@@ -324,5 +325,17 @@ export function appendRootComponentTo(rootComponent: HTMLElement, elementId: str
     } else {
         console.error("Append to null", rootComponent, elementId)
         return null
+    }
+}
+
+/** Basic JSX types */
+export declare namespace h {
+    /** JSX namespace */
+    export namespace JSX {
+        /** JSX types for elements and their accepted attributes, in Micro just set to any */
+        interface IntrinsicElements {
+            /** Allow all attributes for all elements */
+            [elemName: string]: any
+        }
     }
 }

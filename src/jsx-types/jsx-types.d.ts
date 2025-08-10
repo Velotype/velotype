@@ -4,7 +4,7 @@
 // it is a placeholder for when I can figure out how to
 // export import JSX.IntrinsicElements
 
-import type {CSSProperties, ChildrenAttr, Component, FunctionComponent} from "./tsx-core.ts"
+import type {CSSProperties, ChildrenAttr, Component, FunctionComponent} from "../tsx/tsx-core.ts"
 export type {CSSProperties, ChildrenAttr, Component, FunctionComponent}
 
 /** [MDN Reference](https://developer.mozilla.org/en-US/docs/Web/API/CommandEvent) */
@@ -110,233 +110,240 @@ export namespace JSXInternal {
     /** An event handler for an PictureInPictureEvent */
     type PictureInPictureEventHandler<Target extends EventTarget> = EventHandler<TargetedPictureInPictureEvent<Target>>
 
+    /** Collection of the various Event handler types */
     interface DOMAttributes<Target extends EventTarget> {
         // Image Events
+        /** Handler for onLoad event */
         onLoad?: GenericEventHandler<Target>
-        onLoadCapture?: GenericEventHandler<Target>
+        /** Handler for onError event */
         onError?: GenericEventHandler<Target>
-        onErrorCapture?: GenericEventHandler<Target>
 
         // Clipboard Events
+        /** Handler for onCopy event */
         onCopy?: ClipboardEventHandler<Target>
-        onCopyCapture?: ClipboardEventHandler<Target>
+        /** Handler for onCut event */
         onCut?: ClipboardEventHandler<Target>
-        onCutCapture?: ClipboardEventHandler<Target>
+        /** Handler for onPaste event */
         onPaste?: ClipboardEventHandler<Target>
-        onPasteCapture?: ClipboardEventHandler<Target>
 
         // Composition Events
+        /** Handler for onCompositionEnd event */
         onCompositionEnd?: CompositionEventHandler<Target>
-        onCompositionEndCapture?: CompositionEventHandler<Target>
+        /** Handler for onCompositionStart event */
         onCompositionStart?: CompositionEventHandler<Target>
-        onCompositionStartCapture?: CompositionEventHandler<Target>
+        /** Handler for onCompositionUpdate event */
         onCompositionUpdate?: CompositionEventHandler<Target>
-        onCompositionUpdateCapture?: CompositionEventHandler<Target>
 
         // Popover Events
+        /** Handler for onBeforeToggle event */
         onBeforeToggle?: ToggleEventHandler<Target>
+        /** Handler for onToggle event */
         onToggle?: ToggleEventHandler<Target>
 
         // Dialog Events
+        /** Handler for onClose event */
         onClose?: GenericEventHandler<Target>
+        /** Handler for onCancel event */
         onCancel?: GenericEventHandler<Target>
 
         // Focus Events
+        /** Handler for onFocus event */
         onFocus?: FocusEventHandler<Target>
-        onFocusCapture?: FocusEventHandler<Target>
+        /** Handler for onFocusIn event */
         onFocusIn?: FocusEventHandler<Target>
-        onFocusInCapture?: FocusEventHandler<Target>
+        /** Handler for onFocusOut event */
         onFocusOut?: FocusEventHandler<Target>
-        onFocusOutCapture?: FocusEventHandler<Target>
+        /** Handler for onBlur event */
         onBlur?: FocusEventHandler<Target>
-        onBlurCapture?: FocusEventHandler<Target>
 
         // Form Events
+        /** Handler for onChange event */
         onChange?: GenericEventHandler<Target>
-        onChangeCapture?: GenericEventHandler<Target>
+        /** Handler for onInput event */
         onInput?: InputEventHandler<Target>
-        onInputCapture?: InputEventHandler<Target>
+        /** Handler for onBeforeInput event */
         onBeforeInput?: InputEventHandler<Target>
-        onBeforeInputCapture?: InputEventHandler<Target>
+        /** Handler for onSearch event */
         onSearch?: GenericEventHandler<Target>
-        onSearchCapture?: GenericEventHandler<Target>
+        /** Handler for onSubmit event */
         onSubmit?: SubmitEventHandler<Target>
-        onSubmitCapture?: SubmitEventHandler<Target>
+        /** Handler for onInvalid event */
         onInvalid?: GenericEventHandler<Target>
-        onInvalidCapture?: GenericEventHandler<Target>
+        /** Handler for onReset event */
         onReset?: GenericEventHandler<Target>
-        onResetCapture?: GenericEventHandler<Target>
+        /** Handler for onFormData event */
         onFormData?: GenericEventHandler<Target>
-        onFormDataCapture?: GenericEventHandler<Target>
 
         // Keyboard Events
+        /** Handler for onKeyDown event */
         onKeyDown?: KeyboardEventHandler<Target>
-        onKeyDownCapture?: KeyboardEventHandler<Target>
+        /** Handler for onKeyPress event */
         onKeyPress?: KeyboardEventHandler<Target>
-        onKeyPressCapture?: KeyboardEventHandler<Target>
+        /** Handler for onKeyUp event */
         onKeyUp?: KeyboardEventHandler<Target>
-        onKeyUpCapture?: KeyboardEventHandler<Target>
 
         // Media Events
+        /** Handler for onAbort event */
         onAbort?: GenericEventHandler<Target>
-        onAbortCapture?: GenericEventHandler<Target>
+        /** Handler for onCanPlay event */
         onCanPlay?: GenericEventHandler<Target>
-        onCanPlayCapture?: GenericEventHandler<Target>
+        /** Handler for onCanPlayThrough event */
         onCanPlayThrough?: GenericEventHandler<Target>
-        onCanPlayThroughCapture?: GenericEventHandler<Target>
+        /** Handler for onDurationChange event */
         onDurationChange?: GenericEventHandler<Target>
-        onDurationChangeCapture?: GenericEventHandler<Target>
+        /** Handler for onEmptied event */
         onEmptied?: GenericEventHandler<Target>
-        onEmptiedCapture?: GenericEventHandler<Target>
+        /** Handler for onEncrypted event */
         onEncrypted?: GenericEventHandler<Target>
-        onEncryptedCapture?: GenericEventHandler<Target>
+        /** Handler for onEnded event */
         onEnded?: GenericEventHandler<Target>
-        onEndedCapture?: GenericEventHandler<Target>
+        /** Handler for onLoadedData event */
         onLoadedData?: GenericEventHandler<Target>
-        onLoadedDataCapture?: GenericEventHandler<Target>
+        /** Handler for onLoadedMetadata event */
         onLoadedMetadata?: GenericEventHandler<Target>
-        onLoadedMetadataCapture?: GenericEventHandler<Target>
+        /** Handler for onLoadStart event */
         onLoadStart?: GenericEventHandler<Target>
-        onLoadStartCapture?: GenericEventHandler<Target>
+        /** Handler for onPause event */
         onPause?: GenericEventHandler<Target>
-        onPauseCapture?: GenericEventHandler<Target>
+        /** Handler for onPlay event */
         onPlay?: GenericEventHandler<Target>
-        onPlayCapture?: GenericEventHandler<Target>
+        /** Handler for onPlaying event */
         onPlaying?: GenericEventHandler<Target>
-        onPlayingCapture?: GenericEventHandler<Target>
+        /** Handler for onProgress event */
         onProgress?: GenericEventHandler<Target>
-        onProgressCapture?: GenericEventHandler<Target>
+        /** Handler for onRateChange event */
         onRateChange?: GenericEventHandler<Target>
-        onRateChangeCapture?: GenericEventHandler<Target>
+        /** Handler for onSeeked event */
         onSeeked?: GenericEventHandler<Target>
-        onSeekedCapture?: GenericEventHandler<Target>
+        /** Handler for onSeeking event */
         onSeeking?: GenericEventHandler<Target>
-        onSeekingCapture?: GenericEventHandler<Target>
+        /** Handler for onStalled event */
         onStalled?: GenericEventHandler<Target>
-        onStalledCapture?: GenericEventHandler<Target>
+        /** Handler for onSuspend event */
         onSuspend?: GenericEventHandler<Target>
-        onSuspendCapture?: GenericEventHandler<Target>
+        /** Handler for onTimeUpdate event */
         onTimeUpdate?: GenericEventHandler<Target>
-        onTimeUpdateCapture?: GenericEventHandler<Target>
+        /** Handler for onVolumeChange event */
         onVolumeChange?: GenericEventHandler<Target>
-        onVolumeChangeCapture?: GenericEventHandler<Target>
+        /** Handler for onWaiting event */
         onWaiting?: GenericEventHandler<Target>
-        onWaitingCapture?: GenericEventHandler<Target>
 
         // MouseEvents
+        /** Handler for onClick event */
         onClick?: MouseEventHandler<Target>
-        onClickCapture?: MouseEventHandler<Target>
+        /** Handler for onContextMenu event */
         onContextMenu?: MouseEventHandler<Target>
-        onContextMenuCapture?: MouseEventHandler<Target>
+        /** Handler for onDblClick event */
         onDblClick?: MouseEventHandler<Target>
-        onDblClickCapture?: MouseEventHandler<Target>
+        /** Handler for onDrag event */
         onDrag?: DragEventHandler<Target>
-        onDragCapture?: DragEventHandler<Target>
+        /** Handler for onDragEnd event */
         onDragEnd?: DragEventHandler<Target>
-        onDragEndCapture?: DragEventHandler<Target>
+        /** Handler for onDragEnter event */
         onDragEnter?: DragEventHandler<Target>
-        onDragEnterCapture?: DragEventHandler<Target>
+        /** Handler for onDragExit event */
         onDragExit?: DragEventHandler<Target>
-        onDragExitCapture?: DragEventHandler<Target>
+        /** Handler for onDragLeave event */
         onDragLeave?: DragEventHandler<Target>
-        onDragLeaveCapture?: DragEventHandler<Target>
+        /** Handler for onDragOver event */
         onDragOver?: DragEventHandler<Target>
-        onDragOverCapture?: DragEventHandler<Target>
+        /** Handler for onDragStart event */
         onDragStart?: DragEventHandler<Target>
-        onDragStartCapture?: DragEventHandler<Target>
+        /** Handler for onDrop event */
         onDrop?: DragEventHandler<Target>
-        onDropCapture?: DragEventHandler<Target>
+        /** Handler for onMouseDown event */
         onMouseDown?: MouseEventHandler<Target>
-        onMouseDownCapture?: MouseEventHandler<Target>
+        /** Handler for onMouseEnter event */
         onMouseEnter?: MouseEventHandler<Target>
-        onMouseEnterCapture?: MouseEventHandler<Target>
+        /** Handler for onMouseLeave event */
         onMouseLeave?: MouseEventHandler<Target>
-        onMouseLeaveCapture?: MouseEventHandler<Target>
+        /** Handler for onMouseMove event */
         onMouseMove?: MouseEventHandler<Target>
-        onMouseMoveCapture?: MouseEventHandler<Target>
+        /** Handler for onMouseOut event */
         onMouseOut?: MouseEventHandler<Target>
-        onMouseOutCapture?: MouseEventHandler<Target>
+        /** Handler for onMouseOver event */
         onMouseOver?: MouseEventHandler<Target>
-        onMouseOverCapture?: MouseEventHandler<Target>
+        /** Handler for onMouseUp event */
         onMouseUp?: MouseEventHandler<Target>
-        onMouseUpCapture?: MouseEventHandler<Target>
         // TODO: Spec for `auxclick` events was changed to make it a PointerEvent but only
         // Chrome has support for it yet. When more browsers align we should change this.
         // https://developer.mozilla.org/en-US/docs/Web/API/Element/auxclick_event#browser_compatibility
+        /** Handler for onAuxClick event */
         onAuxClick?: MouseEventHandler<Target>
-        onAuxClickCapture?: MouseEventHandler<Target>
 
         // Selection Events
+        /** Handler for onSelect event */
         onSelect?: GenericEventHandler<Target>
-        onSelectCapture?: GenericEventHandler<Target>
 
         // Touch Events
+        /** Handler for onTouchCancel event */
         onTouchCancel?: TouchEventHandler<Target>
-        onTouchCancelCapture?: TouchEventHandler<Target>
+        /** Handler for onTouchEnd event */
         onTouchEnd?: TouchEventHandler<Target>
-        onTouchEndCapture?: TouchEventHandler<Target>
+        /** Handler for onTouchMove event */
         onTouchMove?: TouchEventHandler<Target>
-        onTouchMoveCapture?: TouchEventHandler<Target>
+        /** Handler for onTouchStart event */
         onTouchStart?: TouchEventHandler<Target>
-        onTouchStartCapture?: TouchEventHandler<Target>
 
         // Pointer Events
+        /** Handler for onPointerOver event */
         onPointerOver?: PointerEventHandler<Target>
-        onPointerOverCapture?: PointerEventHandler<Target>
+        /** Handler for onPointerEnter event */
         onPointerEnter?: PointerEventHandler<Target>
-        onPointerEnterCapture?: PointerEventHandler<Target>
+        /** Handler for onPointerDown event */
         onPointerDown?: PointerEventHandler<Target>
-        onPointerDownCapture?: PointerEventHandler<Target>
+        /** Handler for onPointerMove event */
         onPointerMove?: PointerEventHandler<Target>
-        onPointerMoveCapture?: PointerEventHandler<Target>
+        /** Handler for onPointerUp event */
         onPointerUp?: PointerEventHandler<Target>
-        onPointerUpCapture?: PointerEventHandler<Target>
+        /** Handler for onPointerCancel event */
         onPointerCancel?: PointerEventHandler<Target>
-        onPointerCancelCapture?: PointerEventHandler<Target>
+        /** Handler for onPointerOut event */
         onPointerOut?: PointerEventHandler<Target>
-        onPointerOutCapture?: PointerEventHandler<Target>
+        /** Handler for onPointerLeave event */
         onPointerLeave?: PointerEventHandler<Target>
-        onPointerLeaveCapture?: PointerEventHandler<Target>
+        /** Handler for onGotPointerCapture event */
         onGotPointerCapture?: PointerEventHandler<Target>
-        onGotPointerCaptureCapture?: PointerEventHandler<Target>
+        /** Handler for onLostPointerCapture event */
         onLostPointerCapture?: PointerEventHandler<Target>
-        onLostPointerCaptureCapture?: PointerEventHandler<Target>
 
         // UI Events
+        /** Handler for onScroll event */
         onScroll?: UIEventHandler<Target>
+        /** Handler for onScrollEnd event */
         onScrollEnd?: UIEventHandler<Target>
-        onScrollCapture?: UIEventHandler<Target>
 
         // Wheel Events
+        /** Handler for onWheel event */
         onWheel?: WheelEventHandler<Target>
-        onWheelCapture?: WheelEventHandler<Target>
 
         // Animation Events
+        /** Handler for onAnimationStart event */
         onAnimationStart?: AnimationEventHandler<Target>
-        onAnimationStartCapture?: AnimationEventHandler<Target>
+        /** Handler for onAnimationEnd event */
         onAnimationEnd?: AnimationEventHandler<Target>
-        onAnimationEndCapture?: AnimationEventHandler<Target>
+        /** Handler for onAnimationIteration event */
         onAnimationIteration?: AnimationEventHandler<Target>
-        onAnimationIterationCapture?: AnimationEventHandler<Target>
 
         // Transition Events
+        /** Handler for onTransitionCancel event */
         onTransitionCancel?: TransitionEventHandler<Target>
-        onTransitionCancelCapture?: TransitionEventHandler<Target>
+        /** Handler for onTransitionEnd event */
         onTransitionEnd?: TransitionEventHandler<Target>
-        onTransitionEndCapture?: TransitionEventHandler<Target>
+        /** Handler for onTransitionRun event */
         onTransitionRun?: TransitionEventHandler<Target>
-        onTransitionRunCapture?: TransitionEventHandler<Target>
+        /** Handler for onTransitionStart event */
         onTransitionStart?: TransitionEventHandler<Target>
-        onTransitionStartCapture?: TransitionEventHandler<Target>
 
         // PictureInPicture Events
+        /** Handler for onEnterPictureInPicture event */
         onEnterPictureInPicture?: PictureInPictureEventHandler<Target>
-        onEnterPictureInPictureCapture?: PictureInPictureEventHandler<Target>
+        /** Handler for onLeavePictureInPicture event */
         onLeavePictureInPicture?: PictureInPictureEventHandler<Target>
-        onLeavePictureInPictureCapture?: PictureInPictureEventHandler<Target>
+        /** Handler for onResize event */
         onResize?: PictureInPictureEventHandler<Target>
-        onResizeCapture?: PictureInPictureEventHandler<Target>
 
+        /** Handler for onCommand event */
         onCommand?: CommandEventHandler<Target>
     }
 

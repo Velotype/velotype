@@ -177,8 +177,7 @@ export namespace JSXInternal {
         // Keyboard Events
         /** Handler for onKeyDown event */
         onKeyDown?: KeyboardEventHandler<Target>
-        /** Handler for onKeyPress event */
-        onKeyPress?: KeyboardEventHandler<Target>
+        // keypress is deprecated
         /** Handler for onKeyUp event */
         onKeyUp?: KeyboardEventHandler<Target>
 
@@ -229,7 +228,7 @@ export namespace JSXInternal {
         onWaiting?: GenericEventHandler<Target>
 
         // MouseEvents
-        /** Handler for onClick event */
+        /** Handler for onClick event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/click_event */
         onClick?: MouseEventHandler<Target>
         /** Handler for onContextMenu event */
         onContextMenu?: MouseEventHandler<Target>
@@ -265,11 +264,9 @@ export namespace JSXInternal {
         onMouseOver?: MouseEventHandler<Target>
         /** Handler for onMouseUp event */
         onMouseUp?: MouseEventHandler<Target>
-        // TODO: Spec for `auxclick` events was changed to make it a PointerEvent but only
-        // Chrome has support for it yet. When more browsers align we should change this.
-        // https://developer.mozilla.org/en-US/docs/Web/API/Element/auxclick_event#browser_compatibility
+        // mousewheel is deprecated
         /** Handler for onAuxClick event */
-        onAuxClick?: MouseEventHandler<Target>
+        onAuxClick?: PointerEventHandler<Target>
 
         // Selection Events
         /** Handler for onSelect event */

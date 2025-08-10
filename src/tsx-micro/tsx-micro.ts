@@ -121,8 +121,11 @@ export function f(_attrs: any | null, ...children:  ChildrenTypes[]): ChildrenTy
 
 /** Basic JSX types */
 export declare namespace h {
+    /** JSX namespace */
     export namespace JSX {
+        /** JSX types for elements and their accepted attributes, in Micro just set to any */
         interface IntrinsicElements {
+            /** Allow all attributes for all elements */
             [elemName: string]: any
         }
     }

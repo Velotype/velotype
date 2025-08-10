@@ -1,17 +1,13 @@
 // deno-lint-ignore-file no-explicit-any
 
-// Note: this file doesn't actually do anything yet,
-// it is a placeholder for when I can figure out how to
-// export import JSX.IntrinsicElements
-
 import type {CSSProperties, ChildrenAttr, Component, FunctionComponent} from "../tsx/tsx-core.ts"
 export type {CSSProperties, ChildrenAttr, Component, FunctionComponent}
 
-/** [MDN Reference](https://developer.mozilla.org/en-US/docs/Web/API/CommandEvent) */
+/** Reference: https://developer.mozilla.org/en-US/docs/Web/API/CommandEvent */
 export interface CommandEvent extends Event {
-    /** [MDN Reference](https://developer.mozilla.org/en-US/docs/Web/API/CommandEvent/source) */
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/API/CommandEvent/source */
     readonly source: Element | null
-    /** [MDN Reference](https://developer.mozilla.org/en-US/docs/Web/API/CommandEvent/command) */
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/API/CommandEvent/command */
     readonly command: string
 }
 
@@ -26,7 +22,7 @@ export interface CommandEventInit extends EventInit {
 }
 
 /** Either a boolean or a string with `'true' | 'false'` */
-export type Booleanish = boolean | 'true' | 'false'
+export type Booleanish = boolean | "true" | "false"
 
 /** A wrapper namespace to be exported as the JSX namespace */
 export namespace JSXInternal {

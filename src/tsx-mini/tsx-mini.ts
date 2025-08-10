@@ -179,9 +179,7 @@ function componentRender(component: Component<any,any>, attrs: Readonly<any>, ch
  * 
  * Resolves: eventListeners, style object, and processes boolean values
  * 
- * eventListeners support \<div onClick:{()=>{alert()}} />
- * 
- * The attrs.style object will unfurl keys(style) into a .join(";") string converting lowerCamelCase to hypen-case
+ * eventListeners support `<div onClick:{()=>{alert()}} />`
  * 
  * Boolean values are set as empty attributes when true and unset when false
  */
@@ -217,7 +215,9 @@ function setAttrsOnElement(element: HTMLElement, attrs: Readonly<any>) {
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
- * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ * ```tsx
+ * <tag attrOne={} attrTwo={}>{children}</tag>
+ * ```
  */
 function createElement(tag: Type<Component<any,any>> | FunctionComponent<any> | string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): any {
     const notNullAttrs = attrs || {}
@@ -257,12 +257,14 @@ function createElement(tag: Type<Component<any,any>> | FunctionComponent<any> | 
  * 
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
- * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ * ```tsx
+ * <tag attrOne={} attrTwo={}>{children}</tag>
+ * ```
  */
 export const h: (tag: Type<Component<any,any>> | FunctionComponent<any> | string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]) => any = createElement
 
 /**
- * Create a fragment \<></> (which just propagates an array of children[])
+ * Create a fragment `<></>` (which just propagates an array of `children[]`)
  */
 function createFragment(_attrs: null, ...children:  ChildrenTypes[]): ChildrenTypes[] {
     return children
@@ -271,7 +273,7 @@ function createFragment(_attrs: null, ...children:  ChildrenTypes[]): ChildrenTy
 /**
  * Short style tsx createFragment
  * 
- * Create a fragment \<></> (which just propagates an array of children[])
+ * Create a fragment `<></>` (which just propagates an array of `children[]`)
  */
 export const f: (_attrs: null, ...children:  ChildrenTypes[]) => ChildrenTypes[] = createFragment
 
@@ -280,10 +282,10 @@ export const f: (_attrs: null, ...children:  ChildrenTypes[]) => ChildrenTypes[]
  * 
  * Usage:
  * 
- * ```ts
+ * ```tsx
  * class ComplexComponent extends Component<EmptyAttrs> {
  *     override render() {
- *     return <div>This is a complex Component</div>
+ *         return <div>This is a complex Component</div>
  *     }
  *     someMethod() {
  *         console.log("ComplexComponent method called")
@@ -291,7 +293,7 @@ export const f: (_attrs: null, ...children:  ChildrenTypes[]) => ChildrenTypes[]
  * }
  * 
  * //Somewhere else
- * const foo = getComponent<ComplexComponent>(<ComplexComponent/>)
+ * const foo = getComponent(<ComplexComponent/>)
  * foo.someMethod()
  * 
  * //Can then be used in tsx directly:

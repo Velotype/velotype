@@ -51,8 +51,6 @@ export type FunctionComponent<AttrsType> = (attrs: Readonly<AttrsType>, children
  * 
  * eventListeners support \<div onClick:{()=>{alert()}} />
  * 
- * The attrs.style object will unfurl keys(style) into a .join(";") string converting lowerCamelCase to hypen-case
- * 
  * Boolean values are set as empty attributes when true and unset when false
  */
 function setAttrsOnElement(element: HTMLElement, attrs: Readonly<any>) {
@@ -61,7 +59,7 @@ function setAttrsOnElement(element: HTMLElement, attrs: Readonly<any>) {
             // Special handling for event listener attributes
             // Example attrs: {onClick: ()=>{}}
             element.addEventListener(name.toLowerCase().substring(2) as keyof HTMLElementEventMap, value as (this: HTMLElement, ev: Event | UIEvent | WheelEvent) => any)
-        } else if (name == "style" && value instanceof Object) {
+        } else if (name == 'style' && value instanceof Object) {
             // Special handling for style object
             for (const key of Object.keys(value)) {
                 const keyValue = value[key]
@@ -72,7 +70,7 @@ function setAttrsOnElement(element: HTMLElement, attrs: Readonly<any>) {
                     element.style[key as any] = keyValue
                 }
             }
-        } else if (typeof value == "boolean") {
+        } else if (typeof value == 'boolean') {
             // Boolean true gets set to empty string, boolean false does not get set
             if (value) {
                 element.setAttribute(name, "")
@@ -89,7 +87,9 @@ function setAttrsOnElement(element: HTMLElement, attrs: Readonly<any>) {
  * 
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
- * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ * ```tsx
+ * <tag attrOne={} attrTwo={}>{children}</tag>
+ * ```
  */
 export function h(tag: FunctionComponent<any> | string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): any {
     const notNullAttrs = attrs || {}
@@ -106,16 +106,16 @@ export function h(tag: FunctionComponent<any> | string, attrs: Readonly<any> | n
     }
 
     // Fallback case
-    console.error("Invalid tag", tag, notNullAttrs, children)
-    return h("div",{style:"display:none;"})
+    console.error('Invalid', tag, notNullAttrs, children)
+    return h('div',{style:'display:none;'})
 }
 
 /**
  * Short style `createFragment()`
  * 
- * Create a fragment \<></> (which just propagates an array of children[])
+ * Create a fragment `<></>` (which just propagates an array of `children[]`)
  */
-export function f(_attrs: any | null, ...children:  ChildrenTypes[]): ChildrenTypes[] {
+export function f(_attrs: null, ...children:  ChildrenTypes[]): ChildrenTypes[] {
     return children
 }
 

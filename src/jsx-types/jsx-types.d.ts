@@ -1336,7 +1336,7 @@ export namespace JSXInternal {
         role?: AriaRole
     }
 
-    /** Types that are allowed as a \<tag/> */
+    /** Types that are allowed as a `<tag/>` */
     export type ElementType<C extends Component<any,any>> = keyof IntrinsicElements
         | FunctionComponent<any>
         | C

@@ -8,7 +8,9 @@ export type { AnchorElement, BasicTypes, ChildrenTypes, ChildTypes }
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
- * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ * ```tsx
+ * <tag attrOne={} attrTwo={}>{children}</tag>
+ * ```
  */
 export function jsx(tag: any, attrs: any, key?: string | undefined): ChildrenTypes[] | AnchorElement | BasicTypes {
     // Pull children out of attrs
@@ -22,16 +24,19 @@ export function jsx(tag: any, attrs: any, key?: string | undefined): ChildrenTyp
     return createElement(tag, attrs, children)
 }
 
-// Velotype does not distinguish between static and dynamic children arrays
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
- * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ * ```tsx
+ * <tag attrOne={} attrTwo={}>{children}</tag>
+ * ```
+ * 
+ * Note: Velotype does not distinguish between static and dynamic children arrays so jsx and jsxs are identical
  */
 export const jsxs: (tag: any, attrs: any, key?: string | undefined) => ChildrenTypes[] | AnchorElement | BasicTypes = jsx
 
 /**
- * Create an fragment \<></> (which just propagates an array of children[])
+ * Create an fragment `<></>` (which just propagates an array of children[])
  */
 export const Fragment: (_attrs: Readonly<any>, ...children: ChildrenTypes[]) => ChildrenTypes[] = createFragment
 

@@ -20,7 +20,9 @@ export type Source = {
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
- * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ * ```tsx
+ * <tag attrOne={} attrTwo={}>{children}</tag>
+ * ```
  */
 export function jsxDEV(tag: any, attrs: any, key: string | undefined, _isStaticChildren: boolean, _source: Source, _parentThis: any): ChildrenTypes[] | AnchorElement | BasicTypes {
     // Pull children out of attrs
@@ -35,7 +37,7 @@ export function jsxDEV(tag: any, attrs: any, key: string | undefined, _isStaticC
 }
 
 /**
- * Create an fragment \<></> (which just propagates an array of children[])
+ * Create an fragment `<></>` (which just propagates an array of children[])
  */
 export const Fragment: (_attrs: Readonly<any>, ...children: ChildrenTypes[]) => ChildrenTypes[] = createFragment
 

@@ -5,19 +5,23 @@
   "exports": {
     ".": "./src/tsx/tsx-core.ts",
     "./tsx": "./src/tsx/tsx-core.ts",
-    "./tsx-micro": "./src/tsx/tsx-micro.ts",
+    "./tsx-micro": "./src/tsx-micro/tsx-micro.ts",
+    "./tsx-mini": "./src/tsx-mini/tsx-mini.ts",
     "./jsx-runtime": "./src/jsx-runtime/jsx-runtime.ts",
     "./jsx-dev-runtime": "./src/jsx-dev-runtime/jsx-dev-runtime.ts",
     "./webserver": "./src/webserver/index.ts"
   },
   "publish": {
     "exclude": [
+      "dist/",
       "docs/",
       "tests/"
     ]
   },
   "tasks": {
-    "tsx-bundle": "deno bundle --minify ./src/tsx/tsx-core.ts --output ./dist/tsx-core.min.js --sourcemap",
+    "bundle-tsx": "deno bundle --minify ./src/tsx/tsx-core.ts --output ./dist/tsx-core.min.js --sourcemap",
+    "bundle-tsx-mini": "deno bundle --minify ./src/tsx-mini/tsx-mini.ts --output ./dist/tsx-mini.min.js --sourcemap",
+    "bundle-tsx-micro": "deno bundle --minify ./src/tsx-micro/tsx-micro.ts --output ./dist/tsx-micro.min.js --sourcemap",
     "test": "deno test ./tests/"
   },
   "compilerOptions": {

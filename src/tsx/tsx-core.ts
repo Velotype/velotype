@@ -68,17 +68,18 @@ export type ChildrenAttr = { children?: ChildrenTypes[] | ChildrenTypes }
 
 /** Regular console.log() - used for JS minification */
 const consoleLog = console.log
+
 /** Regular console.error() - used for JS minification */
 const consoleError = console.error
 
 /** Style display:contents; */
-const displayContents = {style: "display:contents;"}
+const displayContents = {style: 'display:contents;'}
 
 /** Style display:none; */
-const displayNone = {style: "display:none;"}
+const displayNone = {style: 'display:none;'}
 
 /** String "div" */
-const divTag = "div"
+const divTag = 'div'
 
 /** Checks if something is an instanceof HTMLElement */
 function instanceOfHTMLElement(something: any): something is HTMLElement {
@@ -151,7 +152,7 @@ function defineLockedProperty(object: any, key: string, value: any): void {
 
 /** Convert from lowerCamelCase to hypen-case */
 function lowerCamelToHypenCase(text: string): string {
-    return text.replace(/[A-Z]/g, function(char) {return "-"+char.toLowerCase()})
+    return text.replace(/[A-Z]/g, function(char) {return '-'+char.toLowerCase()})
 }
 
 /** Map of DOM keys to Velotype Component references */
@@ -177,6 +178,7 @@ export type StyleSection = {
     /** Unique key for this sheet */
     key: string
 }
+
 /** Map of style keys to ensure each style key is only mounted once */
 const styleSectionMounted: Map<string, StyleSection> = new Map<string, StyleSection>()
 
@@ -227,14 +229,14 @@ export function setDomKey(newKeyName: string) {
  */
 export interface HasVtKey {
     /**
-     * A unique key per instance of each Velotype renderable object.
+     * A unique key per instance of each Velotype renderable object
      * 
      * These keys are read-only and set by Velotype Core on object construction and are not overridable
      */
     readonly vtKey: string
 }
 /**
- * domReferences.get(key) - used for JS minification
+ * `domReferences.get(key)` - used for JS minification
  */
 function getDOMreference(key: string): InternalComponent | MultiRenderable | undefined {
     return domReferences.get(key)
@@ -300,7 +302,7 @@ function renderableElementToElement(child: RenderableElements): AnchorElement {
     }
     // If TypeScript is working properly this case should never be hit since
     // we checked all of the case types above
-    consoleError("Internal typescript error")
+    consoleError('Internal typescript error')
     return hiddenElement()
 }
 /**
@@ -326,7 +328,7 @@ function appendChild(parent: HTMLElement | DocumentFragment, child: ChildrenType
 /**
  * Generates a new \<div> element that is hidden from the page
  * 
- * @returns \<div style="display:none;"/>
+ * @returns `<div style="display:none;"/>`
  */
 function hiddenElement(): HTMLElement {
     return createElement(divTag,displayNone) as HTMLDivElement
@@ -407,12 +409,12 @@ export interface MultiRenderable {
  */
 export interface Mountable {
     /**
-     * Mount is called just after a Component is attached to the DOM.
+     * Mount is called just after a Component is attached to the DOM
      */
     mount: () => void
 
     /**
-     * Unmount is called just before a Component is removed from the DOM.
+     * Unmount is called just before a Component is removed from the DOM
      */
     unmount: () => void
 }
@@ -468,7 +470,7 @@ export class RenderObject<DataType, UpdateRefsType = never> implements MultiRend
         return `vt-oc-${this.vtKey}`
     }
     #emitOnChangeEvent() {
-        emitEvent(this.#eventListeningKey(), new VelotypeEvent(this,"onChange"))
+        emitEvent(this.#eventListeningKey(), new VelotypeEvent(this,'onChange'))
     }
     /**
      * Create a new RenderObject
@@ -487,8 +489,7 @@ export class RenderObject<DataType, UpdateRefsType = never> implements MultiRend
     }
 
     /**
-     * Register an EventListener to receive an onChange event when the value of
-     * this RenderObject changes.
+     * Register an EventListener to receive an onChange event when the value of this RenderObject changes.
      * 
      * @param component the Component this RenderObject is created within or a child of the owning Component (has undefined behavior if registered to a non-child of the owning Component)
      * @param listener the EventListener to register
@@ -512,7 +513,7 @@ export class RenderObject<DataType, UpdateRefsType = never> implements MultiRend
      * @param onUnmount callback to be triggered when the Component that this RenderObject is created within gets unmounted
      * @returns this
      */
-    registerOnMount(onMount?: () => void, onUnmount?: () => void): RenderObject<DataType, UpdateRefsType> {
+    registerOnMount(onMount?: () => void | undefined, onUnmount?: () => void): RenderObject<DataType, UpdateRefsType> {
         if (onMount) {
             this.#onMounts.push(onMount)
         }
@@ -627,14 +628,14 @@ export class RenderObject<DataType, UpdateRefsType = never> implements MultiRend
             if (key == componentKey) {
                 this.#elements.delete(componentKey)
                 this.#updateRefs.delete(componentKey)
-                releaseVtKey(componentKey||"")
+                releaseVtKey(componentKey||'')
                 return true
             } else {
-                consoleError("Invalid state", key, componentKey, element)
+                consoleError('Invalid state', key, componentKey, element)
                 return false
             }
         } else {
-            consoleError("Invalid unmountKey", key)
+            consoleError('Invalid unmountKey', key)
             return false
         }
     }
@@ -703,7 +704,7 @@ export class RenderBasic<DataType extends BasicTypes> extends RenderObject<DataT
     /** Create a new BasicComponent */
     constructor(initialData: DataType) {
         super(initialData, function(data: DataType) {
-            return createElement("span", null, data.toString()) as HTMLSpanElement
+            return createElement('span', null, data.toString()) as HTMLSpanElement
         })
     }
     /**
@@ -916,7 +917,7 @@ function replaceChildren(element: HTMLElement, newChildren: AnchorElement[]): vo
     mountComponentElementChildren(element)
 }
 /**
- * Will unmount an element and then .remove() it
+ * Will unmount an element and then `.remove()` it
  */
 function removeElement(element: AnchorElement): void {
     unmountComponentElement(element)
@@ -1071,7 +1072,7 @@ function traverseElementChildren(element: Element, callback: (component: Interna
 }
 
 /**
- * Call .mount() on linked Components
+ * Call `.mount()` on linked Components
  */
 function mountComponentElementHelper(component: InternalComponent | MultiRenderable, _key: string): void {
     if (instanceOfInternalComponent(component)) {
@@ -1109,7 +1110,7 @@ function mountComponentElementChildren(element: HTMLElement): void {
     traverseElementChildren(element, mountComponentElementHelper)
 }
 /**
- * Call .unmount() on linked Components and release vtKeys
+ * Call `.unmount()` on linked Components and release vtKeys
  */
 function unmountComponentElementHelper(component: InternalComponent | MultiRenderable, key: string): void {
     if (instanceOfInternalComponent(component)) {
@@ -1141,7 +1142,7 @@ function unmountComponentElementChildren(element: HTMLElement): void {
     traverseElementChildren(element, unmountComponentElementHelper)
 }
 /**
- * Unount this element and all children
+ * Unount this element and all of its children
  */
 function unmountComponentElement(element: AnchorElement): void {
     if (instanceOfHTMLElement(element)) {
@@ -1169,10 +1170,9 @@ function componentRender(classComponent: InternalComponent, attrs: Readonly<any>
  * 
  * Resolves: eventListeners, style object, and processes boolean values
  * 
- * eventListeners support \<div onClick:{()=>{alert()}} />
- * eventListeners support \<div onClick:{{handler: ()=>{alert()}, options: AddEventListenerOptions}} />
+ * eventListeners support `<div onClick:{()=>{alert()}} />`
  * 
- * The attrs.style object will unfurl keys(style) into a .join(";") string converting lowerCamelCase to hypen-case
+ * and eventListeners support `<div onClick:{{handler: ()=>{alert()}, options: AddEventListenerOptions | boolean}} />`
  * 
  * Boolean values are set as empty attributes when true and unset when false
  */
@@ -1199,32 +1199,32 @@ function setAttrsOnElement(element: AnchorElement, attrs?: Readonly<any> | null)
                 // and: https://github.com/webcomponents/custom-elements-everywhere/blob/main/libraries/preact/src/components.js#L201
                 element.addEventListener(name.toLowerCase().substring(2) as keyof HTMLElementEventMap, handler, options)
             }
-        } else if (name == "style" && value instanceof Object) {
+        } else if (name == 'style' && value instanceof Object) {
             // Special handling for style object
             for (const key of Object.keys(value)) {
                 const keyValue = value[key]
-                if (keyValue && keyValue.endsWith("!important")) {
+                if (keyValue && keyValue.endsWith('!important')) {
                     // Important requires setProperty() call
-                    element.style.setProperty(lowerCamelToHypenCase(key), keyValue.substring(0,keyValue.length - 10), "important")
+                    element.style.setProperty(lowerCamelToHypenCase(key), keyValue.substring(0,keyValue.length - 10), 'important')
                 } else if (key[0] == '-') {
                     // Support CSS properties that start with dash
-                    element.style.setProperty(key, keyValue == null ? "" : keyValue)
+                    element.style.setProperty(key, keyValue == null ? '' : keyValue)
                 } else if (keyValue == null) {
-                    element.style[key as any] = ""
+                    element.style[key as any] = ''
                 } else {
                     // Note: any is used here because "keyof typeof element.style" clashes with "length" and "parentRule" being readonly
                     element.style[key as any] = keyValue
                 }
             }
-        } else if (typeof value == "boolean") {
-            if (name.startsWith("aria-") || name.startsWith("data-")) {
+        } else if (typeof value == 'boolean') {
+            if (name.startsWith('aria-') || name.startsWith('data-')) {
                 // Always set the attribute for aria- and data- attributes
                 setAttributeHelper(element, name, String(value))
             } else if (value) {
                 // Boolean true gets set to empty string, boolean false does not get set
-                setAttributeHelper(element, name, "")
+                setAttributeHelper(element, name, '')
             }
-        } else if (typeof value == "function") {
+        } else if (typeof value == 'function') {
             // Avoid setting the attribute if the value is a function
         } else if (value) {
             // Regular attribute
@@ -1239,67 +1239,89 @@ function setAttrsOnElement(element: AnchorElement, attrs?: Readonly<any> | null)
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
- * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ * ```tsx
+ * <tag attrOne={} attrTwo={}>{children}</tag>
+ * ```
  */
-export function createElement(tag: "span", attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLSpanElement
+export function createElement(tag: 'span', attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLSpanElement
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
- * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ * ```tsx
+ * <tag attrOne={} attrTwo={}>{children}</tag>
+ * ```
  */
-export function createElement(tag: "div", attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLDivElement
+export function createElement(tag: 'div', attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLDivElement
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
- * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ * ```tsx
+ * <tag attrOne={} attrTwo={}>{children}</tag>
+ * ```
  */
 export function createElement(tag: string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
- * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ * ```tsx
+ * <tag attrOne={} attrTwo={}>{children}</tag>
+ * ```
  */
 export function createElement(tag: Type<Component<any, Component<any, any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
- * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ * ```tsx
+ * <tag attrOne={} attrTwo={}>{children}</tag>
+ * ```
  */
 export function createElement(tag: Type<Component<any, RenderObject<any, any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
- * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ * ```tsx
+ * <tag attrOne={} attrTwo={}>{children}</tag>
+ * ```
  */
 export function createElement(tag: Type<Component<any, RenderObject<any, never>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
- * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ * ```tsx
+ * <tag attrOne={} attrTwo={}>{children}</tag>
+ * ```
  */
 export function createElement(tag: Type<Component<any, HTMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
- * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ * ```tsx
+ * <tag attrOne={} attrTwo={}>{children}</tag>
+ * ```
  */
 export function createElement(tag: Type<Component<any, SVGSVGElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): SVGSVGElement
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
- * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ * ```tsx
+ * <tag attrOne={} attrTwo={}>{children}</tag>
+ * ```
  */
 export function createElement(tag: Type<Component<any, MathMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): MathMLElement
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
- * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ * ```tsx
+ * <tag attrOne={} attrTwo={}>{children}</tag>
+ * ```
  */
 export function createElement(tag: FunctionComponent<any>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): ChildrenTypes[] | AnchorElement | BasicTypes
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
- * \<tag attrOne={} attrTwo={}>{children}\</tag>
+ * ```tsx
+ * <tag attrOne={} attrTwo={}>{children}</tag>
+ * ```
  */
 export function createElement(tag: Type<Component<any, any>> | FunctionComponent<any> | string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): ChildrenTypes[] | AnchorElement | BasicTypes {
     const notNullAttrs = attrs || {}
@@ -1307,7 +1329,7 @@ export function createElement(tag: Type<Component<any, any>> | FunctionComponent
         // Base HTML Element
         const element = document.createElement(tag)
         setAttrsOnElement(element, notNullAttrs)
-        if (tag == "template") {
+        if (tag == 'template') {
             // Template elements' children get attached to the DocumentFragment content
             appendChild((element as HTMLTemplateElement).content, children)
         } else {
@@ -1341,7 +1363,7 @@ export function createElement(tag: Type<Component<any, any>> | FunctionComponent
     }
 
     // Fallback case
-    consoleError("Invalid tag", tag, notNullAttrs, children)
+    consoleError('Invalid tag', tag, notNullAttrs, children)
     return hiddenElement()
 }
 
@@ -1357,21 +1379,23 @@ export function createFragment(_attrs: Readonly<any>, ...children:  ChildrenType
  * 
  * Usage:
  * 
- *     class ComplexComponent extends Component<EmptyAttrs> {
- *         override render() {
- *             return <div>This is a complex Component</div>
- *         }
- *         someMethod() {
- *             console.log("ComplexComponent method called")
- *         }
+ * ```tsx
+ * class ComplexComponent extends Component<EmptyAttrs> {
+ *     override render() {
+ *         return <div>This is a complex Component</div>
  *     }
+ *     someMethod() {
+ *         console.log("ComplexComponent method called")
+ *     }
+ * }
  * 
- *     //Somewhere else
- *     const foo = getComponent<ComplexComponent>(<ComplexComponent/>)
- *     foo.someMethod()
+ * //Somewhere else
+ * const foo = getComponent(<ComplexComponent/>)
+ * foo.someMethod()
  * 
- *     //Can then be used in tsx directly:
- *     return <div>{foo}</div>
+ * //Can then be used in tsx directly:
+ * return <div>{foo}</div>
+ * ```
  */
 export function getComponent<T>(componentElement: ChildrenTypes[] | AnchorElement | BasicTypes | null): T {
     if (!componentElement || componentElement instanceof Text || instanceOfBasicTypes(componentElement) || Array.isArray(componentElement)) {

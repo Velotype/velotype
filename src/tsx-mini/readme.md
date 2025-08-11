@@ -1,14 +1,11 @@
-# browser-tsx-micro
-Micro TSX framework
+# Velotype tsx-mini
+Mini TSX framework
 
-This is a strictly minimal TSX framework to serve as an example of how TSX rendering works. A full TSX framework is available in [velotype/browser-tsx-core](velotype/browser-tsx-core)
+This is a mostly minimal TSX framework to serve as an example of how TSX rendering works. It introduces basic classes in addition to the tsx-micro module.
 
-** NPM Package export is currently under testing and is not stable yet **
+## Basic properties of Velotype TSX Mini
 
-
-## Basic properties of Velotype TSX Micro
-
-### TSX Returns HTMLElements directly
+### Returns HTMLElements directly
 
 Velotype is built to be nearly native javascript and will return HTMLElements
 
@@ -16,7 +13,7 @@ Velotype is built to be nearly native javascript and will return HTMLElements
 const divTag: HTMLDivElement = <div>this is a div</div>
 ```
 
-### TSX uses HTML Attributes
+### Uses HTML Attributes
 
 Velotype calls `HTMLElement.setAttribute()` so you write TSX the same as if you were writing HTML to the page.
 
@@ -24,7 +21,7 @@ Velotype calls `HTMLElement.setAttribute()` so you write TSX the same as if you 
 const divTag: HTMLDivElement = <div class="exampleClass">this is a div</div>
 ```
 
-### TSX supports style objects
+### Supports style objects
 
 Velotype resolves style objects to make inline styling quick and easy.
 
@@ -46,13 +43,9 @@ Create these objects as Tags in tsx `<tag></tag>`
 
 A Velotype Function Component that can be used in .tsx files to render HTML Components.
 
-Does not support mount and unmount lifecycle events.
-
 ### Class Components
 
 A Velotype Class Component that can be used in .tsx files to render HTML Components.
-
-Supports unmount, render, mount lifecycle events.
 
 ```tsx
 // Define a simple class
@@ -86,48 +79,4 @@ foo.someMethod()
 
 //Can then be used in tsx directly:
 const someVariable = <div>{foo}</div>
-```
-
-#### More Complex Component example
-
-Components' lifecycle supports a `mount()`, `render()`, then `unmount()` cycle.
-
-```tsx
-type MoreComplexAttrsType = {
-    requiredAttr: string,
-    optionalAttr?: string
-}
-class MoreComplexComponent extends Component<MoreComplexAttrsType, HTMLElement> {
-    someMethodCallCount: number = 0
-    otherMethodCallCount = new BasicComponent<number>(0)
-    override mount() {
-        console.log("This component was just added to the DOM")
-    }
-    override unmount() {
-        console.log("This component is about to be removed from the DOM")
-    }
-    override render(attrs: Readonly<MoreComplexAttrsType>, children: ChildrenTypes[]) {
-        return <div>
-            This is a more complex Component
-            <button onClick={this.otherMethod}>click me {this.otherMethodCallCount}</button>
-            <button onClick={this.someMethod}>click me {this.someMethodCallCount}</button>
-            <div>
-                Children here:
-                <div>{children}</div>
-            </div>
-        </div>
-    }
-    otherMethod = () => {
-        console.log("MoreComplexComponent otherMethod() called")
-        // Update the value of the BasicComponent, this will rerender the one {this.otherMethodCallCount} element created by render() above
-        this.otherMethodCallCount.value+=1
-    }
-    someMethod = () => {
-        console.log("MoreComplexComponent someMethod() called")
-        this.someMethodCallCount+=1
-
-        // Trigger a full rerender of this Component, this will unmount and delete all child Components, then call this.render() and consequently new and mount a fresh set of child Components.
-        this.refresh()
-    }
-}
 ```

@@ -1,12 +1,12 @@
 # Velotype tsx-micro
 Micro TSX framework
 
-This is a strictly minimal TSX framework to serve as an example of how TSX rendering works. A full TSX framework is available in `jsr:@velotype/velotype/tsx`
+This is a strictly minimal TSX framework to serve as an example of how TSX rendering works.
 
 
 ## Basic properties of Velotype TSX Micro
 
-### TSX Returns HTMLElements directly
+### Returns HTMLElements directly
 
 Velotype is built to be nearly native javascript and will return HTMLElements
 
@@ -14,7 +14,7 @@ Velotype is built to be nearly native javascript and will return HTMLElements
 const divTag: HTMLDivElement = <div>this is a div</div>
 ```
 
-### TSX uses HTML Attributes
+### Uses HTML Attributes
 
 Velotype calls `HTMLElement.setAttribute()` so you write TSX the same as if you were writing HTML to the page.
 
@@ -22,7 +22,7 @@ Velotype calls `HTMLElement.setAttribute()` so you write TSX the same as if you 
 const divTag: HTMLDivElement = <div class="exampleClass">this is a div</div>
 ```
 
-### TSX supports style objects
+### Supports style objects
 
 Velotype resolves style objects to make inline styling quick and easy.
 

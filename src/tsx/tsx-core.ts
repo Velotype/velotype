@@ -16,6 +16,9 @@
  * - Support precompile transform
  * ---- See: https://deno.com/blog/v1.38#fastest-jsx-transform
  * ---- And: https://github.com/preactjs/preact/blob/main/jsx-runtime/src/index.js#L185-L187
+ * ---- https://jsr.io/@mary/jsx@0.1.0
+ * ---- https://jsr.io/@eser/jsx-runtime@0.7.20
+ * ---- https://github.com/preactjs/preact/pull/4177/files
  * - Support react-jsx transform
  * ---- Use Source and this in jsxDEV in jsx-dev-runtime
  * 

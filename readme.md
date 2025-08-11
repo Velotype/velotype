@@ -8,7 +8,7 @@ There are multiple modules as part of Velotype:
 
 In-browser:
 * [tsx-micro](src/tsx-micro/readme.md) - 1kb strictly minimal TSX framework (to demonstrate how TSX works)
-* [tsx-mini](src/tsx-tsx-mini/readme.md) - 2kb mostly minimal TSX framework (adds Classes to tsx-micro)
+* [tsx-mini](src/tsx-mini/readme.md) - 2kb mostly minimal TSX framework (adds Classes to tsx-micro)
 * [tsx](src/tsx/readme.md) - a 10kb fully featured TSX framework
 
 In-server:

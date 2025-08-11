@@ -13,7 +13,7 @@ Differences from react/preact:
 
 ## Basic properties of Velotype TSX
 
-### TSX Returns HTMLElements directly
+### Returns HTMLElements directly
 
 Velotype is built to be nearly native javascript and will return raw HTMLElements directly
 
@@ -21,7 +21,7 @@ Velotype is built to be nearly native javascript and will return raw HTMLElement
 const divTag: HTMLDivElement = <div>this is a div</div>
 ```
 
-### TSX uses HTML Attributes
+### Uses HTML Attributes
 
 Velotype calls `HTMLElement.setAttribute()` so you write TSX the same as if you were writing HTML to the page.
 
@@ -29,7 +29,7 @@ Velotype calls `HTMLElement.setAttribute()` so you write TSX the same as if you 
 const divTag: HTMLDivElement = <div class="exampleClass">this is a div</div>
 ```
 
-### TSX supports style objects
+### Supports style objects
 
 Velotype resolves style objects to make inline styling quick and easy.
 

@@ -78,7 +78,7 @@ function appendChild(parent: HTMLElement, child: ChildrenTypes[] | ChildrenTypes
         } else if (child instanceof HTMLElement) {
             element = child
         }
-        // If we ere able to resolve the element, then append it to the parent
+        // If we were able to resolve the element, then append it to the parent
         if (element) {
             parent.appendChild(element)
         }
@@ -205,7 +205,7 @@ function setAttrsOnElement(element: HTMLElement, attrs: Readonly<any>) {
             if (value) {
                 element.setAttribute(name, "")
             }
-        } else if (value) {
+        } else if (value || value == "") {
             // Regular string-based attribute
             element.setAttribute(name, value.toString())
         }

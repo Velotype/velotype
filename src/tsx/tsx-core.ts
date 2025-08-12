@@ -7,7 +7,7 @@
  * - Add test framework
  * ---- Possibly by using https://jsr.io/@astral/astral
  * ---- See: https://deno-blog.com/End-to-end_test_a_Deno_webapp_using_deno-puppeteer.2022-08-21
- * - Consider making CSSProperties more specific
+ * - Consider making CSSProperties more specific - current typing is unsafe
  * 
  * Categories of support TODOs:
  * - Support DevTools
@@ -1205,23 +1205,24 @@ function setAttrsOnElement(element: AnchorElement, attrs?: Readonly<any> | null)
         } else if (name == 'style' && value instanceof Object) {
             // Special handling for style object
             for (const key of Object.keys(value)) {
-                const keyValue = value[key]
-                if (keyValue && keyValue.endsWith('!important')) {
+                const keyValue: string | number = (value[key] === null || value[key] === undefined) ? '' : value[key]
+                const stringKeyValue = (typeof keyValue == 'number') ? keyValue.toString() : keyValue
+                const style = element.style
+                if (stringKeyValue.endsWith('!important')) {
                     // Important requires setProperty() call
-                    element.style.setProperty(lowerCamelToHypenCase(key), keyValue.substring(0,keyValue.length - 10), 'important')
-                } else if (key[0] == '-') {
-                    // Support CSS properties that start with dash
-                    element.style.setProperty(key, keyValue == null ? '' : keyValue)
-                } else if (keyValue == null) {
-                    element.style[key as any] = ''
+                    style.setProperty(lowerCamelToHypenCase(key), stringKeyValue.substring(0, stringKeyValue.length - 10), 'important')
                 } else {
-                    // Note: any is used here because "keyof typeof element.style" clashes with "length" and "parentRule" being readonly
-                    element.style[key as any] = keyValue
+                    if (hasSetterInPrototypeChain(style,key)) {
+                        // Note: any is used here because "keyof typeof element.style" clashes with "length" and "parentRule" being readonly
+                        style[key as any] = stringKeyValue
+                    } else {
+                        style.setProperty(key, stringKeyValue)
+                    }
                 }
             }
         } else if (typeof value == 'boolean') {
             if (name.startsWith('aria-') || name.startsWith('data-')) {
-                // Always set the attribute for aria- and data- attributes
+                // Always set the raw boolean attribute for aria- and data- attributes
                 setAttributeHelper(element, name, String(value))
             } else if (value) {
                 // Boolean true gets set to empty string, boolean false does not get set
@@ -1229,7 +1230,7 @@ function setAttrsOnElement(element: AnchorElement, attrs?: Readonly<any> | null)
             }
         } else if (typeof value == 'function') {
             // Avoid setting the attribute if the value is a function
-        } else if (value) {
+        } else if (value || value == "") {
             // Regular attribute
             setAttributeHelper(element, name, value)
         }

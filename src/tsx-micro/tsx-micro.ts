@@ -18,21 +18,21 @@ export type EmptyAttrs = Record<string | number | symbol, never>
  * @param parent HTMLElement to append to
  * @param child Children to append
  */
-function appendChild(parent: HTMLElement, child: ChildrenTypes[] | ChildrenTypes) {
+function appendChild(parent: HTMLElement, child: ChildrenTypes[] | ChildrenTypes): void {
     if (Array.isArray(child)) {
         // Recurse over arrays
         for (let i = 0; i < child.length; i++) {
             appendChild(parent, child[i])
         }
     } else {
-        let element: any = undefined
+        let element: Text | HTMLElement | undefined = undefined
         if (typeof child === 'string' || typeof child === 'bigint' || typeof child === 'number' || typeof child === 'boolean') {
             // BasicTypes get converted into TextNodes
             element = document.createTextNode(child.toString())
         } else if (child instanceof HTMLElement) {
             element = child
         }
-        // If we ere able to resolve the element, then append it to the parent
+        // If we were able to resolve the element, then append it to the parent
         if (element) {
             parent.appendChild(element)
         }
@@ -53,7 +53,7 @@ export type FunctionComponent<AttrsType> = (attrs: Readonly<AttrsType>, children
  * 
  * Boolean values are set as empty attributes when true and unset when false
  */
-function setAttrsOnElement(element: HTMLElement, attrs: Readonly<any>) {
+function setAttrsOnElement(element: HTMLElement, attrs: Readonly<any>): void {
     for (const [name, value] of Object.entries(attrs || {})) {
         if (name.startsWith('on') && name.toLowerCase() in window) {
             // Special handling for event listener attributes
@@ -75,7 +75,7 @@ function setAttrsOnElement(element: HTMLElement, attrs: Readonly<any>) {
             if (value) {
                 element.setAttribute(name, "")
             }
-        } else if (value) {
+        } else if (value || value == "") {
             // Regular string-based attribute
             element.setAttribute(name, value.toString())
         }

@@ -5,7 +5,7 @@ Fast and small TSX framework for creating high performance websites
 
 Differences from react/preact:
 * Focuses on Object Oriented Classes (no use*() function calls)
-* Create and manipulate DOM elements directly (no Virtal DOM, no reconsiliation engine)
+* Create and manipulate DOM elements directly (no Virtal DOM, no reconciliation engine)
 * Write the same as if you are writing native HTML (use element Attributes instead of Properties)
 * No state management (use Classes as they are intended with fields and methods)
 * High performance (same performance as pure javascript)

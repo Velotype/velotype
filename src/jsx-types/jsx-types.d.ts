@@ -595,14 +595,12 @@ export namespace JSXInternal {
     interface PartialAnchorHTMLAttributes<T extends EventTarget> extends HTMLAttributes<T> {
         download?: any
         hreflang?: string
-        hrefLang?: string
         media?: string
         ping?: string
         rel?: string
         target?: HTMLAttributeAnchorTarget
         type?: string
         referrerpolicy?: HTMLAttributeReferrerPolicy
-        referrerPolicy?: HTMLAttributeReferrerPolicy
     }
 
     type AnchorAriaRoles =
@@ -619,10 +617,8 @@ export namespace JSXInternal {
         coords?: string
         download?: any
         hreflang?: string
-        hrefLang?: string
         media?: string
         referrerpolicy?: HTMLAttributeReferrerPolicy
-        referrerPolicy?: HTMLAttributeReferrerPolicy
         rel?: string
         shape?: string
         target?: HTMLAttributeAnchorTarget
@@ -661,28 +657,20 @@ export namespace JSXInternal {
         role?: 'none' | 'presentation'
     }
 
-    interface ButtonHTMLAttributes<T extends EventTarget = HTMLButtonElement>
-        extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/button#attributes */
+    interface ButtonHTMLAttributes<T extends EventTarget = HTMLButtonElement> extends HTMLAttributes<T> {
         command?: string
         commandfor?: string
-        commandFor?: string
         disabled?: boolean
         form?: string
         formaction?: string
-        formAction?: string
         formenctype?: string
-        formEncType?: string
         formmethod?: string
-        formMethod?: string
         formnovalidate?: boolean
-        formNoValidate?: boolean
         formtarget?: string
-        formTarget?: string
         name?: string
         popovertarget?: string
-        popoverTarget?: string
         popovertargetaction?: 'hide' | 'show' | 'toggle'
-        popoverTargetAction?: 'hide' | 'show' | 'toggle'
         role?: 'button' | 'checkbox' | 'combobox' | 'gridcell' | 'link' | 'menuitem'
             | 'menuitemcheckbox' | 'menuitemradio' | 'option' | 'radio' | 'separator'
             | 'slider' | 'switch' | 'tab' | 'treeitem'
@@ -725,7 +713,6 @@ export namespace JSXInternal {
     interface DelHTMLAttributes<T extends EventTarget = HTMLModElement> extends HTMLAttributes<T> {
         cite?: string
         datetime?: string
-        dateTime?: string
     }
 
     interface DetailsHTMLAttributes<T extends EventTarget = HTMLDetailsElement> extends HTMLAttributes<T> {
@@ -739,7 +726,6 @@ export namespace JSXInternal {
         onClose?: GenericEventHandler<T>
         open?: boolean
         closedby?: 'none' | 'closerequest' | 'any'
-        closedBy?: 'none' | 'closerequest' | 'any'
         role?: 'dialog' | 'alertdialog'
     }
 
@@ -774,18 +760,15 @@ export namespace JSXInternal {
         role?: 'contentinfo' | 'group' | 'none' | 'presentation' | 'doc-footnote'
     }
 
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#attributes */
     interface FormHTMLAttributes<T extends EventTarget = HTMLFormElement> extends HTMLAttributes<T> {
         'accept-charset'?: string
-        acceptCharset?: string
         action?: string
         autocomplete?: string
-        autoComplete?: string
         enctype?: string
-        encType?: string
         method?: string
         name?: string
         novalidate?: boolean
-        noValidate?: boolean
         rel?: string
         role?: 'form' | 'none' | 'presentation' | 'search'
         target?: string
@@ -813,19 +796,17 @@ export namespace JSXInternal {
 
     interface IframeHTMLAttributes<T extends EventTarget = HTMLIFrameElement> extends HTMLAttributes<T> {
         allow?: string
-        allowFullScreen?: boolean
-        allowTransparency?: boolean
+        allowfullscreen?: boolean
+        allowtransparency?: boolean
         height?: number | string
         loading?: 'eager' | 'lazy'
         name?: string
         referrerpolicy?: HTMLAttributeReferrerPolicy
-        referrerPolicy?: HTMLAttributeReferrerPolicy
         role?: 'application' | 'document' | 'img' | 'none' | 'presentation'
         sandbox?: string
         seamless?: boolean
         src?: string
         srcdoc?: string
-        srcDoc?: string
         width?: number | string
     }
 
@@ -833,20 +814,15 @@ export namespace JSXInternal {
 
     interface PartialImgHTMLAttributes<T extends EventTarget> extends HTMLAttributes<T> {
         crossorigin?: HTMLAttributeCrossOrigin
-        crossOrigin?: HTMLAttributeCrossOrigin
         decoding?: 'async' | 'auto' | 'sync'
         fetchpriority?: 'high' | 'auto' | 'low'
-        fetchPriority?: 'high' | 'auto' | 'low'
         height?: number | string
         loading?: 'eager' | 'lazy'
         referrerpolicy?: HTMLAttributeReferrerPolicy
-        referrerPolicy?: HTMLAttributeReferrerPolicy
         sizes?: string
         src?: string
         srcset?: string
-        srcSet?: string
         usemap?: string
-        useMap?: string
         width?: number | string
     }
 
@@ -875,38 +851,29 @@ export namespace JSXInternal {
         accept?: string
         alt?: string
         autocomplete?: string
-        autoComplete?: string
         capture?: 'user' | 'environment' // https://www.w3.org/TR/html-media-capture/#the-capture-attribute
         checked?: boolean
-        defaultChecked?: boolean
-        defaultValue?: string | number
+        defaultchecked?: boolean
+        defaultvalue?: string | number
         disabled?: boolean
-        enterKeyHint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send'
+        enterkeyhint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send'
         form?: string
         formaction?: string
-        formAction?: string
         formenctype?: string
-        formEncType?: string
         formmethod?: string
-        formMethod?: string
         formnovalidate?: boolean
-        formNoValidate?: boolean
         formtarget?: string
-        formTarget?: string
         height?: number | string
         indeterminate?: boolean
         max?: number | string
         maxlength?: number
-        maxLength?: number
         min?: number | string
         minlength?: number
-        minLength?: number
         multiple?: boolean
         name?: string
         pattern?: string
         placeholder?: string
         readonly?: boolean
-        readOnly?: boolean
         required?: boolean
         size?: number
         src?: string
@@ -1125,29 +1092,28 @@ export namespace JSXInternal {
         cite?: string
     }
 
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script#attributes */
     interface ScriptHTMLAttributes<T extends EventTarget = HTMLScriptElement> extends HTMLAttributes<T> {
         async?: boolean
-        crossorigin?: HTMLAttributeCrossOrigin //XXX TODO Check casing here
-        crossOrigin?: HTMLAttributeCrossOrigin
+        crossorigin?: HTMLAttributeCrossOrigin
         defer?: boolean
         integrity?: string
         nomodule?: boolean
         noModule?: boolean
         referrerpolicy?: HTMLAttributeReferrerPolicy
-        referrerPolicy?: HTMLAttributeReferrerPolicy
         role?: never;
         src?: string
         type?: string
     }
 
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/search#attributes */
     interface SearchHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
         role?: 'search' | 'form' | 'group' | 'none' | 'presentation' | 'region'
     }
 
     interface PartialSelectHTMLAttributes<T extends EventTarget> extends HTMLAttributes<T> {
         autocomplete?: string
-        autoComplete?: string // XXX TODO Check casing here
-        defaultValue?: string | number
+        defaultvalue?: string | number
         disabled?: boolean
         form?: string
         name?: string
@@ -1171,25 +1137,28 @@ export namespace JSXInternal {
             role?: 'listbox'
         }
 
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select#attributes */
     type SelectHTMLAttributes<T extends EventTarget = HTMLSelectElement> = Omit<PartialSelectHTMLAttributes<T>, 'role'> & SelectAriaRoles
 
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/slot#attributes */
     interface SlotHTMLAttributes<T extends EventTarget = HTMLSlotElement> extends HTMLAttributes<T> {
         name?: string
         role?: never
     }
 
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/source#attributes */
     interface SourceHTMLAttributes<T extends EventTarget = HTMLSourceElement> extends HTMLAttributes<T> {
         height?: number | string
         media?: string
         role?: never
         sizes?: string
         src?: string
-        srcset?: string // XXX TODO Check casing here
-        srcSet?: string
+        srcset?: string
         type?: string
         width?: number | string
     }
 
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/style#attributes */
     interface StyleHTMLAttributes<T extends EventTarget = HTMLStyleElement> extends HTMLAttributes<T> {
         media?: string
         role?: never;
@@ -1197,20 +1166,16 @@ export namespace JSXInternal {
         type?: string
     }
 
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/table#attributes */
     interface TableHTMLAttributes<T extends EventTarget = HTMLTableElement> extends HTMLAttributes<T> {
-        cellPadding?: string // XXX TODO Check casing here
-        cellSpacing?: string
-        summary?: string
-        width?: number | string
     }
 
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/td#attributes */
     interface TdHTMLAttributes<T extends EventTarget = HTMLTableCellElement> extends HTMLAttributes<T> {
         align?:  'left' | 'center' | 'right' | 'justify' | 'char'
-        colspan?: number // XXX TODO Check casing here
-        colSpan?: number
+        colspan?: number
         headers?: string
         rowspan?: number
-        rowSpan?: number
         scope?: string
         abbr?: string
         height?: number | string
@@ -1218,96 +1183,90 @@ export namespace JSXInternal {
         valign?: 'top' | 'middle' | 'bottom' | 'baseline'
     }
 
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/template#attributes */
     interface TemplateHTMLAttributes<T extends EventTarget = HTMLTemplateElement> extends HTMLAttributes<T> {
         role?: never
     }
 
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea#attributes */
     interface TextareaHTMLAttributes<T extends EventTarget = HTMLTextAreaElement> extends HTMLAttributes<T> {
-        autocomplete?: string // XXX TODO Check casing here
-        autoComplete?: string
+        autocomplete?: string
         cols?: number
-        defaultValue?: string | number
-        dirName?: string
+        defaultvalue?: string | number
+        dirname?: string
         disabled?: boolean
         form?: string
         maxlength?: number
-        maxLength?: number
         minlength?: number
-        minLength?: number
         name?: string
         placeholder?: string
-        readOnly?: boolean
+        readonly?: boolean
         required?: boolean
         role?: 'textbox'
         rows?: number
         value?: string | number
-        wrap?: string
+        wrap?: 'hard' | 'soft' | 'off'
         onChange?: GenericEventHandler<T>
     }
 
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/th#attributes */
     interface ThHTMLAttributes<T extends EventTarget = HTMLTableCellElement> extends HTMLAttributes<T> {
         align?:  'left' | 'center' | 'right' | 'justify' | 'char'
-        colspan?: number // XXX TODO Check casing here
-        colSpan?: number
+        colspan?: number
         headers?: string
         rowspan?: number
-        rowSpan?: number
         scope?: string
         abbr?: string
     }
 
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/time#attributes */
     interface TimeHTMLAttributes<T extends EventTarget = HTMLTimeElement> extends HTMLAttributes<T> {
-        datetime?: string // XXX TODO Check casing here
-        dateTime?: string
+        datetime?: string
     }
 
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/title#attributes */
     interface TitleHTMLAttributes<T extends EventTarget = HTMLTitleElement> extends HTMLAttributes<T> {
         role?: never
     }
 
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/track#attributes */
     interface TrackHTMLAttributes<T extends EventTarget = HTMLTrackElement> extends MediaHTMLAttributes<T> {
         default?: boolean
         kind?: string
         label?: string
-        role?: never;
-        srclang?: string // XXX TODO Check casing here
-        srcLang?: string
+        role?: never
+        srclang?: string
     }
 
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/ul#attributes */
     interface UlHTMLAttributes<T extends EventTarget = HTMLUListElement> extends HTMLAttributes<T> {
         role?: 'list' | 'group' | 'listbox' | 'menu' | 'menubar' | 'none'
             | 'presentation' | 'radiogroup' | 'tablist' | 'toolbar' | 'tree'
     }
 
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video#attributes */
     interface VideoHTMLAttributes<T extends EventTarget = HTMLVideoElement> extends MediaHTMLAttributes<T> {
         disablePictureInPicture?: boolean
         height?: number | string
-        playsinline?: boolean // XXX TODO Check casing here
-        playsInline?: boolean
+        playsinline?: boolean
         poster?: string
         width?: number | string
         role?: 'application'
     }
 
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/wbr#attributes */
     interface WbrHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
         role?: 'none' | 'presentation'
     }
 
     interface HTMLAttributes<RefType extends EventTarget = EventTarget> extends DOMAttributes<RefType>, AriaAttributes {
-        // XXX TODO Check casing here
-        // TODO determine the correct capitalization of each of all attributes
         // Standard HTML Attributes
         accesskey?: string
-        //accessKey?: string
         autocapitalize?: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters'
-        //autoCapitalize?: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters'
         autocorrect?: string
-        //autoCorrect?: string
         autofocus?: boolean
-        //autoFocus?: boolean
         class?: string
         contenteditable?: Booleanish | '' | 'plaintext-only' | 'inherit'
-        //contentEditable?: Booleanish | '' | 'plaintext-only' | 'inherit'
         dir?: 'auto' | 'rtl' | 'ltr'
         draggable?: boolean
         enterkeyhint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send'
@@ -1316,7 +1275,6 @@ export namespace JSXInternal {
         id?: string
         inert?: boolean
         inputmode?: string
-        //inputMode?: string
         is?: string
         lang?: string
         nonce?: string
@@ -1326,7 +1284,6 @@ export namespace JSXInternal {
         spellcheck?: boolean
         style?: CSSProperties | string
         tabindex?: number
-        //tabIndex?: number
         title?: string
         translate?: boolean
 

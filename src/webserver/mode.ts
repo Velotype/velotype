@@ -16,7 +16,7 @@ export const Mode: {
 } = {
     runMode: runMode,
     isLocal: runMode?.startsWith("local"),
-    useOptimizations: runMode == "local-optimized",
     isProduction: runMode == "production",
+    useOptimizations: runMode == "production" || runMode == "local-optimized",
     domainName: domainName
 }

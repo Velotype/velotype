@@ -1,40 +1,6 @@
 // deno-lint-ignore-file no-unused-vars no-explicit-any
 
 /**
- * Implementation TODOs:
- * - Finish cleanup and symbol documentation of jsx-types.d.ts
- * - Set up deno publish CI https://jsr.io/docs/trust
- * - Add test framework
- * ---- Possibly by using https://jsr.io/@astral/astral
- * ---- See: https://deno-blog.com/End-to-end_test_a_Deno_webapp_using_deno-puppeteer.2022-08-21
- * - Consider making CSSProperties more specific - current typing is unsafe
- * 
- * Categories of support TODOs:
- * - Support DevTools
- * - Support HMR
- * - Support SSR
- * - Support precompile transform
- * ---- See: https://deno.com/blog/v1.38#fastest-jsx-transform
- * ---- And: https://github.com/preactjs/preact/blob/main/jsx-runtime/src/index.js#L185-L187
- * ---- https://jsr.io/@mary/jsx@0.1.0
- * ---- https://jsr.io/@eser/jsx-runtime@0.7.20
- * ---- https://github.com/preactjs/preact/pull/4177/files
- * - Support react-jsx transform
- * ---- Use Source and this in jsxDEV in jsx-dev-runtime
- * 
- * Ecosystem TODOs:
- * - Pass web components tests:
- * ---- Similar to:https://preactjs.com/guide/v10/web-components/
- * ---- Test https://custom-elements-everywhere.com/
- * ---- Check event type case sensitivity (TODO marked below in the code)
- * ---- See: https://preactjs.com/guide/v10/web-components/#triggering-custom-events
- * ---- And: https://github.com/preactjs/preact/blob/main/src/diff/props.js#L71
- * - Pass performance tests:
- * ---- https://github.com/krausest/js-framework-benchmark
- * 
- */
-
-/**
  * These are the types that can be used as a Component's anchor, they can
  * register a componentKey (aka a vtKey) and are mountable/unmountable
  */

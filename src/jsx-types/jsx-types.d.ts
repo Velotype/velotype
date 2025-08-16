@@ -24,7 +24,10 @@ export interface CommandEventInit extends EventInit {
 /** Either a boolean or a string with `'true' | 'false'` */
 export type Booleanish = boolean | "true" | "false"
 
-/** A wrapper namespace to be exported as the JSX namespace */
+/**
+ * The JSX namespace includes a baseline of HTML types for validating HTML tags and their
+ * accepted attributes
+ */
 export namespace JSXInternal {
     /** A Targeted Event */
     type TargetedEvent<Target extends EventTarget = EventTarget, TypedEvent extends Event = Event> = Omit<TypedEvent, 'currentTarget'> & {readonly currentTarget: Target}
@@ -65,7 +68,25 @@ export namespace JSXInternal {
     type TargetedPictureInPictureEvent<Target extends EventTarget> = TargetedEvent<Target, PictureInPictureEvent>
 
     /** A pair of an EventHandler and options of `AddEventListenerOptions | boolean` */
-    type EventHandlerOptions<E extends TargetedEvent> = {handler: (event: E) => void, options: AddEventListenerOptions | boolean}
+    type EventHandlerOptions<E extends TargetedEvent> = {
+        /** The Event handler */
+        handler: (event: E) => void,
+        /**
+         * An options object, if options is a boolean it is the same as `options.capture`
+         * 
+         * ```ts
+         * interface AddEventListenerOptions extends EventListenerOptions {
+         *     once?: boolean; // A boolean value indicating that the listener should be invoked at most once after being added. If true, the listener would be automatically removed when invoked. If not specified, defaults to false.
+         *     passive?: boolean; // A boolean value that, if true, indicates that the function specified by listener will never call preventDefault(). Reference: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#using_passive_listeners
+         *     signal?: AbortSignal; // An AbortSignal. The listener will be removed when the abort() method of the AbortController which owns the AbortSignal is called.
+         *     capture?: boolean; // A boolean value indicating that events of this type will be dispatched to the registered listener before being dispatched to any EventTarget beneath it in the DOM tree.
+         * }
+         * ```
+         * 
+         * Reference: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+         */
+        options: AddEventListenerOptions | boolean
+    }
     /** An event handler */
     type EventHandler<E extends TargetedEvent> = ((event: E) => void) | EventHandlerOptions<E>
 

@@ -1,9 +1,126 @@
 // deno-lint-ignore-file no-explicit-any
 
-import { createElement, createFragment } from "../tsx/tsx-core.ts"
+import {
+    // Debugging access
+    __vtAppMetadata,
+    setDomKey,
 
-import type { AnchorElement, BasicTypes, ChildrenTypes, ChildTypes } from "../tsx/tsx-core.ts"
-export type { AnchorElement, BasicTypes, ChildrenTypes, ChildTypes }
+    // Interfaces
+    type MultiRenderable,
+    type Mountable,
+    type HasVtKey,
+    type TypeConstructor,
+    type Type,
+
+    // Engine types
+    type BasicTypes,
+    type RenderableElements,
+    type AnchorElement,
+    type ChildTypes,
+    type ChildrenTypes,
+    type CSSProperties,
+
+    // Core types
+    type FunctionComponent,
+    Component,
+    type EmptyAttrs,
+    type ChildrenAttr,
+    UpdateHandlerLink,
+
+    // Specialized
+    RenderObject,
+    type RenderObjectHandleUpdateType,
+    type RenderObjectRenderFunctionType,
+    RenderBasic,
+    RenderObjectArray,
+    type RenderObjectArrayOptions,
+
+    // TSX integration
+    createElement,
+    createFragment,
+    getComponent,
+
+    // Event system
+    VelotypeEvent,
+    type VelotypeEventListener,
+    appendRootComponentTo,
+    emitEvent,
+    registerEventListener,
+    removeEventListeners,
+
+    // Style handling
+    type StyleSection,
+    setStylesheet,
+
+    // Raw HTML support helpers
+    HTML,
+    type HTMLAttrsType,
+    MATH,
+    type MATHAttrsType,
+    SVG,
+    type SVGAttrsType,
+} from "../tsx/tsx-core.ts"
+
+export {
+    // Debugging access
+    __vtAppMetadata,
+    setDomKey,
+
+    // Interfaces
+    type MultiRenderable,
+    type Mountable,
+    type HasVtKey,
+    type TypeConstructor,
+    type Type,
+
+    // Engine types
+    type BasicTypes,
+    type RenderableElements,
+    type AnchorElement,
+    type ChildTypes,
+    type ChildrenTypes,
+    type CSSProperties,
+
+    // Core types
+    type FunctionComponent,
+    Component,
+    type EmptyAttrs,
+    type ChildrenAttr,
+    UpdateHandlerLink,
+
+    // Specialized
+    RenderObject,
+    type RenderObjectHandleUpdateType,
+    type RenderObjectRenderFunctionType,
+    RenderBasic,
+    RenderObjectArray,
+    type RenderObjectArrayOptions,
+
+    // TSX integration
+    createElement,
+    createFragment,
+    getComponent,
+
+    // Event system
+    VelotypeEvent,
+    type VelotypeEventListener,
+    appendRootComponentTo,
+    emitEvent,
+    registerEventListener,
+    removeEventListeners,
+
+    // Style handling
+    type StyleSection,
+    setStylesheet,
+
+    // Raw HTML support helpers
+    HTML,
+    type HTMLAttrsType,
+    MATH,
+    type MATHAttrsType,
+    SVG,
+    type SVGAttrsType,
+}
 
 /**
  * Represents the Source passed to jsxDEV on element creation
@@ -24,7 +141,7 @@ export type Source = {
  * <tag attrOne={} attrTwo={}>{children}</tag>
  * ```
  */
-export function jsxDEV(tag: any, attrs: any, key: string | undefined, _isStaticChildren: boolean, _source: Source, _parentThis: any): ChildrenTypes[] | AnchorElement | BasicTypes {
+export function jsxDEV(tag: any, attrs: any, key: string | undefined, _isStaticChildren: boolean, source: Source, parentThis: any): ChildrenTypes[] | AnchorElement | BasicTypes {
     // Pull children out of attrs
     const children = attrs.children
     delete attrs.children
@@ -33,6 +150,11 @@ export function jsxDEV(tag: any, attrs: any, key: string | undefined, _isStaticC
     if (key !== undefined) {
         attrs.key = key
     }
+
+    // Stash dev metadata
+    attrs.__vt_source = source
+    attrs.__vt_parentThis = parentThis
+
     return createElement(tag, attrs, children)
 }
 

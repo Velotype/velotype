@@ -134,9 +134,9 @@ let domNextKey: bigint = 1n
 let domKeyName = "vk"
 
 /** Velotype Event bus - Forward map listeningKey -> vtKey -> listener */
-const listenersF: Map<string, Map<string, EventListener>> = new Map<string,Map<string,EventListener>>()
+const listenersF: Map<string, Map<string, VelotypeEventListener>> = new Map<string,Map<string,VelotypeEventListener>>()
 /** Velotype Event bus - Reverse map vtKey -> listeningKey -> listener */
-const listenersR: Map<string, Map<string, EventListener>> = new Map<string,Map<string,EventListener>>()
+const listenersR: Map<string, Map<string, VelotypeEventListener>> = new Map<string,Map<string,VelotypeEventListener>>()
 
 /** Represents a mounted CSS StyleSheet object */
 export type StyleSection = {
@@ -466,7 +466,7 @@ export class RenderObject<DataType, UpdateRefsType = never> implements MultiRend
      * @param eventDispatchDelay to delay (in ms) onChange event dispatch, will dispatch at most one change event per eventDispatchDelay (default: 0)
      * @returns this
      */
-    registerOnChangeListener(component: Component<any,any>, listener: EventListener, triggerOnRegistration?: boolean, eventDispatchDelay?: number): RenderObject<DataType, UpdateRefsType> {
+    registerOnChangeListener(component: Component<any,any>, listener: VelotypeEventListener, triggerOnRegistration?: boolean, eventDispatchDelay?: number): RenderObject<DataType, UpdateRefsType> {
         this.#hasEventListeners = true
         this.#eventDispatchDelay = (eventDispatchDelay && eventDispatchDelay>0)?eventDispatchDelay:0
         registerEventListener(component, this.#eventListeningKey(), listener)
@@ -686,7 +686,7 @@ export class RenderBasic<DataType extends BasicTypes> extends RenderObject<DataT
      * @param eventDispatchDelay to delay (in ms) onChange event dispatch, will dispatch at most one change event per eventDispatchDelay (default: 0)
      * @returns this
      */
-    override registerOnChangeListener(component: Component<any,any>, listener: EventListener, triggerOnRegistration?: boolean): RenderBasic<DataType> {
+    override registerOnChangeListener(component: Component<any,any>, listener: VelotypeEventListener, triggerOnRegistration?: boolean): RenderBasic<DataType> {
         super.registerOnChangeListener(component, listener, triggerOnRegistration)
         return this
     }
@@ -1658,9 +1658,9 @@ export class VelotypeEvent {
 }
 
 /**
- * An Event Listener
+ * A Velotype Event Listener
  */
-export type EventListener = (event: VelotypeEvent) => void
+export type VelotypeEventListener = (event: VelotypeEvent) => void
 
 /**
  * Register an Event listener
@@ -1669,19 +1669,19 @@ export type EventListener = (event: VelotypeEvent) => void
  * 
  * Will be automatically cleaned up when the hasVtKey Component is released
  */
-export function registerEventListener(hasVtKey: HasVtKey, listeningKey: string, listener: EventListener): void {
+export function registerEventListener(hasVtKey: HasVtKey, listeningKey: string, listener: VelotypeEventListener): void {
     registerListenerMap(listenersF, listeningKey, hasVtKey.vtKey, listener)
     registerListenerMap(listenersR, hasVtKey.vtKey, listeningKey, listener)
 }
 /**
  * Optimization function to register listeners to double maps
  */
-function registerListenerMap(map: Map<string,Map<string,EventListener>>, firstKey: string, secondKey: string, listener: EventListener): void {
+function registerListenerMap(map: Map<string,Map<string,VelotypeEventListener>>, firstKey: string, secondKey: string, listener: VelotypeEventListener): void {
     const keyListeners = map.get(firstKey)
     if (keyListeners !== undefined) {
         keyListeners.set(secondKey, listener)
     } else {
-        const newKeyListeners = new Map<string,EventListener>()
+        const newKeyListeners = new Map<string,VelotypeEventListener>()
         newKeyListeners.set(secondKey, listener)
         map.set(firstKey, newKeyListeners)
     }
@@ -1709,7 +1709,7 @@ function removeComponentListeners(hasVtKey: HasVtKey): void {
 /**
  * Optimization function to remove listeners from double maps
  */
-function removeListenerMap(map: Map<string,Map<string,EventListener>>, firstKey: string, secondKey: string): void {
+function removeListenerMap(map: Map<string,Map<string,VelotypeEventListener>>, firstKey: string, secondKey: string): void {
     const keyListeners = map.get(firstKey)
     if (keyListeners !== undefined) {
         const listener = keyListeners.get(secondKey)

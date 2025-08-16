@@ -1,7 +1,7 @@
 {
   "name": "@velotype/velotype",
   "license": "MIT",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "exports": {
     ".": "./src/jsx-runtime/jsx-runtime.ts",
     "./tsx-micro": "./src/tsx-micro/tsx-micro.ts",

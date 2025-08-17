@@ -43,7 +43,7 @@ import {
     // Event system
     VelotypeEvent,
     type VelotypeEventListener,
-    appendRootComponentTo,
+    replaceElementWithRoot,
     emitEvent,
     registerEventListener,
     removeEventListeners,
@@ -104,7 +104,7 @@ export {
     // Event system
     VelotypeEvent,
     type VelotypeEventListener,
-    appendRootComponentTo,
+    replaceElementWithRoot,
     emitEvent,
     registerEventListener,
     removeEventListeners,

@@ -24,11 +24,6 @@ export type ChildTypes = BasicTypes | Text | RenderableElements | null | undefin
 /** Type used to represent children in createElement("",{}, children) */
 export type ChildrenTypes = ChildTypes | ChildTypes[]
 
-/** Type for the style={} Attribute object */
-export type CSSProperties = {
-    [key: string]: string | number | null | undefined
-}
-
 /** Type used to represent that no Attrs are accepted for a Component */
 export type EmptyAttrs = Record<string | number | symbol, never>
 

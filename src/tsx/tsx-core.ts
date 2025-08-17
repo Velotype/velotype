@@ -1162,7 +1162,7 @@ function componentRender(classComponent: InternalComponent, attrs: Readonly<any>
  * 
  * Boolean values are set as empty attributes when true and unset when false
  */
-function setAttrsOnElement(element: AnchorElement, attrs?: Readonly<any> | null): void {
+export function setAttrsOnElement(element: AnchorElement, attrs?: Readonly<any> | null): void {
     if (!attrs) {
         return
     }

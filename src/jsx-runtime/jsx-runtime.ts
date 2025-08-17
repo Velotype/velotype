@@ -160,3 +160,6 @@ export const Fragment: (_attrs: Readonly<any>, ...children: ChildrenTypes[]) => 
 // Export the JSX namespace for JSX type checking
 import type { JSXInternal } from "../jsx-types/jsx-types.d.ts"
 export type { JSXInternal as JSX }
+
+// Export all other jsx-types
+export type * from "../jsx-types/jsx-types.d.ts"

@@ -30,45 +30,47 @@ export type Booleanish = boolean | "true" | "false"
  */
 export namespace JSXInternal {
     /** A Targeted Event */
-    type TargetedEvent<Target extends EventTarget = EventTarget, TypedEvent extends Event = Event> = Omit<TypedEvent, 'currentTarget'> & {readonly currentTarget: Target}
+    export type TargetedEvent<Target extends EventTarget = EventTarget, TypedEvent extends Event = Event> = Omit<TypedEvent, 'currentTarget'> & {readonly currentTarget: Target}
 
     /** A targeted event with AnimationEvent event type */
-    type TargetedAnimationEvent<Target extends EventTarget> = TargetedEvent<Target, AnimationEvent>
+    export type TargetedAnimationEvent<Target extends EventTarget> = TargetedEvent<Target, AnimationEvent>
     /** A targeted event with ClipboardEvent event type */
-    type TargetedClipboardEvent<Target extends EventTarget> = TargetedEvent<Target, ClipboardEvent>
+    export type TargetedClipboardEvent<Target extends EventTarget> = TargetedEvent<Target, ClipboardEvent>
     /** A targeted event with CommandEvent event type */
-    type TargetedCommandEvent<Target extends EventTarget> = TargetedEvent<Target, CommandEvent>
+    export type TargetedCommandEvent<Target extends EventTarget> = TargetedEvent<Target, CommandEvent>
     /** A targeted event with CompositionEvent event type */
-    type TargetedCompositionEvent<Target extends EventTarget> = TargetedEvent<Target, CompositionEvent>
+    export type TargetedCompositionEvent<Target extends EventTarget> = TargetedEvent<Target, CompositionEvent>
+    /** A targeted event with ContentVisibilityAutoStateChangeEvent event type */
+    export type TargetedContentVisibilityAutoStateChangeEvent<Target extends EventTarget> = TargetedEvent<Target, ContentVisibilityAutoStateChangeEvent>
     /** A targeted event with DragEvent event type */
-    type TargetedDragEvent<Target extends EventTarget> = TargetedEvent<Target, DragEvent>
+    export type TargetedDragEvent<Target extends EventTarget> = TargetedEvent<Target, DragEvent>
     /** A targeted event with FocusEvent event type */
-    type TargetedFocusEvent<Target extends EventTarget> = TargetedEvent<Target, FocusEvent>
+    export type TargetedFocusEvent<Target extends EventTarget> = TargetedEvent<Target, FocusEvent>
     /** A targeted event with InputEvent event type */
-    type TargetedInputEvent<Target extends EventTarget> = TargetedEvent<Target, InputEvent>
+    export type TargetedInputEvent<Target extends EventTarget> = TargetedEvent<Target, InputEvent>
     /** A targeted event with KeyboardEvent event type */
-    type TargetedKeyboardEvent<Target extends EventTarget> = TargetedEvent<Target, KeyboardEvent>
+    export type TargetedKeyboardEvent<Target extends EventTarget> = TargetedEvent<Target, KeyboardEvent>
     /** A targeted event with MouseEvent event type */
-    type TargetedMouseEvent<Target extends EventTarget> = TargetedEvent<Target, MouseEvent>
+    export type TargetedMouseEvent<Target extends EventTarget> = TargetedEvent<Target, MouseEvent>
     /** A targeted event with PointerEvent event type */
-    type TargetedPointerEvent<Target extends EventTarget> = TargetedEvent<Target, PointerEvent>
+    export type TargetedPointerEvent<Target extends EventTarget> = TargetedEvent<Target, PointerEvent>
     /** A targeted event with SubmitEvent event type */
-    type TargetedSubmitEvent<Target extends EventTarget> = TargetedEvent<Target, SubmitEvent>
+    export type TargetedSubmitEvent<Target extends EventTarget> = TargetedEvent<Target, SubmitEvent>
     /** A targeted event with TouchEvent event type */
-    type TargetedTouchEvent<Target extends EventTarget> = TargetedEvent<Target, TouchEvent>
+    export type TargetedTouchEvent<Target extends EventTarget> = TargetedEvent<Target, TouchEvent>
     /** A targeted event with ToggleEvent event type */
-    type TargetedToggleEvent<Target extends EventTarget> = TargetedEvent<Target, ToggleEvent>
+    export type TargetedToggleEvent<Target extends EventTarget> = TargetedEvent<Target, ToggleEvent>
     /** A targeted event with TransitionEvent event type */
-    type TargetedTransitionEvent<Target extends EventTarget> = TargetedEvent<Target, TransitionEvent>
+    export type TargetedTransitionEvent<Target extends EventTarget> = TargetedEvent<Target, TransitionEvent>
     /** A targeted event with UIEvent event type */
-    type TargetedUIEvent<Target extends EventTarget> = TargetedEvent<Target, UIEvent>
+    export type TargetedUIEvent<Target extends EventTarget> = TargetedEvent<Target, UIEvent>
     /** A targeted event with WheelEvent event type */
-    type TargetedWheelEvent<Target extends EventTarget> = TargetedEvent<Target, WheelEvent>
+    export type TargetedWheelEvent<Target extends EventTarget> = TargetedEvent<Target, WheelEvent>
     /** A targeted event with PictureInPictureEvent event type */
-    type TargetedPictureInPictureEvent<Target extends EventTarget> = TargetedEvent<Target, PictureInPictureEvent>
+    export type TargetedPictureInPictureEvent<Target extends EventTarget> = TargetedEvent<Target, PictureInPictureEvent>
 
     /** A pair of an EventHandler and options of `AddEventListenerOptions | boolean` */
-    type EventHandlerOptions<E extends TargetedEvent> = {
+    export type EventHandlerOptions<E extends TargetedEvent> = {
         /** The Event handler */
         handler: (event: E) => void,
         /**
@@ -88,281 +90,307 @@ export namespace JSXInternal {
         options: AddEventListenerOptions | boolean
     }
     /** An event handler */
-    type EventHandler<E extends TargetedEvent> = ((event: E) => void) | EventHandlerOptions<E>
+    export type EventHandler<E extends TargetedEvent> = ((event: E) => void) | EventHandlerOptions<E>
 
     /** An event handler for an AnimationEvent */
-    type AnimationEventHandler<Target extends EventTarget> = EventHandler<TargetedAnimationEvent<Target>>
+    export type AnimationEventHandler<Target extends EventTarget> = EventHandler<TargetedAnimationEvent<Target>>
     /** An event handler for an ClipboardEvent */
-    type ClipboardEventHandler<Target extends EventTarget> = EventHandler<TargetedClipboardEvent<Target>>
+    export type ClipboardEventHandler<Target extends EventTarget> = EventHandler<TargetedClipboardEvent<Target>>
     /** An event handler for an CommandEvent */
-    type CommandEventHandler<Target extends EventTarget> = EventHandler<TargetedCommandEvent<Target>>
+    export type CommandEventHandler<Target extends EventTarget> = EventHandler<TargetedCommandEvent<Target>>
     /** An event handler for an CompositionEvent */
-    type CompositionEventHandler<Target extends EventTarget> = EventHandler<TargetedCompositionEvent<Target>>
+    export type CompositionEventHandler<Target extends EventTarget> = EventHandler<TargetedCompositionEvent<Target>>
+    /** An event handler for an ContentVisibilityAutoStateChangeEvent */
+    export type ContentVisibilityAutoStateChangeEventHandler<Target extends EventTarget> = EventHandler<TargetedContentVisibilityAutoStateChangeEvent<Target>>
     /** An event handler for an DragEvent */
-    type DragEventHandler<Target extends EventTarget> = EventHandler<TargetedDragEvent<Target>>
+    export type DragEventHandler<Target extends EventTarget> = EventHandler<TargetedDragEvent<Target>>
     /** An event handler for an ToggleEvent */
-    type ToggleEventHandler<Target extends EventTarget> = EventHandler<TargetedToggleEvent<Target>>
+    export type ToggleEventHandler<Target extends EventTarget> = EventHandler<TargetedToggleEvent<Target>>
     /** An event handler for an FocusEvent */
-    type FocusEventHandler<Target extends EventTarget> = EventHandler<TargetedFocusEvent<Target>>
+    export type FocusEventHandler<Target extends EventTarget> = EventHandler<TargetedFocusEvent<Target>>
     /** An event handler for a generic event */
-    type GenericEventHandler<Target extends EventTarget> = EventHandler<TargetedEvent<Target>>
+    export type GenericEventHandler<Target extends EventTarget> = EventHandler<TargetedEvent<Target>>
     /** An event handler for an InputEvent */
-    type InputEventHandler<Target extends EventTarget> = EventHandler<TargetedInputEvent<Target>>
+    export type InputEventHandler<Target extends EventTarget> = EventHandler<TargetedInputEvent<Target>>
     /** An event handler for an KeyboardEvent */
-    type KeyboardEventHandler<Target extends EventTarget> = EventHandler<TargetedKeyboardEvent<Target>>
+    export type KeyboardEventHandler<Target extends EventTarget> = EventHandler<TargetedKeyboardEvent<Target>>
     /** An event handler for an MouseEvent */
-    type MouseEventHandler<Target extends EventTarget> = EventHandler<TargetedMouseEvent<Target>>
+    export type MouseEventHandler<Target extends EventTarget> = EventHandler<TargetedMouseEvent<Target>>
     /** An event handler for an PointerEvent */
-    type PointerEventHandler<Target extends EventTarget> = EventHandler<TargetedPointerEvent<Target>>
+    export type PointerEventHandler<Target extends EventTarget> = EventHandler<TargetedPointerEvent<Target>>
     /** An event handler for an SubmitEvent */
-    type SubmitEventHandler<Target extends EventTarget> = EventHandler<TargetedSubmitEvent<Target>>
+    export type SubmitEventHandler<Target extends EventTarget> = EventHandler<TargetedSubmitEvent<Target>>
     /** An event handler for an TouchEvent */
-    type TouchEventHandler<Target extends EventTarget> = EventHandler<TargetedTouchEvent<Target>>
+    export type TouchEventHandler<Target extends EventTarget> = EventHandler<TargetedTouchEvent<Target>>
     /** An event handler for an TransitionEvent */
-    type TransitionEventHandler<Target extends EventTarget> = EventHandler<TargetedTransitionEvent<Target>>
+    export type TransitionEventHandler<Target extends EventTarget> = EventHandler<TargetedTransitionEvent<Target>>
     /** An event handler for an UIEvent */
-    type UIEventHandler<Target extends EventTarget> = EventHandler<TargetedUIEvent<Target>>
+    export type UIEventHandler<Target extends EventTarget> = EventHandler<TargetedUIEvent<Target>>
     /** An event handler for an WheelEvent */
-    type WheelEventHandler<Target extends EventTarget> = EventHandler<TargetedWheelEvent<Target>>
+    export type WheelEventHandler<Target extends EventTarget> = EventHandler<TargetedWheelEvent<Target>>
     /** An event handler for an PictureInPictureEvent */
-    type PictureInPictureEventHandler<Target extends EventTarget> = EventHandler<TargetedPictureInPictureEvent<Target>>
+    export type PictureInPictureEventHandler<Target extends EventTarget> = EventHandler<TargetedPictureInPictureEvent<Target>>
 
-    /** Collection of the various Event handler types */
-    interface DOMAttributes<Target extends EventTarget> {
-        // Image Events
-        /** Handler for onLoad event */
-        onLoad?: GenericEventHandler<Target>
-        /** Handler for onError event */
-        onError?: GenericEventHandler<Target>
-
-        // Clipboard Events
-        /** Handler for onCopy event */
-        onCopy?: ClipboardEventHandler<Target>
-        /** Handler for onCut event */
-        onCut?: ClipboardEventHandler<Target>
-        /** Handler for onPaste event */
-        onPaste?: ClipboardEventHandler<Target>
-
-        // Composition Events
-        /** Handler for onCompositionEnd event */
-        onCompositionEnd?: CompositionEventHandler<Target>
-        /** Handler for onCompositionStart event */
-        onCompositionStart?: CompositionEventHandler<Target>
-        /** Handler for onCompositionUpdate event */
-        onCompositionUpdate?: CompositionEventHandler<Target>
-
-        // Popover Events
-        /** Handler for onBeforeToggle event */
-        onBeforeToggle?: ToggleEventHandler<Target>
-        /** Handler for onToggle event */
-        onToggle?: ToggleEventHandler<Target>
-
-        // Dialog Events
-        /** Handler for onClose event */
-        onClose?: GenericEventHandler<Target>
-        /** Handler for onCancel event */
+    /** Collection of the Event handlers supported by HTMLInputElement, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement */
+    export interface HTMLInputElementEventHandlers<Target extends HTMLInputElement> extends HTMLElementEventHandlers<Target> {
+        /** Handler for onCancel event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/cancel_event */
         onCancel?: GenericEventHandler<Target>
-
-        // Focus Events
-        /** Handler for onFocus event */
-        onFocus?: FocusEventHandler<Target>
-        /** Handler for onFocusIn event */
-        onFocusIn?: FocusEventHandler<Target>
-        /** Handler for onFocusOut event */
-        onFocusOut?: FocusEventHandler<Target>
-        /** Handler for onBlur event */
-        onBlur?: FocusEventHandler<Target>
-
-        // Form Events
-        /** Handler for onChange event */
-        onChange?: GenericEventHandler<Target>
-        /** Handler for onInput event */
-        onInput?: InputEventHandler<Target>
-        /** Handler for onBeforeInput event */
-        onBeforeInput?: InputEventHandler<Target>
-        /** Handler for onSearch event */
-        onSearch?: GenericEventHandler<Target>
-        /** Handler for onSubmit event */
-        onSubmit?: SubmitEventHandler<Target>
-        /** Handler for onInvalid event */
+        /** Handler for onInvalid event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/invalid_event */
         onInvalid?: GenericEventHandler<Target>
-        /** Handler for onReset event */
-        onReset?: GenericEventHandler<Target>
-        /** Handler for onFormData event */
+        // search is non-standard
+        /** Handler for onSelect event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/select_event */
+        onSelect?: GenericEventHandler<Target>
+        /** Handler for onSelect event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/selectionchange_event */
+        onSelectionChange?: GenericEventHandler<Target>
+    }
+
+    /** Collection of the Event handlers suppoerted by HTMLFormElement, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement */
+    export interface HTMLFormElementEventHandlers<Target extends HTMLFormElement> extends HTMLElementEventHandlers<Target> {
+        /** Handler for onFormData event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/formdata_event */
         onFormData?: GenericEventHandler<Target>
+        /** Handler for onReset event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/reset_event */
+        onReset?: GenericEventHandler<Target>
+        /** Handler for onSubmit event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/submit_event */
+        onSubmit?: SubmitEventHandler<Target>
+    }
 
-        // Keyboard Events
-        /** Handler for onKeyDown event */
-        onKeyDown?: KeyboardEventHandler<Target>
-        // keypress is deprecated
-        /** Handler for onKeyUp event */
-        onKeyUp?: KeyboardEventHandler<Target>
+    /** Collection of the Event handlers supported by HTMLDialogElement, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement */
+    export interface HTMLDialogElementEventHandlers<Target extends HTMLDialogElement> extends HTMLElementEventHandlers<Target> {
+        /** Handler for onCancel event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement/cancel_event */
+        onCancel?: GenericEventHandler<Target>
+        /** Handler for onClose event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement/close_event */
+        onClose?: GenericEventHandler<Target>
+    }
 
-        // Media Events
-        /** Handler for onAbort event */
+    /** Collection of the Event handlers supported by HTMLMediaElement, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement */
+    export interface HTMLMediaElementEventHandlers<Target extends HTMLMediaElement> extends HTMLElementEventHandlers<Target> {
+        /** Handler for onAbort event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/abort_event */
         onAbort?: GenericEventHandler<Target>
-        /** Handler for onCanPlay event */
+        /** Handler for onCanPlay event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/canplay_event */
         onCanPlay?: GenericEventHandler<Target>
-        /** Handler for onCanPlayThrough event */
+        /** Handler for onCanPlayThrough event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/canplaythrough_event */
         onCanPlayThrough?: GenericEventHandler<Target>
-        /** Handler for onDurationChange event */
+        /** Handler for onDurationChange event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/durationchange_event */
         onDurationChange?: GenericEventHandler<Target>
-        /** Handler for onEmptied event */
+        /** Handler for onEmptied event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/emptied_event */
         onEmptied?: GenericEventHandler<Target>
-        /** Handler for onEncrypted event */
+        /** Handler for onEncrypted event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/encrypted_event */
         onEncrypted?: GenericEventHandler<Target>
-        /** Handler for onEnded event */
+        /** Handler for onEnded event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/ended_event */
         onEnded?: GenericEventHandler<Target>
-        /** Handler for onLoadedData event */
+        /** Handler for onError event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/error_event */
+        onError?: GenericEventHandler<Target>
+        /** Handler for onLoadedData event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/loadeddata_event */
         onLoadedData?: GenericEventHandler<Target>
-        /** Handler for onLoadedMetadata event */
+        /** Handler for onLoadedMetadata event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/loadedmetadata_event */
         onLoadedMetadata?: GenericEventHandler<Target>
-        /** Handler for onLoadStart event */
+        /** Handler for onLoadStart event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/loadstart_event */
         onLoadStart?: GenericEventHandler<Target>
-        /** Handler for onPause event */
+        /** Handler for onPause event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/pause_event */
         onPause?: GenericEventHandler<Target>
-        /** Handler for onPlay event */
+        /** Handler for onPlay event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/play_event */
         onPlay?: GenericEventHandler<Target>
-        /** Handler for onPlaying event */
+        /** Handler for onPlaying event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/playing_event */
         onPlaying?: GenericEventHandler<Target>
-        /** Handler for onProgress event */
+        /** Handler for onProgress event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/progress_event */
         onProgress?: GenericEventHandler<Target>
-        /** Handler for onRateChange event */
+        /** Handler for onRateChange event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/ratechange_event */
         onRateChange?: GenericEventHandler<Target>
-        /** Handler for onSeeked event */
+        /** Handler for onSeeked event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/seeked_event */
         onSeeked?: GenericEventHandler<Target>
-        /** Handler for onSeeking event */
+        /** Handler for onSeeking event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/seeking_event */
         onSeeking?: GenericEventHandler<Target>
-        /** Handler for onStalled event */
+        /** Handler for onStalled event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/stalled_event */
         onStalled?: GenericEventHandler<Target>
-        /** Handler for onSuspend event */
+        /** Handler for onSuspend event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/suspend_event */
         onSuspend?: GenericEventHandler<Target>
-        /** Handler for onTimeUpdate event */
+        /** Handler for onTimeUpdate event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/timeupdate_event */
         onTimeUpdate?: GenericEventHandler<Target>
-        /** Handler for onVolumeChange event */
+        /** Handler for onVolumeChange event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/volumechange_event */
         onVolumeChange?: GenericEventHandler<Target>
-        /** Handler for onWaiting event */
+        /** Handler for onWaiting event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/waiting_event */
         onWaiting?: GenericEventHandler<Target>
+        /** Handler for onVWaitingForKey event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/waitingforkey_event */
+        onWaitingForKey?: GenericEventHandler<Target>
+    }
 
-        // MouseEvents
+    /** Collection of the Event handlers supported by HTMLTrackElement, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLTrackElement */
+    export interface HTMLTrackElementEventHandlers<Target extends HTMLTrackElement> {
+        /** Handler for onCueChange event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLTrackElement/cuechange_event */
+        onCueChange?: GenericEventHandler<Target>
+    }
+
+    /** Collection of the Event handlers supported by HTMLVideoElement, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement */
+    export interface HTMLVideoElementEventHandlers<Target extends HTMLVideoElement> {
+        /** Handler for onEnterPictureInPicture event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement/enterpictureinpicture_event */
+        onEnterPictureInPicture?: PictureInPictureEventHandler<Target>
+        /** Handler for onLeavePictureInPicture event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement/leavepictureinpicture_event */
+        onLeavePictureInPicture?: PictureInPictureEventHandler<Target>
+        /** Handler for onResize event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement/resize_event */
+        onResize?: PictureInPictureEventHandler<Target>
+    }
+
+    /** Collection of the Event handlers supported by HTMLElement, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement */
+    export interface HTMLElementEventHandlers<Target extends EventTarget> extends ElementEventHandlers<Target> {
+        /** Handler for onBeforeToggle event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/beforetoggle_event */
+        onBeforeToggle?: ToggleEventHandler<Target>
+        /** Handler for onChange event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/change_event */
+        onChange?: GenericEventHandler<Target>
+        /** Handler for onCommand event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/command_event */
+        onCommand?: CommandEventHandler<Target>
+        /** Handler for onDrag event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/drag_event */
+        onDrag?: DragEventHandler<Target>
+        /** Handler for onDragEnd event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dragend_event */
+        onDragEnd?: DragEventHandler<Target>
+        /** Handler for onDragEnter event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dragenter_event */
+        onDragEnter?: DragEventHandler<Target>
+        /** Handler for onDragLeave event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dragleave_event */
+        onDragLeave?: DragEventHandler<Target>
+        /** Handler for onDragOver event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dragover_event */
+        onDragOver?: DragEventHandler<Target>
+        /** Handler for onDragStart event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dragstart_event */
+        onDragStart?: DragEventHandler<Target>
+        /** Handler for onDrop event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/drop_event */
+        onDrop?: DragEventHandler<Target>
+        /** Handler for onError event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/error_event */
+        onError?: GenericEventHandler<Target>
+        /** Handler for onLoad event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/load_event */
+        onLoad?: GenericEventHandler<Target>
+        /** Handler for onToggle event, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/toggle_event */
+        onToggle?: ToggleEventHandler<Target>
+    }
+
+    /** Collection of the Event handlers supported by Element, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element */
+    export interface ElementEventHandlers<Target extends EventTarget> {
+        /** Handler for onAnimationCancel event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/animationcancel_event */
+        onAnimationCancel?: AnimationEventHandler<Target>
+        /** Handler for onAnimationEnd event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/animationend_event */
+        onAnimationEnd?: AnimationEventHandler<Target>
+        /** Handler for onAnimationIteration event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/animationiteration_event */
+        onAnimationIteration?: AnimationEventHandler<Target>
+        /** Handler for onAnimationStart event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/animationstart_event */
+        onAnimationStart?: AnimationEventHandler<Target>
+        /** Handler for onAuxClick event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/auxclick_event */
+        onAuxClick?: PointerEventHandler<Target>
+        /** Handler for onBeforeInput event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/beforeinput_event */
+        onBeforeInput?: InputEventHandler<Target>
+        /** Handler for onBeforeMatch event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/beforematch_event */
+        onBeforeMatch?: GenericEventHandler<Target>
+        /** Handler for onBlur event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/blur_event */
+        onBlur?: FocusEventHandler<Target>
         /** Handler for onClick event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/click_event */
         onClick?: MouseEventHandler<Target>
-        /** Handler for onContextMenu event */
+        /** Handler for onCompositionEnd event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/compositionend_event */
+        onCompositionEnd?: CompositionEventHandler<Target>
+        /** Handler for onCompositionStart event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/compositionstart_event */
+        onCompositionStart?: CompositionEventHandler<Target>
+        /** Handler for onCompositionUpdate event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/compositionupdate_event */
+        onCompositionUpdate?: CompositionEventHandler<Target>
+        /** Handler for onContentVisibilityAutoStateChange event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/contentvisibilityautostatechange_event */
+        onContentVisibilityAutoStateChange?: ContentVisibilityAutoStateChangeEventHandler<Target>
+        /** Handler for onContextMenu event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/contextmenu_event */
         onContextMenu?: MouseEventHandler<Target>
-        /** Handler for onDblClick event */
+        /** Handler for onCopy event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/copy_event */
+        onCopy?: ClipboardEventHandler<Target>
+        /** Handler for onCut event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/cut_event */
+        onCut?: ClipboardEventHandler<Target>
+        /** Handler for onDblClick event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/dblclick_event */
         onDblClick?: MouseEventHandler<Target>
-        /** Handler for onDrag event */
-        onDrag?: DragEventHandler<Target>
-        /** Handler for onDragEnd event */
-        onDragEnd?: DragEventHandler<Target>
-        /** Handler for onDragEnter event */
-        onDragEnter?: DragEventHandler<Target>
-        /** Handler for onDragExit event */
-        onDragExit?: DragEventHandler<Target>
-        /** Handler for onDragLeave event */
-        onDragLeave?: DragEventHandler<Target>
-        /** Handler for onDragOver event */
-        onDragOver?: DragEventHandler<Target>
-        /** Handler for onDragStart event */
-        onDragStart?: DragEventHandler<Target>
-        /** Handler for onDrop event */
-        onDrop?: DragEventHandler<Target>
-        /** Handler for onMouseDown event */
+        // DOMActivate is deprecated
+        // DOMMouseScroll is deprecated
+        /** Handler for onFocus event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/focus_event */
+        onFocus?: FocusEventHandler<Target>
+        /** Handler for onFocusIn event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/focusin_event */
+        onFocusIn?: FocusEventHandler<Target>
+        /** Handler for onFocusOut event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/focusout_event */
+        onFocusOut?: FocusEventHandler<Target>
+        /** Handler for onFullScreenChange event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/fullscreenchange_event */
+        onFullScreenChange?: GenericEventHandler<Target>
+        /** Handler for onFullScreenError event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/fullscreenerror_event */
+        onFullScreenError?: GenericEventHandler<Target>
+        // gesturechange is non-standard
+        // gestureend is non-standard
+        // gesturestart is non-standard
+        /** Handler for onGotPointerCapture event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/gotpointercapture_event */
+        onGotPointerCapture?: PointerEventHandler<Target>
+        /** Handler for onInput event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/input_event */
+        onInput?: InputEventHandler<Target>
+        /** Handler for onKeyDown event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/keydown_event */
+        onKeyDown?: KeyboardEventHandler<Target>
+        // keypress is deprecated
+        /** Handler for onKeyUp event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/keyup_event */
+        onKeyUp?: KeyboardEventHandler<Target>
+        /** Handler for onLostPointerCapture event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/lostpointercapture_event */
+        onLostPointerCapture?: PointerEventHandler<Target>
+        /** Handler for onMouseDown event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/mousedown_event */
         onMouseDown?: MouseEventHandler<Target>
-        /** Handler for onMouseEnter event */
+        /** Handler for onMouseEnter event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/mouseenter_event */
         onMouseEnter?: MouseEventHandler<Target>
-        /** Handler for onMouseLeave event */
+        /** Handler for onMouseLeave event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/mouseleave_event */
         onMouseLeave?: MouseEventHandler<Target>
-        /** Handler for onMouseMove event */
+        /** Handler for onMouseMove event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/mousemove_event */
         onMouseMove?: MouseEventHandler<Target>
-        /** Handler for onMouseOut event */
+        /** Handler for onMouseOut event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/mouseout_event */
         onMouseOut?: MouseEventHandler<Target>
-        /** Handler for onMouseOver event */
+        /** Handler for onMouseOver event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/mouseover_event */
         onMouseOver?: MouseEventHandler<Target>
-        /** Handler for onMouseUp event */
+        /** Handler for onMouseUp event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/mouseup_event */
         onMouseUp?: MouseEventHandler<Target>
         // mousewheel is deprecated
-        /** Handler for onAuxClick event */
-        onAuxClick?: PointerEventHandler<Target>
-
-        // Selection Events
-        /** Handler for onSelect event */
-        onSelect?: GenericEventHandler<Target>
-
-        // Touch Events
-        /** Handler for onTouchCancel event */
-        onTouchCancel?: TouchEventHandler<Target>
-        /** Handler for onTouchEnd event */
-        onTouchEnd?: TouchEventHandler<Target>
-        /** Handler for onTouchMove event */
-        onTouchMove?: TouchEventHandler<Target>
-        /** Handler for onTouchStart event */
-        onTouchStart?: TouchEventHandler<Target>
-
-        // Pointer Events
-        /** Handler for onPointerOver event */
-        onPointerOver?: PointerEventHandler<Target>
-        /** Handler for onPointerEnter event */
-        onPointerEnter?: PointerEventHandler<Target>
-        /** Handler for onPointerDown event */
-        onPointerDown?: PointerEventHandler<Target>
-        /** Handler for onPointerMove event */
-        onPointerMove?: PointerEventHandler<Target>
-        /** Handler for onPointerUp event */
-        onPointerUp?: PointerEventHandler<Target>
-        /** Handler for onPointerCancel event */
+        // MozMousePixelScroll is deprecated
+        /** Handler for onPaste event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/paste_event */
+        onPaste?: ClipboardEventHandler<Target>
+        /** Handler for onPointerCancel event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/pointercancel_event */
         onPointerCancel?: PointerEventHandler<Target>
-        /** Handler for onPointerOut event */
-        onPointerOut?: PointerEventHandler<Target>
-        /** Handler for onPointerLeave event */
+        /** Handler for onPointerDown event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/pointerdown_event */
+        onPointerDown?: PointerEventHandler<Target>
+        /** Handler for onPointerEnter event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/pointerenter_event */
+        onPointerEnter?: PointerEventHandler<Target>
+        /** Handler for onPointerLeave event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/pointerleave_event */
         onPointerLeave?: PointerEventHandler<Target>
-        /** Handler for onGotPointerCapture event */
-        onGotPointerCapture?: PointerEventHandler<Target>
-        /** Handler for onLostPointerCapture event */
-        onLostPointerCapture?: PointerEventHandler<Target>
-
-        // UI Events
-        /** Handler for onScroll event */
+        /** Handler for onPointerMove event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/pointermove_event */
+        onPointerMove?: PointerEventHandler<Target>
+        /** Handler for onPointerOut event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/pointerout_event */
+        onPointerOut?: PointerEventHandler<Target>
+        /** Handler for onPointerOver event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/pointerover_event */
+        onPointerOver?: PointerEventHandler<Target>
+        /** Handler for onPointerRawUpdate event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/pointerrawupdate_event */
+        onPointerRawUpdate?: PointerEventHandler<Target>
+        /** Handler for onPointerUp event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/pointerup_event */
+        onPointerUp?: PointerEventHandler<Target>
+        /** Handler for onScroll event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/scroll_event */
         onScroll?: UIEventHandler<Target>
-        /** Handler for onScrollEnd event */
+        /** Handler for onScrollEnd event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollend_event */
         onScrollEnd?: UIEventHandler<Target>
-
-        // Wheel Events
-        /** Handler for onWheel event */
-        onWheel?: WheelEventHandler<Target>
-
-        // Animation Events
-        /** Handler for onAnimationStart event */
-        onAnimationStart?: AnimationEventHandler<Target>
-        /** Handler for onAnimationEnd event */
-        onAnimationEnd?: AnimationEventHandler<Target>
-        /** Handler for onAnimationIteration event */
-        onAnimationIteration?: AnimationEventHandler<Target>
-
-        // Transition Events
-        /** Handler for onTransitionCancel event */
+        // scrollsnapchange is experimental
+        // scrollsnapchanging is experimental
+        // securitypolicyviolation - "While HTML elements can technically be the target of the securitypolicyviolation event, in reality this event does not fire on them"
+        /** Handler for onTouchCancel event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/touchcancel_event */
+        onTouchCancel?: TouchEventHandler<Target>
+        /** Handler for onTouchEnd event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/touchend_event */
+        onTouchEnd?: TouchEventHandler<Target>
+        /** Handler for onTouchMove event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/touchmove_event */
+        onTouchMove?: TouchEventHandler<Target>
+        /** Handler for onTouchStart event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/touchstart_event */
+        onTouchStart?: TouchEventHandler<Target>
+        /** Handler for onTransitionCancel event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/transitioncancel_event */
         onTransitionCancel?: TransitionEventHandler<Target>
-        /** Handler for onTransitionEnd event */
+        /** Handler for onTransitionEnd event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/transitionend_event */
         onTransitionEnd?: TransitionEventHandler<Target>
-        /** Handler for onTransitionRun event */
+        /** Handler for onTransitionRun event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/transitionrun_event */
         onTransitionRun?: TransitionEventHandler<Target>
-        /** Handler for onTransitionStart event */
+        /** Handler for onTransitionStart event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/transitionstart_event */
         onTransitionStart?: TransitionEventHandler<Target>
-
-        // PictureInPicture Events
-        /** Handler for onEnterPictureInPicture event */
-        onEnterPictureInPicture?: PictureInPictureEventHandler<Target>
-        /** Handler for onLeavePictureInPicture event */
-        onLeavePictureInPicture?: PictureInPictureEventHandler<Target>
-        /** Handler for onResize event */
-        onResize?: PictureInPictureEventHandler<Target>
-
-        /** Handler for onCommand event */
-        onCommand?: CommandEventHandler<Target>
+        // webkitmouseforcechanged is non-standard
+        // webkitmouseforcedown is non-standard
+        // webkitmouseforceup is non-standard
+        // webkitmouseforcewillbegin is non-standard
+        /** Handler for onWheel event, reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/wheel_event */
+        onWheel?: WheelEventHandler<Target>
     }
 
     /** All the WAI-ARIA 1.1 attributes from https://www.w3.org/TR/wai-aria-1.1/ */
-    interface AriaAttributes {
+    export interface AriaAttributes {
         /** Identifies the currently active element when DOM focus is on a composite widget, textbox, group, or application. */
         'aria-activedescendant'?: string
         /** Indicates whether assistive technologies will present all, or only parts of, the changed region based on the change notifications defined by the aria-relevant attribute. */
@@ -574,8 +602,8 @@ export namespace JSXInternal {
         'aria-valuetext'?: string
     }
 
-    // All the WAI-ARIA 1.2 role attribute values from https://www.w3.org/TR/wai-aria-1.2/#role_definitions
-    type WAIAriaRole =
+    /** WAI-ARIA 1.2 role attribute values from https://www.w3.org/TR/wai-aria-1.2/#role_definitions */
+    export type WAIAriaRole =
         | 'alert' | 'alertdialog' | 'application' | 'article' | 'banner'
         | 'blockquote' | 'button' | 'caption' | 'cell' | 'checkbox' | 'code'
         | 'columnheader' | 'combobox' | 'command' | 'complementary' | 'composite'
@@ -593,8 +621,8 @@ export namespace JSXInternal {
         | 'timer' | 'toolbar' | 'tooltip' | 'tree' | 'treegrid' | 'treeitem'
         | 'widget' | 'window' | 'none presentation';
 
-    // All the Digital Publishing WAI-ARIA 1.0 role attribute values from https://www.w3.org/TR/dpub-aria-1.0/#role_definitions
-    type DPubAriaRole =
+    /** Digital Publishing WAI-ARIA 1.0 role attribute values from https://www.w3.org/TR/dpub-aria-1.0/#role_definitions */
+    export type DPubAriaRole =
         | 'doc-abstract' | 'doc-acknowledgments' | 'doc-afterword'
         | 'doc-appendix' | 'doc-backlink' | 'doc-biblioentry' | 'doc-bibliography' | 'doc-biblioref' | 'doc-chapter'
         | 'doc-colophon' | 'doc-conclusion' | 'doc-cover' | 'doc-credit' | 'doc-credits' | 'doc-dedication'
@@ -603,17 +631,18 @@ export namespace JSXInternal {
         | 'doc-noteref' | 'doc-notice' | 'doc-pagebreak' | 'doc-pagelist' | 'doc-part' | 'doc-preface'
         | 'doc-prologue' | 'doc-pullquote' | 'doc-qna' | 'doc-subtitle' | 'doc-tip' | 'doc-toc'
 
-    type AriaRole = WAIAriaRole | DPubAriaRole
+    export type AriaRole = WAIAriaRole | DPubAriaRole
 
-    type HTMLAttributeReferrerPolicy =
+    export type HTMLAttributeReferrerPolicy =
         | '' | 'no-referrer' | 'no-referrer-when-downgrade' | 'origin' | 'origin-when-cross-origin'
         | 'same-origin' | 'strict-origin' | 'strict-origin-when-cross-origin' | 'unsafe-url'
 
     // TODO resolve the "deno-lint(ban-types)" error on this line
     // deno-lint-ignore ban-types
-    type HTMLAttributeAnchorTarget = '_self' | '_blank' | '_parent' | '_top' | (string & {})
+    export type HTMLAttributeAnchorTarget = '_self' | '_blank' | '_parent' | '_top' | (string & {})
 
-    interface PartialAnchorHTMLAttributes<T extends EventTarget> extends HTMLAttributes<T> {
+    /** Partial set of attributions for HTMLAnchorElement (to be combined with AnchorAriaRoles) */
+    export interface PartialAnchorHTMLAttributes<T extends EventTarget> extends HTMLAttributes<T> {
         download?: any
         hreflang?: string
         media?: string
@@ -624,16 +653,19 @@ export namespace JSXInternal {
         referrerpolicy?: HTMLAttributeReferrerPolicy
     }
 
-    type AnchorAriaRoles =
+    /** Valid aria combinations for HTMLAnchorElement */
+    export type AnchorAriaRoles =
         | { href: string
             role?: 'link' | 'button' | 'checkbox' | 'menuitem' | 'menuitemcheckbox' | 'menuitemradio'
                 | 'option' | 'radio' | 'switch' | 'tab' | 'treeitem' | 'doc-backlink'
                 | 'doc-biblioref' | 'doc-glossref' | 'doc-noteref' }
         | { href?: never, role?: AriaRole }
 
-    type AnchorHTMLAttributes<T extends EventTarget = HTMLAnchorElement> = Omit<PartialAnchorHTMLAttributes<T>, 'role'> & AnchorAriaRoles
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/a#attributes */
+    export type AnchorHTMLAttributes<T extends EventTarget = HTMLAnchorElement> = Omit<PartialAnchorHTMLAttributes<T>, 'role'> & AnchorAriaRoles
 
-    interface PartialAreaHTMLAttributes<T extends EventTarget> extends HTMLAttributes<T> {
+    /** Partial set of attributions for HTMLAreaElement (to be combined with AreaAriaRoles) */
+    export interface PartialAreaHTMLAttributes<T extends EventTarget> extends HTMLAttributes<T> {
         alt?: string
         coords?: string
         download?: any
@@ -645,41 +677,49 @@ export namespace JSXInternal {
         target?: HTMLAttributeAnchorTarget
     }
 
-    type AreaAriaRoles =
+    /** Valid aria combinations for HTMLAreaElement */
+    export type AreaAriaRoles =
         | { href: string, role?: 'link' }
         | { href?: never, role?: 'button' | 'link' }
 
-    type AreaHTMLAttributes<T extends EventTarget = HTMLAreaElement> = Omit<PartialAreaHTMLAttributes<T>, 'role'> & AreaAriaRoles;
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/area#attributes */
+    export type AreaHTMLAttributes<T extends EventTarget = HTMLAreaElement> = Omit<PartialAreaHTMLAttributes<T>, 'role'> & AreaAriaRoles;
 
-    interface ArticleHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/article#attributes */
+    export interface ArticleHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
         role?: 'article' | 'application' | 'document' | 'feed' | 'main' | 'none' | 'presentation' | 'region'
     }
 
-    interface AsideHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/aside#attributes */
+    export interface AsideHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
         role?: 'complementary' | 'feed' | 'none' | 'note' | 'presentation' | 'region' | 'search' | 'doc-dedication'
             | 'doc-example' | 'doc-footnote' | 'doc-glossary' | 'doc-pullquote' | 'doc-tip'
     }
 
-    interface AudioHTMLAttributes<T extends EventTarget = HTMLAudioElement> extends MediaHTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/audio#attributes */
+    export interface AudioHTMLAttributes<T extends HTMLAudioElement = HTMLAudioElement> extends MediaHTMLAttributes<T> {
         role?: 'application'
     }
 
-    interface BaseHTMLAttributes<T extends EventTarget = HTMLBaseElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/base#attributes */
+    export interface BaseHTMLAttributes<T extends EventTarget = HTMLBaseElement> extends HTMLAttributes<T> {
         href?: string
         role?: never;
         target?: HTMLAttributeAnchorTarget
     }
 
-    interface BlockquoteHTMLAttributes<T extends EventTarget = HTMLQuoteElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/blockquote#attributes */
+    export interface BlockquoteHTMLAttributes<T extends EventTarget = HTMLQuoteElement> extends HTMLAttributes<T> {
         cite?: string
     }
 
-    interface BrHTMLAttributes<T extends EventTarget = HTMLBRElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/br#attributes */
+    export interface BrHTMLAttributes<T extends EventTarget = HTMLBRElement> extends HTMLAttributes<T> {
         role?: 'none' | 'presentation'
     }
 
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/button#attributes */
-    interface ButtonHTMLAttributes<T extends EventTarget = HTMLButtonElement> extends HTMLAttributes<T> {
+    export interface ButtonHTMLAttributes<T extends EventTarget = HTMLButtonElement> extends HTMLAttributes<T> {
         command?: string
         commandfor?: string
         disabled?: boolean
@@ -699,66 +739,79 @@ export namespace JSXInternal {
         value?: string | number
     }
 
-    interface CanvasHTMLAttributes<T extends EventTarget = HTMLCanvasElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/canvas#attributes */
+    export interface CanvasHTMLAttributes<T extends EventTarget = HTMLCanvasElement> extends HTMLAttributes<T> {
         height?: number | string
         width?: number | string
     }
 
-    interface CaptionHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/caption#attributes */
+    export interface CaptionHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
         role?: 'caption'
     }
 
-    interface ColHTMLAttributes<T extends EventTarget = HTMLTableColElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/col#attributes */
+    export interface ColHTMLAttributes<T extends EventTarget = HTMLTableColElement> extends HTMLAttributes<T> {
         role?: never
         span?: number
         width?: number | string
     }
 
-    interface ColgroupHTMLAttributes<T extends EventTarget = HTMLTableColElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/colgroup#attributes */
+    export interface ColgroupHTMLAttributes<T extends EventTarget = HTMLTableColElement> extends HTMLAttributes<T> {
         role?: never
         span?: number
     }
 
-    interface DataHTMLAttributes<T extends EventTarget = HTMLDataElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/data#attributes */
+    export interface DataHTMLAttributes<T extends EventTarget = HTMLDataElement> extends HTMLAttributes<T> {
         value?: string | number
     }
 
-    interface DataListHTMLAttributes<T extends EventTarget = HTMLDataListElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/datalist#attributes */
+    export interface DataListHTMLAttributes<T extends EventTarget = HTMLDataListElement> extends HTMLAttributes<T> {
         role?: 'listbox'
     }
 
-    interface DdHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dd#attributes */
+    export interface DdHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
         role?: never
     }
 
-    interface DelHTMLAttributes<T extends EventTarget = HTMLModElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/del#attributes */
+    export interface DelHTMLAttributes<T extends EventTarget = HTMLModElement> extends HTMLAttributes<T> {
         cite?: string
         datetime?: string
     }
 
-    interface DetailsHTMLAttributes<T extends EventTarget = HTMLDetailsElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/details#attributes */
+    export interface DetailsHTMLAttributes<T extends EventTarget = HTMLDetailsElement> extends HTMLAttributes<T> {
         name?: string
         open?: boolean
         role?: 'group'
     }
 
-    interface DialogHTMLAttributes<T extends EventTarget = HTMLDialogElement> extends HTMLAttributes<T> {
-        onCancel?: GenericEventHandler<T>
-        onClose?: GenericEventHandler<T>
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dialog#attributes */
+    export interface DialogHTMLAttributes<T extends HTMLDialogElement = HTMLDialogElement> extends HTMLAttributes<T>, HTMLDialogElementEventHandlers<T> {
+        /** Do not add the tabindex property to the <dialog> element as it is not interactive and does not receive focus. */
+        tabindex?: never
         open?: boolean
         closedby?: 'none' | 'closerequest' | 'any'
         role?: 'dialog' | 'alertdialog'
     }
 
-    interface DlHTMLAttributes<T extends EventTarget = HTMLDListElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dl#attributes */
+    export interface DlHTMLAttributes<T extends EventTarget = HTMLDListElement> extends HTMLAttributes<T> {
         role?: 'group' | 'list' | 'none' | 'presentation'
     }
 
-    interface DtHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dt#attributes */
+    export interface DtHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
         role?: 'listitem'
     }
 
-    interface EmbedHTMLAttributes<T extends EventTarget = HTMLEmbedElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/embed#attributes */
+    export interface EmbedHTMLAttributes<T extends EventTarget = HTMLEmbedElement> extends HTMLAttributes<T> {
         height?: number | string
         role?: 'application' | 'document' | 'img' | 'none' | 'presentation'
         src?: string
@@ -766,23 +819,26 @@ export namespace JSXInternal {
         width?: number | string
     }
 
-    interface FieldsetHTMLAttributes<T extends EventTarget = HTMLFieldSetElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/fieldset#attributes */
+    export interface FieldsetHTMLAttributes<T extends EventTarget = HTMLFieldSetElement> extends HTMLAttributes<T> {
         disabled?: boolean
         form?: string
         name?: string
         role?: 'group' | 'none' | 'presentation' | 'radiogroup'
     }
 
-    interface FigcaptionHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/figcaption#attributes */
+    export interface FigcaptionHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
         role?: 'group' | 'none' | 'presentation'
     }
 
-    interface FooterHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/footer#attributes */
+    export interface FooterHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
         role?: 'contentinfo' | 'group' | 'none' | 'presentation' | 'doc-footnote'
     }
 
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#attributes */
-    interface FormHTMLAttributes<T extends EventTarget = HTMLFormElement> extends HTMLAttributes<T> {
+    export interface FormHTMLAttributes<T extends HTMLFormElement = HTMLFormElement> extends HTMLAttributes<T>, HTMLFormElementEventHandlers<T> {
         'accept-charset'?: string
         action?: string
         autocomplete?: string
@@ -795,27 +851,33 @@ export namespace JSXInternal {
         target?: string
     }
 
-    interface HeadingHTMLAttributes<T extends EventTarget = HTMLHeadingElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/Heading_Elements */
+    export interface HeadingHTMLAttributes<T extends EventTarget = HTMLHeadingElement> extends HTMLAttributes<T> {
         role?: 'heading' | 'none' | 'presentation' | 'tab' | 'doc-subtitle'
     }
 
-    interface HeadHTMLAttributes<T extends EventTarget = HTMLHeadElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/head#attributes */
+    export interface HeadHTMLAttributes<T extends EventTarget = HTMLHeadElement> extends HTMLAttributes<T> {
         role?: never
     }
 
-    interface HeaderHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/header#attributes */
+    export interface HeaderHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
         role?: 'banner' | 'group' | 'none' | 'presentation'
     }
 
-    interface HrHTMLAttributes<T extends EventTarget = HTMLHRElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/hr#attributes */
+    export interface HrHTMLAttributes<T extends EventTarget = HTMLHRElement> extends HTMLAttributes<T> {
         role?: 'separator' | 'none' | 'presentation' | 'doc-pagebreak'
     }
 
-    interface HtmlHTMLAttributes<T extends EventTarget = HTMLHtmlElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/html#attributes */
+    export interface HtmlHTMLAttributes<T extends EventTarget = HTMLHtmlElement> extends HTMLAttributes<T> {
         role?: 'document'
     }
 
-    interface IframeHTMLAttributes<T extends EventTarget = HTMLIFrameElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe#attributes */
+    export interface IframeHTMLAttributes<T extends EventTarget = HTMLIFrameElement> extends HTMLAttributes<T> {
         allow?: string
         allowfullscreen?: boolean
         allowtransparency?: boolean
@@ -831,9 +893,10 @@ export namespace JSXInternal {
         width?: number | string
     }
 
-    type HTMLAttributeCrossOrigin = 'anonymous' | 'use-credentials'
+    export type HTMLAttributeCrossOrigin = 'anonymous' | 'use-credentials'
 
-    interface PartialImgHTMLAttributes<T extends EventTarget> extends HTMLAttributes<T> {
+    /** Partial set of attributions for HTMLImageElement (to be combined with ImgAriaRoles) */
+    export interface PartialImgHTMLAttributes<T extends EventTarget> extends HTMLAttributes<T> {
         crossorigin?: HTMLAttributeCrossOrigin
         decoding?: 'async' | 'auto' | 'sync'
         fetchpriority?: 'high' | 'auto' | 'low'
@@ -847,32 +910,33 @@ export namespace JSXInternal {
         width?: number | string
     }
 
-    type ImgAriaRolesAccessibleName = 
+    /** Valid aria roles for HTMLImageElement */
+    export type ImgAriaRolesAccessibleName = 
         | 'img' | 'button' | 'checkbox' | 'link' | 'menuitem' | 'menuitemcheckbox'
         | 'menuitemradio' | 'meter' | 'option' | 'progressbar' | 'radio' | 'scrollbar'
         | 'separator' | 'slider' | 'switch' | 'tab' | 'treeitem' | 'doc-cover'
 
-    type ImgAriaRoles =
+    /** Valid aria combinations for HTMLImageElement */
+    export type ImgAriaRoles =
         | { 'aria-label': string, role?: ImgAriaRolesAccessibleName }
         | { 'aria-labelledby': string, role?: ImgAriaRolesAccessibleName }
         | { alt: string, role?: ImgAriaRolesAccessibleName }
         | { title: string, role?: ImgAriaRolesAccessibleName }
         | { 'aria-label'?: never, 'aria-labelledby'?: never, alt?: never, title?: never, role?: 'img' | 'none' | 'presentation' }
 
-    type ImgHTMLAttributes<T extends EventTarget = HTMLImageElement> = Omit<
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#attributes */
+    export type ImgHTMLAttributes<T extends EventTarget = HTMLImageElement> = Omit<
         PartialImgHTMLAttributes<T>,
         'role' | 'aria-label' | 'aria-labelledby' | 'title'
     > & ImgAriaRoles
 
-    type HTMLInputTypeAttribute = 'button' | 'checkbox' | 'color' | 'date' | 'datetime-local' | 'email' | 'file'
-        | 'hidden' | 'image' | 'month' | 'number' | 'password' | 'radio' | 'range'
-        | 'reset' | 'search' | 'submit' | 'tel' | 'text' | 'time' | 'url' | 'week'
-
-    interface PartialInputHTMLAttributes<T extends EventTarget> extends HTMLAttributes<T> {
+    /** Partial set of attributions for HTMLInputElement (to be combined with InputAriaRoles) */
+    export interface PartialInputHTMLAttributes<T extends HTMLInputElement> extends HTMLAttributes<T>, HTMLInputElementEventHandlers<T> {
         accept?: string
         alt?: string
         autocomplete?: string
-        capture?: 'user' | 'environment' // https://www.w3.org/TR/html-media-capture/#the-capture-attribute
+        /** https://www.w3.org/TR/html-media-capture/#the-capture-attribute */
+        capture?: 'user' | 'environment'
         checked?: boolean
         defaultchecked?: boolean
         defaultvalue?: string | number
@@ -901,10 +965,10 @@ export namespace JSXInternal {
         step?: number | string
         value?: string | number
         width?: number | string
-        onChange?: GenericEventHandler<T>
     }
 
-    type InputAriaRoles =
+    /** Valid aria type + role combinations for HTMLInputElement */
+    export type InputAriaRoles =
         | { type: 'button', role?: 
             | 'button' | 'checkbox' | 'combobox' | 'gridcell' | 'link'
             | 'menuitem' | 'menuitemcheckbox' | 'menuitemradio' | 'option' | 'radio'
@@ -933,102 +997,93 @@ export namespace JSXInternal {
         | { type: 'url', list?: never, role?: 'textbox' }
         | { type: 'color' | 'date' | 'datetime-local' | 'file' | 'hidden' | 'month' | 'password' | 'time' | 'week', role?: never }
 
-    type InputHTMLAttributes<T extends EventTarget = HTMLInputElement> = Omit<PartialInputHTMLAttributes<T>, 'role'> & InputAriaRoles
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#attributes */
+    export type InputHTMLAttributes<T extends HTMLInputElement = HTMLInputElement> = PartialInputHTMLAttributes<T> & InputAriaRoles
 
-    interface InsHTMLAttributes<T extends EventTarget = HTMLModElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/ins#attributes */
+    export interface InsHTMLAttributes<T extends EventTarget = HTMLModElement> extends HTMLAttributes<T> {
         cite?: string
         datetime?: string
-        dateTime?: string
     }
 
-    interface KeygenHTMLAttributes<T extends EventTarget = HTMLUnknownElement> extends HTMLAttributes<T> {
-        challenge?: string
-        disabled?: boolean
-        form?: string
-        keyType?: string
-        keyParams?: string
-        name?: string
-    }
-
-    interface LabelHTMLAttributes<T extends EventTarget = HTMLLabelElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/label#attributes */
+    export interface LabelHTMLAttributes<T extends EventTarget = HTMLLabelElement> extends HTMLAttributes<T> {
         for?: string
         form?: string
-        htmlFor?: string
+        htmlfor?: string
         role?: never
     }
 
-    interface LegendHTMLAttributes<T extends EventTarget = HTMLLegendElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/legend#attributes */
+    export interface LegendHTMLAttributes<T extends EventTarget = HTMLLegendElement> extends HTMLAttributes<T> {
         role?: never
     }
 
-    interface LiHTMLAttributes<T extends EventTarget = HTMLLIElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/li#attributes */
+    export interface LiHTMLAttributes<T extends EventTarget = HTMLLIElement> extends HTMLAttributes<T> {
         value?: string | number
     }
 
-    interface LinkHTMLAttributes<T extends EventTarget = HTMLLinkElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/link#attributes */
+    export interface LinkHTMLAttributes<T extends EventTarget = HTMLLinkElement> extends HTMLAttributes<T> {
         as?: string
-        crossorigin?: HTMLAttributeCrossOrigin //XXX TODO check casing here
-        crossOrigin?: HTMLAttributeCrossOrigin
+        crossorigin?: HTMLAttributeCrossOrigin
         fetchpriority?: 'high' | 'low' | 'auto'
-        fetchPriority?: 'high' | 'low' | 'auto'
         href?: string
         hreflang?: string
-        hrefLang?: string
         integrity?: string
         media?: string
-        imageSrcSet?: string
+        imagesrcset?: string
         referrerpolicy?: HTMLAttributeReferrerPolicy
-        referrerPolicy?: HTMLAttributeReferrerPolicy
         rel?: string
         role?: never;
         sizes?: string
         type?: string
         charset?: string
-        charSet?: string
     }
 
-    interface MainHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/main#attributes */
+    export interface MainHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
         role?: 'main'
     }
 
-    interface MapHTMLAttributes<T extends EventTarget = HTMLMapElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/map#attributes */
+    export interface MapHTMLAttributes<T extends EventTarget = HTMLMapElement> extends HTMLAttributes<T> {
         name?: string
         role?: never
     }
 
-    interface MediaHTMLAttributes<T extends EventTarget = HTMLMediaElement> extends HTMLAttributes<T> {
+    /** Common attributes for HTMLMediaElements, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement */
+    export interface MediaHTMLAttributes<T extends HTMLMediaElement = HTMLMediaElement> extends HTMLAttributes<T>, HTMLMediaElementEventHandlers<T> {
         autoplay?: boolean
-        autoPlay?: boolean //XXX TODO Check casing here
         controls?: boolean
         controlslist?: string
-        controlsList?: string
         crossorigin?: HTMLAttributeCrossOrigin
-        crossOrigin?: HTMLAttributeCrossOrigin
-        currentTime?: number
-        defaultMuted?: boolean
-        defaultPlaybackRate?: number
+        currenttime?: number
+        defaultmuted?: boolean
+        defaultplaybackrate?: number
         disableremoteplayback?: boolean
-        disableRemotePlayback?: boolean
         loop?: boolean
-        mediaGroup?: string
+        mediagroup?: string
         muted?: boolean
-        playbackRate?: number
+        playbackrate?: number
         preload?: 'auto' | 'metadata' | 'none'
-        preservesPitch?: boolean
+        preservespitch?: boolean
         src?: string
-        srcObject?: MediaStream | MediaSource | Blob | File | null
+        srcobject?: MediaStream | MediaSource | Blob | File | null
         volume?: string | number
     }
 
-    interface MenuHTMLAttributes<T extends EventTarget = HTMLMenuElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/menu#attributes */
+    export interface MenuHTMLAttributes<T extends EventTarget = HTMLMenuElement> extends HTMLAttributes<T> {
         role: 'list' | 'group' | 'listbox' | 'menu' | 'menubar' | 'none'
             | 'presentation' | 'radiogroup' | 'tablist' | 'toolbar' | 'tree'
         type?: string
     }
 
-    interface MetaHTMLAttributes<T extends EventTarget = HTMLMetaElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta#attributes */
+    export interface MetaHTMLAttributes<T extends EventTarget = HTMLMetaElement> extends HTMLAttributes<T> {
         charset?: string
-        charSet?: string
         content?: string
         'http-equiv'?: string
         httpEquiv?: string
@@ -1037,7 +1092,8 @@ export namespace JSXInternal {
         role?: never
     }
 
-    interface MeterHTMLAttributes<T extends EventTarget = HTMLMeterElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meter#attributes */
+    export interface MeterHTMLAttributes<T extends EventTarget = HTMLMeterElement> extends HTMLAttributes<T> {
         form?: string
         high?: number
         low?: number
@@ -1048,15 +1104,18 @@ export namespace JSXInternal {
         value?: string | number
     }
 
-    interface NavHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+    /** https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/nav#attributes */
+    export interface NavHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
         role?: 'navigation' | 'menu' | 'menubar' | 'none' | 'presentation' | 'tablist'
     }
 
-    interface NoScriptHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/noscript#attributes */
+    export interface NoScriptHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
         role?: never
     }
 
-    interface ObjectHTMLAttributes<T extends EventTarget = HTMLObjectElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/object#attributes */
+    export interface ObjectHTMLAttributes<T extends EventTarget = HTMLObjectElement> extends HTMLAttributes<T> {
         classID?: string
         data?: string
         form?: string
@@ -1070,7 +1129,8 @@ export namespace JSXInternal {
         wmode?: string
     }
 
-    interface OlHTMLAttributes<T extends EventTarget = HTMLOListElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/ol#attributes */
+    export interface OlHTMLAttributes<T extends EventTarget = HTMLOListElement> extends HTMLAttributes<T> {
         reversed?: boolean
         role?: 'list' | 'group' | 'listbox' | 'menu' | 'menubar' | 'none'
             | 'presentation' | 'radiogroup' | 'tablist' | 'toolbar' | 'tree'
@@ -1078,13 +1138,15 @@ export namespace JSXInternal {
         type?: '1' | 'a' | 'A' | 'i' | 'I'
     }
 
-    interface OptgroupHTMLAttributes<T extends EventTarget = HTMLOptGroupElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/optgroup#attributes */
+    export interface OptgroupHTMLAttributes<T extends EventTarget = HTMLOptGroupElement> extends HTMLAttributes<T> {
         disabled?: boolean
         label?: string
         role?: 'group'
     }
 
-    interface OptionHTMLAttributes<T extends EventTarget = HTMLOptionElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/option#attributes */
+    export interface OptionHTMLAttributes<T extends EventTarget = HTMLOptionElement> extends HTMLAttributes<T> {
         disabled?: boolean
         label?: string
         role?: 'option'
@@ -1092,29 +1154,33 @@ export namespace JSXInternal {
         value?: string | number
     }
 
-    interface OutputHTMLAttributes<T extends EventTarget = HTMLOutputElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/output#attributes */
+    export interface OutputHTMLAttributes<T extends EventTarget = HTMLOutputElement> extends HTMLAttributes<T> {
         for?: string
         form?: string
         htmlFor?: string
         name?: string
     }
 
-    interface PictureHTMLAttributes<T extends EventTarget = HTMLPictureElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/picture#attributes */
+    export interface PictureHTMLAttributes<T extends EventTarget = HTMLPictureElement> extends HTMLAttributes<T> {
         role?: never
     }
 
-    interface ProgressHTMLAttributes<T extends EventTarget = HTMLProgressElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/progress#attributes */
+    export interface ProgressHTMLAttributes<T extends EventTarget = HTMLProgressElement> extends HTMLAttributes<T> {
         max?: number | string
         role?: 'progressbar'
         value?: string | number
     }
 
-    interface QuoteHTMLAttributes<T extends EventTarget = HTMLQuoteElement> extends HTMLAttributes<T> {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/q#attributes */
+    export interface QuoteHTMLAttributes<T extends EventTarget = HTMLQuoteElement> extends HTMLAttributes<T> {
         cite?: string
     }
 
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script#attributes */
-    interface ScriptHTMLAttributes<T extends EventTarget = HTMLScriptElement> extends HTMLAttributes<T> {
+    export interface ScriptHTMLAttributes<T extends EventTarget = HTMLScriptElement> extends HTMLAttributes<T> {
         async?: boolean
         crossorigin?: HTMLAttributeCrossOrigin
         defer?: boolean
@@ -1128,11 +1194,11 @@ export namespace JSXInternal {
     }
 
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/search#attributes */
-    interface SearchHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+    export interface SearchHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
         role?: 'search' | 'form' | 'group' | 'none' | 'presentation' | 'region'
     }
 
-    interface PartialSelectHTMLAttributes<T extends EventTarget> extends HTMLAttributes<T> {
+    export interface PartialSelectHTMLAttributes<T extends EventTarget> extends HTMLAttributes<T> {
         autocomplete?: string
         defaultvalue?: string | number
         disabled?: boolean
@@ -1144,7 +1210,7 @@ export namespace JSXInternal {
         onChange?: GenericEventHandler<T>
     }
 
-    type SelectAriaRoles =
+    export type SelectAriaRoles =
         | {
             multiple?: never;
             // Spec states this branch is limited to "no `multiple` attribute AND no `size` attribute greater than 1".
@@ -1159,16 +1225,16 @@ export namespace JSXInternal {
         }
 
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select#attributes */
-    type SelectHTMLAttributes<T extends EventTarget = HTMLSelectElement> = Omit<PartialSelectHTMLAttributes<T>, 'role'> & SelectAriaRoles
+    export type SelectHTMLAttributes<T extends EventTarget = HTMLSelectElement> = Omit<PartialSelectHTMLAttributes<T>, 'role'> & SelectAriaRoles
 
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/slot#attributes */
-    interface SlotHTMLAttributes<T extends EventTarget = HTMLSlotElement> extends HTMLAttributes<T> {
+    export interface SlotHTMLAttributes<T extends EventTarget = HTMLSlotElement> extends HTMLAttributes<T> {
         name?: string
         role?: never
     }
 
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/source#attributes */
-    interface SourceHTMLAttributes<T extends EventTarget = HTMLSourceElement> extends HTMLAttributes<T> {
+    export interface SourceHTMLAttributes<T extends EventTarget = HTMLSourceElement> extends HTMLAttributes<T> {
         height?: number | string
         media?: string
         role?: never
@@ -1180,7 +1246,7 @@ export namespace JSXInternal {
     }
 
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/style#attributes */
-    interface StyleHTMLAttributes<T extends EventTarget = HTMLStyleElement> extends HTMLAttributes<T> {
+    export interface StyleHTMLAttributes<T extends EventTarget = HTMLStyleElement> extends HTMLAttributes<T> {
         media?: string
         role?: never;
         scoped?: boolean
@@ -1188,11 +1254,11 @@ export namespace JSXInternal {
     }
 
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/table#attributes */
-    interface TableHTMLAttributes<T extends EventTarget = HTMLTableElement> extends HTMLAttributes<T> {
+    export interface TableHTMLAttributes<T extends EventTarget = HTMLTableElement> extends HTMLAttributes<T> {
     }
 
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/td#attributes */
-    interface TdHTMLAttributes<T extends EventTarget = HTMLTableCellElement> extends HTMLAttributes<T> {
+    export interface TdHTMLAttributes<T extends EventTarget = HTMLTableCellElement> extends HTMLAttributes<T> {
         align?:  'left' | 'center' | 'right' | 'justify' | 'char'
         colspan?: number
         headers?: string
@@ -1205,12 +1271,12 @@ export namespace JSXInternal {
     }
 
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/template#attributes */
-    interface TemplateHTMLAttributes<T extends EventTarget = HTMLTemplateElement> extends HTMLAttributes<T> {
+    export interface TemplateHTMLAttributes<T extends EventTarget = HTMLTemplateElement> extends HTMLAttributes<T> {
         role?: never
     }
 
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea#attributes */
-    interface TextareaHTMLAttributes<T extends EventTarget = HTMLTextAreaElement> extends HTMLAttributes<T> {
+    export interface TextareaHTMLAttributes<T extends EventTarget = HTMLTextAreaElement> extends HTMLAttributes<T> {
         autocomplete?: string
         cols?: number
         defaultvalue?: string | number
@@ -1231,7 +1297,7 @@ export namespace JSXInternal {
     }
 
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/th#attributes */
-    interface ThHTMLAttributes<T extends EventTarget = HTMLTableCellElement> extends HTMLAttributes<T> {
+    export interface ThHTMLAttributes<T extends EventTarget = HTMLTableCellElement> extends HTMLAttributes<T> {
         align?:  'left' | 'center' | 'right' | 'justify' | 'char'
         colspan?: number
         headers?: string
@@ -1241,17 +1307,17 @@ export namespace JSXInternal {
     }
 
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/time#attributes */
-    interface TimeHTMLAttributes<T extends EventTarget = HTMLTimeElement> extends HTMLAttributes<T> {
+    export interface TimeHTMLAttributes<T extends EventTarget = HTMLTimeElement> extends HTMLAttributes<T> {
         datetime?: string
     }
 
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/title#attributes */
-    interface TitleHTMLAttributes<T extends EventTarget = HTMLTitleElement> extends HTMLAttributes<T> {
+    export interface TitleHTMLAttributes<T extends EventTarget = HTMLTitleElement> extends HTMLAttributes<T> {
         role?: never
     }
 
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/track#attributes */
-    interface TrackHTMLAttributes<T extends EventTarget = HTMLTrackElement> extends MediaHTMLAttributes<T> {
+    export interface TrackHTMLAttributes<T extends HTMLTrackElement = HTMLTrackElement> extends HTMLAttributes<T>, HTMLTrackElementEventHandlers<T> {
         default?: boolean
         kind?: string
         label?: string
@@ -1260,13 +1326,13 @@ export namespace JSXInternal {
     }
 
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/ul#attributes */
-    interface UlHTMLAttributes<T extends EventTarget = HTMLUListElement> extends HTMLAttributes<T> {
+    export interface UlHTMLAttributes<T extends EventTarget = HTMLUListElement> extends HTMLAttributes<T> {
         role?: 'list' | 'group' | 'listbox' | 'menu' | 'menubar' | 'none'
             | 'presentation' | 'radiogroup' | 'tablist' | 'toolbar' | 'tree'
     }
 
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video#attributes */
-    interface VideoHTMLAttributes<T extends EventTarget = HTMLVideoElement> extends MediaHTMLAttributes<T> {
+    export interface VideoHTMLAttributes<T extends HTMLVideoElement = HTMLVideoElement> extends MediaHTMLAttributes<T>, HTMLVideoElementEventHandlers<T> {
         disablePictureInPicture?: boolean
         height?: number | string
         playsinline?: boolean
@@ -1276,11 +1342,11 @@ export namespace JSXInternal {
     }
 
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/wbr#attributes */
-    interface WbrHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+    export interface WbrHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
         role?: 'none' | 'presentation'
     }
 
-    interface HTMLAttributes<RefType extends EventTarget = EventTarget> extends DOMAttributes<RefType>, AriaAttributes {
+    export interface HTMLAttributes<RefType extends EventTarget = EventTarget> extends HTMLElementEventHandlers<RefType>, AriaAttributes {
         // Standard HTML Attributes
         accesskey?: string
         autocapitalize?: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters'
@@ -1448,8 +1514,6 @@ export namespace JSXInternal {
         ins: InsHTMLAttributes<HTMLModElement> & ChildrenAttr
         /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/kbd */
         kbd: HTMLAttributes<HTMLElement> & ChildrenAttr
-        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/keygen */
-        keygen: KeygenHTMLAttributes<HTMLUnknownElement> & ChildrenAttr
         /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/label */
         label: LabelHTMLAttributes<HTMLLabelElement> & ChildrenAttr
         /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/legend */

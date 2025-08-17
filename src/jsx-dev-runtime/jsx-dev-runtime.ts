@@ -35,6 +35,7 @@ import {
     type RenderObjectArrayOptions,
 
     // TSX integration
+    setAttrsOnElement,
     createElement,
     createFragment,
     getComponent,
@@ -95,6 +96,7 @@ export {
     type RenderObjectArrayOptions,
 
     // TSX integration
+    setAttrsOnElement,
     createElement,
     createFragment,
     getComponent,

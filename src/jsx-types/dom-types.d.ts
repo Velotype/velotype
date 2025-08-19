@@ -631,97 +631,149 @@ export type DPubAriaRole =
     | 'doc-noteref' | 'doc-notice' | 'doc-pagebreak' | 'doc-pagelist' | 'doc-part' | 'doc-preface'
     | 'doc-prologue' | 'doc-pullquote' | 'doc-qna' | 'doc-subtitle' | 'doc-tip' | 'doc-toc'
 
+/** Either a WAI-ARIA 1.0 or WAI-ARIA 1.2 role */
 export type AriaRole = WAIAriaRole | DPubAriaRole
 
+/** How much of the referrer to send when following a link. */
 export type HTMLAttributeReferrerPolicy =
     | '' | 'no-referrer' | 'no-referrer-when-downgrade' | 'origin' | 'origin-when-cross-origin'
     | 'same-origin' | 'strict-origin' | 'strict-origin-when-cross-origin' | 'unsafe-url'
 
-// TODO resolve the "deno-lint(ban-types)" error on this line
+/**
+ * The name for a browsing context (a tab, window, or `<iframe>`)
+ * 
+ * Used by `<a>`, `<area>` and `<base>` elements' `target` attribute
+ * 
+ * Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/a#target
+ */
 // deno-lint-ignore ban-types
 export type HTMLAttributeAnchorTarget = '_self' | '_blank' | '_parent' | '_top' | (string & {})
 
 /** Partial set of attributions for HTMLAnchorElement (to be combined with AnchorAriaRoles) */
-export interface PartialAnchorHTMLAttributes<T extends EventTarget> extends HTMLAttributes<T> {
+export type PartialAnchorHTMLAttributes<T extends EventTarget> = HTMLAttributes<T> & {
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/a#download */
     download?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/a#hreflang */
     hreflang?: string
-    media?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/a#ping */
     ping?: string
-    rel?: string
-    target?: HTMLAttributeAnchorTarget
-    type?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/a#referrerpolicy */
     referrerpolicy?: HTMLAttributeReferrerPolicy
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/a#rel */
+    rel?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/a#target */
+    target?: HTMLAttributeAnchorTarget
 }
 
 /** Valid aria combinations for HTMLAnchorElement */
 export type AnchorAriaRoles =
-    | { href: string
+    | {
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/a#href */
+        href: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/a#technical_summary */
         role?: 'link' | 'button' | 'checkbox' | 'menuitem' | 'menuitemcheckbox' | 'menuitemradio'
-            | 'option' | 'radio' | 'switch' | 'tab' | 'treeitem' | 'doc-backlink'
-            | 'doc-biblioref' | 'doc-glossref' | 'doc-noteref' }
-    | { href?: never, role?: AriaRole }
+            | 'option' | 'radio' | 'switch' | 'tab' | 'treeitem' }
+    | {
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/a#href */
+        href?: never,
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/a#technical_summary */
+        role?: AriaRole
+    }
 
-/** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/a#attributes */
+/**
+ * Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/a#attributes
+ * 
+ * Spec: https://html.spec.whatwg.org/multipage/text-level-semantics.html#the-a-element
+ */
 export type AnchorHTMLAttributes<T extends EventTarget = HTMLAnchorElement> = Omit<PartialAnchorHTMLAttributes<T>, 'role'> & AnchorAriaRoles
 
 /** Partial set of attributions for HTMLAreaElement (to be combined with AreaAriaRoles) */
-export interface PartialAreaHTMLAttributes<T extends EventTarget> extends HTMLAttributes<T> {
+export type PartialAreaHTMLAttributes<T extends EventTarget> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/area#alt */
     alt?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/area#coords */
     coords?: string
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/area#download */
     download?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/area#ping */
+    ping?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/area#referrerpolicy */
+    referrerpolicy?: HTMLAttributeReferrerPolicy
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/area#rel */
+    rel?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/area#shape */
+    shape?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/area#target */
+    target?: HTMLAttributeAnchorTarget
+
     hreflang?: string
     media?: string
-    referrerpolicy?: HTMLAttributeReferrerPolicy
-    rel?: string
-    shape?: string
-    target?: HTMLAttributeAnchorTarget
 }
 
 /** Valid aria combinations for HTMLAreaElement */
 export type AreaAriaRoles =
-    | { href: string, role?: 'link' }
-    | { href?: never, role?: 'button' | 'link' }
+    | {
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/area#href */
+        href: string,
+        role?: 'link'
+    }
+    | {
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/area#href */
+        href?: never,
+        role?: 'button' | 'link'
+    }
 
-/** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/area#attributes */
+/**
+ * Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/area#attributes
+ * 
+ * Spec: https://html.spec.whatwg.org/multipage/image-maps.html#the-area-element
+ */
 export type AreaHTMLAttributes<T extends EventTarget = HTMLAreaElement> = Omit<PartialAreaHTMLAttributes<T>, 'role'> & AreaAriaRoles;
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/article#attributes */
-export interface ArticleHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+export type ArticleHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
     role?: 'article' | 'application' | 'document' | 'feed' | 'main' | 'none' | 'presentation' | 'region'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/aside#attributes */
-export interface AsideHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+export type AsideHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
     role?: 'complementary' | 'feed' | 'none' | 'note' | 'presentation' | 'region' | 'search' | 'doc-dedication'
         | 'doc-example' | 'doc-footnote' | 'doc-glossary' | 'doc-pullquote' | 'doc-tip'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/audio#attributes */
-export interface AudioHTMLAttributes<T extends HTMLAudioElement = HTMLAudioElement> extends MediaHTMLAttributes<T> {
+export type AudioHTMLAttributes<T extends HTMLAudioElement = HTMLAudioElement> = MediaHTMLAttributes<T> & {
     role?: 'application'
 }
 
-/** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/base#attributes */
-export interface BaseHTMLAttributes<T extends EventTarget = HTMLBaseElement> extends HTMLAttributes<T> {
+/**
+ * Warning: A `<base>` element must have an `href` attribute, a `target` attribute, or both. If at least one
+ * of these attributes are specified, the `<base>` element must come before other elements with attribute values
+ * that are URLs, such as a `<link>`'s `href` attribute.
+ * 
+ * Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/base#attributes
+ */
+export type BaseHTMLAttributes<T extends EventTarget = HTMLBaseElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/base#href */
     href?: string
-    role?: never;
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/base#target */
     target?: HTMLAttributeAnchorTarget
+    role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/blockquote#attributes */
-export interface BlockquoteHTMLAttributes<T extends EventTarget = HTMLQuoteElement> extends HTMLAttributes<T> {
+export type BlockquoteHTMLAttributes<T extends EventTarget = HTMLQuoteElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/blockquote#cite */
     cite?: string
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/br#attributes */
-export interface BrHTMLAttributes<T extends EventTarget = HTMLBRElement> extends HTMLAttributes<T> {
+export type BrHTMLAttributes<T extends EventTarget = HTMLBRElement> = HTMLAttributes<T> & {
     role?: 'none' | 'presentation'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/button#attributes */
-export interface ButtonHTMLAttributes<T extends EventTarget = HTMLButtonElement> extends HTMLAttributes<T> {
+export type ButtonHTMLAttributes<T extends EventTarget = HTMLButtonElement> = HTMLAttributes<T> & {
     /**
      * This Boolean attribute specifies that the button should have input focus when the page loads. Only one element in a document can have this attribute.
      * 
@@ -771,179 +823,275 @@ export interface ButtonHTMLAttributes<T extends EventTarget = HTMLButtonElement>
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/canvas#attributes */
-export interface CanvasHTMLAttributes<T extends EventTarget = HTMLCanvasElement> extends HTMLAttributes<T> {
+export type CanvasHTMLAttributes<T extends EventTarget = HTMLCanvasElement> = HTMLAttributes<T> & {
+    /**
+     * The height of the coordinate space in CSS pixels. Defaults to 150.
+     * 
+     * Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/canvas#height
+     */
     height?: number | string
+    /**
+     * The width of the coordinate space in CSS pixels. Defaults to 300.
+     * 
+     * Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/canvas#width
+     */
     width?: number | string
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/caption#attributes */
-export interface CaptionHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+export type CaptionHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/structural_roles */
     role?: 'caption'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/col#attributes */
-export interface ColHTMLAttributes<T extends EventTarget = HTMLTableColElement> extends HTMLAttributes<T> {
+export type ColHTMLAttributes<T extends EventTarget = HTMLTableColElement> = HTMLAttributes<T> & {
     role?: never
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/col#span */
     span?: number
-    width?: number | string
+    // align is deprecated
+    // bgcolor is deprecated
+    // char is deprecated
+    // charoff is deprecated
+    // valign is deprecated
+    // width is deprecated
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/colgroup#attributes */
-export interface ColgroupHTMLAttributes<T extends EventTarget = HTMLTableColElement> extends HTMLAttributes<T> {
+export type ColgroupHTMLAttributes<T extends EventTarget = HTMLTableColElement> = HTMLAttributes<T> & {
     role?: never
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/colgroup#span */
     span?: number
+    // align is deprecated
+    // bgcolor is deprecated
+    // char is deprecated
+    // charoff is deprecated
+    // valign is deprecated
+    // width is deprecated
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/data#attributes */
-export interface DataHTMLAttributes<T extends EventTarget = HTMLDataElement> extends HTMLAttributes<T> {
+export type DataHTMLAttributes<T extends EventTarget = HTMLDataElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/data#value */
     value?: string | number
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/datalist#attributes */
-export interface DataListHTMLAttributes<T extends EventTarget = HTMLDataListElement> extends HTMLAttributes<T> {
+export type DataListHTMLAttributes<T extends EventTarget = HTMLDataListElement> = HTMLAttributes<T> & {
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/listbox_role */
     role?: 'listbox'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dd#attributes */
-export interface DdHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+export type DdHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
     role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/del#attributes */
-export interface DelHTMLAttributes<T extends EventTarget = HTMLModElement> extends HTMLAttributes<T> {
+export type DelHTMLAttributes<T extends EventTarget = HTMLModElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/del#cite */
     cite?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/del#datetime */
     datetime?: string
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/details#attributes */
-export interface DetailsHTMLAttributes<T extends EventTarget = HTMLDetailsElement> extends HTMLAttributes<T> {
-    name?: string
+export type DetailsHTMLAttributes<T extends EventTarget = HTMLDetailsElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/details#open */
     open?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/details#name */
+    name?: string
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/group_role */
     role?: 'group'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dialog#attributes */
-export interface DialogHTMLAttributes<T extends HTMLDialogElement = HTMLDialogElement> extends HTMLAttributes<T>, HTMLDialogElementEventHandlers<T> {
+export type DialogHTMLAttributes<T extends HTMLDialogElement = HTMLDialogElement> = HTMLAttributes<T> & HTMLDialogElementEventHandlers<T> & {
     /** Do not add the tabindex property to the <dialog> element as it is not interactive and does not receive focus. */
     tabindex?: never
-    open?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dialog#closedby */
     closedby?: 'none' | 'closerequest' | 'any'
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dialog#open */
+    open?: boolean
     role?: 'dialog' | 'alertdialog'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dl#attributes */
-export interface DlHTMLAttributes<T extends EventTarget = HTMLDListElement> extends HTMLAttributes<T> {
+export type DlHTMLAttributes<T extends EventTarget = HTMLDListElement> = HTMLAttributes<T> & {
     role?: 'group' | 'list' | 'none' | 'presentation'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dt#attributes */
-export interface DtHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+export type DtHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/listitem_role */
     role?: 'listitem'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/embed#attributes */
-export interface EmbedHTMLAttributes<T extends EventTarget = HTMLEmbedElement> extends HTMLAttributes<T> {
+export type EmbedHTMLAttributes<T extends EventTarget = HTMLEmbedElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/embed#height */
     height?: number | string
-    role?: 'application' | 'document' | 'img' | 'none' | 'presentation'
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/embed#src */
     src?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/embed#type */
     type?: string
+    /** Reference:  */
     width?: number | string
+    role?: 'application' | 'document' | 'img' | 'none' | 'presentation'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/fieldset#attributes */
-export interface FieldsetHTMLAttributes<T extends EventTarget = HTMLFieldSetElement> extends HTMLAttributes<T> {
+export type FieldsetHTMLAttributes<T extends EventTarget = HTMLFieldSetElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/fieldset#disabled */
     disabled?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/fieldset#form */
     form?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/fieldset#name */
     name?: string
     role?: 'group' | 'none' | 'presentation' | 'radiogroup'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/figcaption#attributes */
-export interface FigcaptionHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+export type FigcaptionHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
     role?: 'group' | 'none' | 'presentation'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/footer#attributes */
-export interface FooterHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+export type FooterHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
     role?: 'contentinfo' | 'group' | 'none' | 'presentation' | 'doc-footnote'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#attributes */
-export interface FormHTMLAttributes<T extends HTMLFormElement = HTMLFormElement> extends HTMLAttributes<T>, HTMLFormElementEventHandlers<T> {
+export type FormHTMLAttributes<T extends HTMLFormElement = HTMLFormElement> = HTMLAttributes<T> & HTMLFormElementEventHandlers<T> & {
+    // accept is deprecated
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#accept-charset */
     'accept-charset'?: string
-    action?: string
+    /** Refernce: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#autocapitalize */
+    autocapitalize?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#autocomplete */
     autocomplete?: string
-    enctype?: string
-    method?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#name */
     name?: string
-    novalidate?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#rel */
     rel?: string
-    role?: 'form' | 'none' | 'presentation' | 'search'
+
+    // Attributes for form submission
+
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#action */
+    action?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#enctype */
+    enctype?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#method */
+    method?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#novalidate */
+    novalidate?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#target */
     target?: string
+    role?: 'form' | 'none' | 'presentation' | 'search'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/Heading_Elements */
-export interface HeadingHTMLAttributes<T extends EventTarget = HTMLHeadingElement> extends HTMLAttributes<T> {
+export type HeadingHTMLAttributes<T extends EventTarget = HTMLHeadingElement> = HTMLAttributes<T> & {
     role?: 'heading' | 'none' | 'presentation' | 'tab' | 'doc-subtitle'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/head#attributes */
-export interface HeadHTMLAttributes<T extends EventTarget = HTMLHeadElement> extends HTMLAttributes<T> {
+export type HeadHTMLAttributes<T extends EventTarget = HTMLHeadElement> = HTMLAttributes<T> & {
     role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/header#attributes */
-export interface HeaderHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+export type HeaderHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
     role?: 'banner' | 'group' | 'none' | 'presentation'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/hr#attributes */
-export interface HrHTMLAttributes<T extends EventTarget = HTMLHRElement> extends HTMLAttributes<T> {
+export type HrHTMLAttributes<T extends EventTarget = HTMLHRElement> = HTMLAttributes<T> & {
     role?: 'separator' | 'none' | 'presentation' | 'doc-pagebreak'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/html#attributes */
-export interface HtmlHTMLAttributes<T extends EventTarget = HTMLHtmlElement> extends HTMLAttributes<T> {
+export type HtmlHTMLAttributes<T extends EventTarget = HTMLHtmlElement> = HTMLAttributes<T> & {
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/document_role */
     role?: 'document'
 }
 
-/** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe#attributes */
-export interface IframeHTMLAttributes<T extends EventTarget = HTMLIFrameElement> extends HTMLAttributes<T> {
+/**
+ * The <iframe> HTML element represents a nested browsing context, embedding another HTML page into the current one.
+ * 
+ * Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe#attributes
+ */
+export type IframeHTMLAttributes<T extends EventTarget = HTMLIFrameElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe#allow */
     allow?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe#allowfullscreen */
     allowfullscreen?: boolean
-    allowtransparency?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe#height */
     height?: number | string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe#loading */
     loading?: 'eager' | 'lazy'
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe#name */
     name?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe#referrerpolicy */
     referrerpolicy?: HTMLAttributeReferrerPolicy
-    role?: 'application' | 'document' | 'img' | 'none' | 'presentation'
-    sandbox?: string
-    seamless?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe#sandbox */
+    sandbox?: 'allow-downloads' | 'allow-forms' | 'allow-modals' | 'allow-orientation-lock' | 'allow-pointer-lock'
+        | 'allow-popups' | 'allow-popups-to-escape-sandbox' | 'allow-presentation' | 'allow-same-origin'
+        | 'allow-scripts' | 'allow-top-navigation' | 'allow-top-navigation-by-user-activation'
+        | 'allow-top-navigation-to-custom-protocols'
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe#src */
     src?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe#srcdoc */
     srcdoc?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe#width */
     width?: number | string
+    // align is deprecated
+    // allowpaymentrequest is non-standard and deprecated
+    // frameborder is deprecated
+    // longdesc is deprecated
+    // marginheight is deprecated
+    // marginwidth is deprecated
+    // scrolling is deprecated
+    role?: 'application' | 'document' | 'img' | 'none' | 'presentation'
 }
 
+/** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/crossorigin */
 export type HTMLAttributeCrossOrigin = 'anonymous' | 'use-credentials'
 
 /** Partial set of attributions for HTMLImageElement (to be combined with ImgAriaRoles) */
-export interface PartialImgHTMLAttributes<T extends EventTarget> extends HTMLAttributes<T> {
+export type PartialImgHTMLAttributes<T extends EventTarget> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#crossorigin */
     crossorigin?: HTMLAttributeCrossOrigin
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#decoding */
     decoding?: 'async' | 'auto' | 'sync'
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#elementtiming */
+    elementtiming?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#fetchpriority */
     fetchpriority?: 'high' | 'auto' | 'low'
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#height */
     height?: number | string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#ismap */
+    ismap?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#loading */
     loading?: 'eager' | 'lazy'
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#referrerpolicy */
     referrerpolicy?: HTMLAttributeReferrerPolicy
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#sizes */
     sizes?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#src */
     src?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#srcset */
     srcset?: string
-    usemap?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#width */
     width?: number | string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#usemap */
+    usemap?: string
+    // align is deprecated
+    // border is deprecated
+    // hspace is deprecated
+    // longdesc is deprecated
+    // name is deprecated
+    // vspace is deprecated
 }
 
 /** Valid aria roles for HTMLImageElement */
@@ -954,11 +1102,31 @@ export type ImgAriaRolesAccessibleName =
 
 /** Valid aria combinations for HTMLImageElement */
 export type ImgAriaRoles =
-    | { 'aria-label': string, role?: ImgAriaRolesAccessibleName }
-    | { 'aria-labelledby': string, role?: ImgAriaRolesAccessibleName }
-    | { alt: string, role?: ImgAriaRolesAccessibleName }
-    | { title: string, role?: ImgAriaRolesAccessibleName }
-    | { 'aria-label'?: never, 'aria-labelledby'?: never, alt?: never, title?: never, role?: 'img' | 'none' | 'presentation' }
+    | {
+        'aria-label': string,
+        role?: ImgAriaRolesAccessibleName
+    } | {
+        'aria-labelledby': string,
+        role?: ImgAriaRolesAccessibleName
+    } | {
+        /**
+         * Defines text that can replace the image in the page.
+         * 
+         * Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#alt
+         */
+        alt: string,
+        role?: ImgAriaRolesAccessibleName
+    } | {
+        title: string,
+        role?: ImgAriaRolesAccessibleName
+    } | {
+        'aria-label'?: never,
+        'aria-labelledby'?: never,
+        /** Reference: Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#alt */
+        alt?: never,
+        title?: never,
+        role?: 'img' | 'none' | 'presentation'
+    }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#attributes */
 export type ImgHTMLAttributes<T extends EventTarget = HTMLImageElement> = Omit<
@@ -967,9 +1135,7 @@ export type ImgHTMLAttributes<T extends EventTarget = HTMLImageElement> = Omit<
 > & ImgAriaRoles
 
 /** Partial set of attributions for HTMLInputElement (to be combined with InputAriaRoles) */
-export interface PartialInputHTMLAttributes<T extends HTMLInputElement> extends HTMLAttributes<T>, HTMLInputElementEventHandlers<T> {
-    accept?: string
-    alt?: string
+export type PartialInputHTMLAttributes<T extends HTMLInputElement> = HTMLAttributes<T> & HTMLInputElementEventHandlers<T> & {
     autocomplete?: string
     /** https://www.w3.org/TR/html-media-capture/#the-capture-attribute */
     capture?: 'user' | 'environment'
@@ -1005,45 +1171,85 @@ export interface PartialInputHTMLAttributes<T extends HTMLInputElement> extends 
 
 /** Valid aria type + role combinations for HTMLInputElement */
 export type InputAriaRoles =
-    | { type: 'button', role?: 
-        | 'button' | 'checkbox' | 'combobox' | 'gridcell' | 'link'
+    | {
+        type: 'button'
+        role?: 'button' | 'checkbox' | 'combobox' | 'gridcell' | 'link'
         | 'menuitem' | 'menuitemcheckbox' | 'menuitemradio' | 'option' | 'radio'
-        | 'separator' | 'slider' | 'switch' | 'tab' | 'treeitem' }
-    | { type: 'checkbox', role?: 'checkbox' | 'button' | 'menuitemcheckbox' | 'option' | 'switch' }
-    | { type: 'email', list?: never, role?: 'textbox' }
-    | { type: 'image', role?: 
-        | 'button' | 'checkbox' | 'gridcell' | 'link' | 'menuitem'
+        | 'separator' | 'slider' | 'switch' | 'tab' | 'treeitem'
+    } | {
+        type: 'checkbox'
+        role?: 'checkbox' | 'button' | 'menuitemcheckbox' | 'option' | 'switch'
+    } | {
+        type: 'email'
+        list?: never
+        role?: 'textbox'
+    } | {
+        type: 'image'
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#alt */
+        alt?: string
+        role?: 'button' | 'checkbox' | 'gridcell' | 'link' | 'menuitem'
         | 'menuitemcheckbox' | 'menuitemradio' | 'option' | 'separator' | 'slider'
-        | 'switch' | 'tab' | 'treeitem' }
-    | { type: 'number', role?: 'spinbutton' }
-    | { type: 'radio', role?: 'radio' | 'menuitemradio' }
-    | { type: 'range', role?: 'slider' }
-    | { type: 'reset', role?: 
-        | 'button' | 'checkbox' | 'combobox' | 'gridcell' | 'link'
+        | 'switch' | 'tab' | 'treeitem'
+    } | {
+        type: 'number'
+        role?: 'spinbutton'
+    } | {
+        type: 'radio'
+        role?: 'radio' | 'menuitemradio'
+    } | {
+        type: 'range'
+        role?: 'slider'
+    } | {
+        type: 'reset'
+        role?: 'button' | 'checkbox' | 'combobox' | 'gridcell' | 'link'
         | 'menuitem' | 'menuitemcheckbox' | 'menuitemradio' | 'option' | 'radio'
-        | 'separator' | 'slider' | 'switch' | 'tab' | 'treeitem' }
-    | { type: 'search', list?: never, role?: 'searchbox' }
-    | { type: 'submit', role?: 
-        | 'button' | 'checkbox' | 'combobox' | 'gridcell' | 'link'
+        | 'separator' | 'slider' | 'switch' | 'tab' | 'treeitem'
+    } | {
+        type: 'search'
+        list?: never
+        role?: 'searchbox'
+    } | {
+        type: 'submit'
+        role?: 'button' | 'checkbox' | 'combobox' | 'gridcell' | 'link'
         | 'menuitem' | 'menuitemcheckbox' | 'menuitemradio' | 'option' | 'radio'
-        | 'separator' | 'slider' | 'switch' | 'tab' | 'treeitem' }
-    | { type: 'tel', list?: never, role?: 'textbox' }
-    | { type?: 'text', list?: never, role?: 'textbox' | 'combobox' | 'searchbox' | 'spinbutton' }
-    | { type?: 'text' | 'search' | 'tel' | 'url' | 'email', list?: string, role?: 'combobox' }
-    | { type: 'url', list?: never, role?: 'textbox' }
-    | { type: 'color' | 'date' | 'datetime-local' | 'file' | 'hidden' | 'month' | 'password' | 'time' | 'week', role?: never }
+        | 'separator' | 'slider' | 'switch' | 'tab' | 'treeitem'
+    } | {
+        type: 'tel'
+        list?: never
+        role?: 'textbox'
+    } | {
+        type?: 'text'
+        list?: never
+        role?: 'textbox' | 'combobox' | 'searchbox' | 'spinbutton'
+    } | {
+        type?: 'text' | 'search' | 'tel' | 'url' | 'email'
+        list?: string
+        role?: 'combobox'
+    } | {
+        type: 'url'
+        list?: never
+        role?: 'textbox'
+    } | {
+        type: 'file'
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#accept */
+        accept?: string
+        role?: never
+    } | {
+        type: 'color' | 'date' | 'datetime-local' | 'hidden' | 'month' | 'password' | 'time' | 'week'
+        role?: never
+    }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#attributes */
 export type InputHTMLAttributes<T extends HTMLInputElement = HTMLInputElement> = PartialInputHTMLAttributes<T> & InputAriaRoles
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/ins#attributes */
-export interface InsHTMLAttributes<T extends EventTarget = HTMLModElement> extends HTMLAttributes<T> {
+export type InsHTMLAttributes<T extends EventTarget = HTMLModElement> = HTMLAttributes<T> & {
     cite?: string
     datetime?: string
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/label#attributes */
-export interface LabelHTMLAttributes<T extends EventTarget = HTMLLabelElement> extends HTMLAttributes<T> {
+export type LabelHTMLAttributes<T extends EventTarget = HTMLLabelElement> = HTMLAttributes<T> & {
     for?: string
     form?: string
     htmlfor?: string
@@ -1051,23 +1257,24 @@ export interface LabelHTMLAttributes<T extends EventTarget = HTMLLabelElement> e
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/legend#attributes */
-export interface LegendHTMLAttributes<T extends EventTarget = HTMLLegendElement> extends HTMLAttributes<T> {
+export type LegendHTMLAttributes<T extends EventTarget = HTMLLegendElement> = HTMLAttributes<T> & {
     role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/li#attributes */
-export interface LiHTMLAttributes<T extends EventTarget = HTMLLIElement> extends HTMLAttributes<T> {
+export type LiHTMLAttributes<T extends EventTarget = HTMLLIElement> = HTMLAttributes<T> & {
     value?: string | number
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/link#attributes */
-export interface LinkHTMLAttributes<T extends EventTarget = HTMLLinkElement> extends HTMLAttributes<T> {
+export type LinkHTMLAttributes<T extends EventTarget = HTMLLinkElement> = HTMLAttributes<T> & {
     as?: string
     crossorigin?: HTMLAttributeCrossOrigin
     fetchpriority?: 'high' | 'low' | 'auto'
     href?: string
     hreflang?: string
     integrity?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/link#media */
     media?: string
     imagesrcset?: string
     referrerpolicy?: HTMLAttributeReferrerPolicy
@@ -1079,18 +1286,18 @@ export interface LinkHTMLAttributes<T extends EventTarget = HTMLLinkElement> ext
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/main#attributes */
-export interface MainHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+export type MainHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
     role?: 'main'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/map#attributes */
-export interface MapHTMLAttributes<T extends EventTarget = HTMLMapElement> extends HTMLAttributes<T> {
+export type MapHTMLAttributes<T extends EventTarget = HTMLMapElement> = HTMLAttributes<T> & {
     name?: string
     role?: never
 }
 
 /** Common attributes for HTMLMediaElements, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement */
-export interface MediaHTMLAttributes<T extends HTMLMediaElement = HTMLMediaElement> extends HTMLAttributes<T>, HTMLMediaElementEventHandlers<T> {
+export type MediaHTMLAttributes<T extends HTMLMediaElement = HTMLMediaElement> = HTMLAttributes<T> & HTMLMediaElementEventHandlers<T> & {
     autoplay?: boolean
     controls?: boolean
     controlslist?: string
@@ -1111,14 +1318,14 @@ export interface MediaHTMLAttributes<T extends HTMLMediaElement = HTMLMediaEleme
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/menu#attributes */
-export interface MenuHTMLAttributes<T extends EventTarget = HTMLMenuElement> extends HTMLAttributes<T> {
+export type MenuHTMLAttributes<T extends EventTarget = HTMLMenuElement> = HTMLAttributes<T> & {
     role: 'list' | 'group' | 'listbox' | 'menu' | 'menubar' | 'none'
         | 'presentation' | 'radiogroup' | 'tablist' | 'toolbar' | 'tree'
     type?: string
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta#attributes */
-export interface MetaHTMLAttributes<T extends EventTarget = HTMLMetaElement> extends HTMLAttributes<T> {
+export type MetaHTMLAttributes<T extends EventTarget = HTMLMetaElement> = HTMLAttributes<T> & {
     charset?: string
     content?: string
     'http-equiv'?: string
@@ -1129,7 +1336,7 @@ export interface MetaHTMLAttributes<T extends EventTarget = HTMLMetaElement> ext
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meter#attributes */
-export interface MeterHTMLAttributes<T extends EventTarget = HTMLMeterElement> extends HTMLAttributes<T> {
+export type MeterHTMLAttributes<T extends EventTarget = HTMLMeterElement> = HTMLAttributes<T> & {
     form?: string
     high?: number
     low?: number
@@ -1141,17 +1348,17 @@ export interface MeterHTMLAttributes<T extends EventTarget = HTMLMeterElement> e
 }
 
 /** https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/nav#attributes */
-export interface NavHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+export type NavHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
     role?: 'navigation' | 'menu' | 'menubar' | 'none' | 'presentation' | 'tablist'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/noscript#attributes */
-export interface NoScriptHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+export type NoScriptHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
     role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/object#attributes */
-export interface ObjectHTMLAttributes<T extends EventTarget = HTMLObjectElement> extends HTMLAttributes<T> {
+export type ObjectHTMLAttributes<T extends EventTarget = HTMLObjectElement> = HTMLAttributes<T> & {
     classID?: string
     data?: string
     form?: string
@@ -1166,7 +1373,7 @@ export interface ObjectHTMLAttributes<T extends EventTarget = HTMLObjectElement>
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/ol#attributes */
-export interface OlHTMLAttributes<T extends EventTarget = HTMLOListElement> extends HTMLAttributes<T> {
+export type OlHTMLAttributes<T extends EventTarget = HTMLOListElement> = HTMLAttributes<T> & {
     reversed?: boolean
     role?: 'list' | 'group' | 'listbox' | 'menu' | 'menubar' | 'none'
         | 'presentation' | 'radiogroup' | 'tablist' | 'toolbar' | 'tree'
@@ -1175,14 +1382,14 @@ export interface OlHTMLAttributes<T extends EventTarget = HTMLOListElement> exte
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/optgroup#attributes */
-export interface OptgroupHTMLAttributes<T extends EventTarget = HTMLOptGroupElement> extends HTMLAttributes<T> {
+export type OptgroupHTMLAttributes<T extends EventTarget = HTMLOptGroupElement> = HTMLAttributes<T> & {
     disabled?: boolean
     label?: string
     role?: 'group'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/option#attributes */
-export interface OptionHTMLAttributes<T extends EventTarget = HTMLOptionElement> extends HTMLAttributes<T> {
+export type OptionHTMLAttributes<T extends EventTarget = HTMLOptionElement> = HTMLAttributes<T> & {
     disabled?: boolean
     label?: string
     role?: 'option'
@@ -1191,7 +1398,7 @@ export interface OptionHTMLAttributes<T extends EventTarget = HTMLOptionElement>
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/output#attributes */
-export interface OutputHTMLAttributes<T extends EventTarget = HTMLOutputElement> extends HTMLAttributes<T> {
+export type OutputHTMLAttributes<T extends EventTarget = HTMLOutputElement> = HTMLAttributes<T> & {
     for?: string
     form?: string
     htmlFor?: string
@@ -1199,24 +1406,24 @@ export interface OutputHTMLAttributes<T extends EventTarget = HTMLOutputElement>
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/picture#attributes */
-export interface PictureHTMLAttributes<T extends EventTarget = HTMLPictureElement> extends HTMLAttributes<T> {
+export type PictureHTMLAttributes<T extends EventTarget = HTMLPictureElement> = HTMLAttributes<T> & {
     role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/progress#attributes */
-export interface ProgressHTMLAttributes<T extends EventTarget = HTMLProgressElement> extends HTMLAttributes<T> {
+export type ProgressHTMLAttributes<T extends EventTarget = HTMLProgressElement> = HTMLAttributes<T> & {
     max?: number | string
     role?: 'progressbar'
     value?: string | number
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/q#attributes */
-export interface QuoteHTMLAttributes<T extends EventTarget = HTMLQuoteElement> extends HTMLAttributes<T> {
+export type QuoteHTMLAttributes<T extends EventTarget = HTMLQuoteElement> = HTMLAttributes<T> & {
     cite?: string
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script#attributes */
-export interface ScriptHTMLAttributes<T extends EventTarget = HTMLScriptElement> extends HTMLAttributes<T> {
+export type ScriptHTMLAttributes<T extends EventTarget = HTMLScriptElement> = HTMLAttributes<T> & {
     async?: boolean
     crossorigin?: HTMLAttributeCrossOrigin
     defer?: boolean
@@ -1230,11 +1437,12 @@ export interface ScriptHTMLAttributes<T extends EventTarget = HTMLScriptElement>
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/search#attributes */
-export interface SearchHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+export type SearchHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
     role?: 'search' | 'form' | 'group' | 'none' | 'presentation' | 'region'
 }
 
-export interface PartialSelectHTMLAttributes<T extends EventTarget> extends HTMLAttributes<T> {
+/** Partial set of attributions for HTMLSelectElement (to be combined with SelectAriaRoles) */
+export type PartialSelectHTMLAttributes<T extends EventTarget> = HTMLAttributes<T> & {
     autocomplete?: string
     defaultvalue?: string | number
     disabled?: boolean
@@ -1246,6 +1454,7 @@ export interface PartialSelectHTMLAttributes<T extends EventTarget> extends HTML
     onChange?: GenericEventHandler<T>
 }
 
+/** Valid aria combinations for HTMLSelectElement */
 export type SelectAriaRoles =
     | {
         multiple?: never;
@@ -1264,13 +1473,13 @@ export type SelectAriaRoles =
 export type SelectHTMLAttributes<T extends EventTarget = HTMLSelectElement> = Omit<PartialSelectHTMLAttributes<T>, 'role'> & SelectAriaRoles
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/slot#attributes */
-export interface SlotHTMLAttributes<T extends EventTarget = HTMLSlotElement> extends HTMLAttributes<T> {
+export type SlotHTMLAttributes<T extends EventTarget = HTMLSlotElement> = HTMLAttributes<T> & {
     name?: string
     role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/source#attributes */
-export interface SourceHTMLAttributes<T extends EventTarget = HTMLSourceElement> extends HTMLAttributes<T> {
+export type SourceHTMLAttributes<T extends EventTarget = HTMLSourceElement> = HTMLAttributes<T> & {
     height?: number | string
     media?: string
     role?: never
@@ -1282,7 +1491,7 @@ export interface SourceHTMLAttributes<T extends EventTarget = HTMLSourceElement>
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/style#attributes */
-export interface StyleHTMLAttributes<T extends EventTarget = HTMLStyleElement> extends HTMLAttributes<T> {
+export type StyleHTMLAttributes<T extends EventTarget = HTMLStyleElement> = HTMLAttributes<T> & {
     media?: string
     role?: never;
     scoped?: boolean
@@ -1290,11 +1499,10 @@ export interface StyleHTMLAttributes<T extends EventTarget = HTMLStyleElement> e
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/table#attributes */
-export interface TableHTMLAttributes<T extends EventTarget = HTMLTableElement> extends HTMLAttributes<T> {
-}
+export type TableHTMLAttributes<T extends EventTarget = HTMLTableElement> = HTMLAttributes<T>
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/td#attributes */
-export interface TdHTMLAttributes<T extends EventTarget = HTMLTableCellElement> extends HTMLAttributes<T> {
+export type TdHTMLAttributes<T extends EventTarget = HTMLTableCellElement> = HTMLAttributes<T> & {
     align?:  'left' | 'center' | 'right' | 'justify' | 'char'
     colspan?: number
     headers?: string
@@ -1307,12 +1515,12 @@ export interface TdHTMLAttributes<T extends EventTarget = HTMLTableCellElement> 
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/template#attributes */
-export interface TemplateHTMLAttributes<T extends EventTarget = HTMLTemplateElement> extends HTMLAttributes<T> {
+export type TemplateHTMLAttributes<T extends EventTarget = HTMLTemplateElement> = HTMLAttributes<T> & {
     role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea#attributes */
-export interface TextareaHTMLAttributes<T extends EventTarget = HTMLTextAreaElement> extends HTMLAttributes<T> {
+export type TextareaHTMLAttributes<T extends EventTarget = HTMLTextAreaElement> = HTMLAttributes<T> & {
     autocomplete?: string
     cols?: number
     defaultvalue?: string | number
@@ -1334,7 +1542,7 @@ export interface TextareaHTMLAttributes<T extends EventTarget = HTMLTextAreaElem
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/th#attributes */
-export interface ThHTMLAttributes<T extends EventTarget = HTMLTableCellElement> extends HTMLAttributes<T> {
+export type ThHTMLAttributes<T extends EventTarget = HTMLTableCellElement> = HTMLAttributes<T> & {
     align?:  'left' | 'center' | 'right' | 'justify' | 'char'
     colspan?: number
     headers?: string
@@ -1344,17 +1552,17 @@ export interface ThHTMLAttributes<T extends EventTarget = HTMLTableCellElement> 
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/time#attributes */
-export interface TimeHTMLAttributes<T extends EventTarget = HTMLTimeElement> extends HTMLAttributes<T> {
+export type TimeHTMLAttributes<T extends EventTarget = HTMLTimeElement> = HTMLAttributes<T> & {
     datetime?: string
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/title#attributes */
-export interface TitleHTMLAttributes<T extends EventTarget = HTMLTitleElement> extends HTMLAttributes<T> {
+export type TitleHTMLAttributes<T extends EventTarget = HTMLTitleElement> = HTMLAttributes<T> & {
     role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/track#attributes */
-export interface TrackHTMLAttributes<T extends HTMLTrackElement = HTMLTrackElement> extends HTMLAttributes<T>, HTMLTrackElementEventHandlers<T> {
+export type TrackHTMLAttributes<T extends HTMLTrackElement = HTMLTrackElement> = HTMLAttributes<T> & HTMLTrackElementEventHandlers<T> & {
     default?: boolean
     kind?: string
     label?: string
@@ -1363,13 +1571,13 @@ export interface TrackHTMLAttributes<T extends HTMLTrackElement = HTMLTrackEleme
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/ul#attributes */
-export interface UlHTMLAttributes<T extends EventTarget = HTMLUListElement> extends HTMLAttributes<T> {
+export type UlHTMLAttributes<T extends EventTarget = HTMLUListElement> = HTMLAttributes<T> & {
     role?: 'list' | 'group' | 'listbox' | 'menu' | 'menubar' | 'none'
         | 'presentation' | 'radiogroup' | 'tablist' | 'toolbar' | 'tree'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video#attributes */
-export interface VideoHTMLAttributes<T extends HTMLVideoElement = HTMLVideoElement> extends MediaHTMLAttributes<T>, HTMLVideoElementEventHandlers<T> {
+export type VideoHTMLAttributes<T extends HTMLVideoElement = HTMLVideoElement> = MediaHTMLAttributes<T> & HTMLVideoElementEventHandlers<T> & {
     disablePictureInPicture?: boolean
     height?: number | string
     playsinline?: boolean
@@ -1380,12 +1588,12 @@ export interface VideoHTMLAttributes<T extends HTMLVideoElement = HTMLVideoEleme
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/wbr#attributes */
-export interface WbrHTMLAttributes<T extends EventTarget = HTMLElement> extends HTMLAttributes<T> {
+export type WbrHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
     role?: 'none' | 'presentation'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes#list_of_global_attributes */
-export interface HTMLAttributes<RefType extends EventTarget = EventTarget> extends HTMLElementEventHandlers<RefType>, AriaAttributes {
+export type HTMLAttributes<RefType extends EventTarget = EventTarget> = HTMLElementEventHandlers<RefType> & AriaAttributes & {
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/accesskey */
     accesskey?: string
     // anchor is non-standard
@@ -1416,19 +1624,36 @@ export interface HTMLAttributes<RefType extends EventTarget = EventTarget> exten
     inputmode?: string
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/is */
     is?: string
-
-    // Section for Microdata attributes: https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Microdata
-    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/itemid */
+    /**
+     * Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/itemid
+     * 
+     * Also see section for Microdata attributes: https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Microdata
+     */
     itemid?: string
-    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/itemprop */
+    /**
+     * Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/itemprop
+     * 
+     * Also see section for Microdata attributes: https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Microdata
+     */
     itemprop?: string
-    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/itemref */
+    /**
+     * Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/itemref
+     * 
+     * Also see section for Microdata attributes: https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Microdata
+     */
     itemref?: string
-    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/itemscope */
+    /**
+     * Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/itemscope
+     * 
+     * Also see section for Microdata attributes: https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Microdata
+     */
     itemscope?: boolean
-    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/itemtype */
+    /**
+     * Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/itemtype
+     * 
+     * Also see section for Microdata attributes: https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Microdata
+     */
     itemtype?: string
-
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/lang */
     lang?: string
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/nonce */
@@ -1453,9 +1678,12 @@ export interface HTMLAttributes<RefType extends EventTarget = EventTarget> exten
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/writingsuggestions */
     writingsuggestions?: boolean
 
-    // WAI-ARIA Attributes
-    // Most elements only allow a subset of roles and so this
-    // is overwritten in many of the per-element interfaces
-    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
+    /**
+     * WAI-ARIA Attributes
+     * 
+     * Most elements only allow a subset of roles and so this is overwritten in many of the per-element interfaces
+     * 
+     * Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles
+     */
     role?: AriaRole
 }

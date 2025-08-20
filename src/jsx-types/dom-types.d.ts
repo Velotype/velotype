@@ -705,21 +705,20 @@ export type PartialAreaHTMLAttributes<T extends EventTarget> = HTMLAttributes<T>
     shape?: string
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/area#target */
     target?: HTMLAttributeAnchorTarget
-
-    hreflang?: string
-    media?: string
 }
 
 /** Valid aria combinations for HTMLAreaElement */
 export type AreaAriaRoles =
     | {
         /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/area#href */
-        href: string,
+        href: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
         role?: 'link'
     }
     | {
         /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/area#href */
-        href?: never,
+        href?: never
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
         role?: 'button' | 'link'
     }
 
@@ -732,17 +731,20 @@ export type AreaHTMLAttributes<T extends EventTarget = HTMLAreaElement> = Omit<P
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/article#attributes */
 export type ArticleHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: 'article' | 'application' | 'document' | 'feed' | 'main' | 'none' | 'presentation' | 'region'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/aside#attributes */
 export type AsideHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: 'complementary' | 'feed' | 'none' | 'note' | 'presentation' | 'region' | 'search' | 'doc-dedication'
         | 'doc-example' | 'doc-footnote' | 'doc-glossary' | 'doc-pullquote' | 'doc-tip'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/audio#attributes */
 export type AudioHTMLAttributes<T extends HTMLAudioElement = HTMLAudioElement> = MediaHTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: 'application'
 }
 
@@ -758,6 +760,7 @@ export type BaseHTMLAttributes<T extends EventTarget = HTMLBaseElement> = HTMLAt
     href?: string
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/base#target */
     target?: HTMLAttributeAnchorTarget
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: never
 }
 
@@ -769,6 +772,7 @@ export type BlockquoteHTMLAttributes<T extends EventTarget = HTMLQuoteElement> =
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/br#attributes */
 export type BrHTMLAttributes<T extends EventTarget = HTMLBRElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: 'none' | 'presentation'
 }
 
@@ -846,7 +850,6 @@ export type CaptionHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAtt
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/col#attributes */
 export type ColHTMLAttributes<T extends EventTarget = HTMLTableColElement> = HTMLAttributes<T> & {
-    role?: never
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/col#span */
     span?: number
     // align is deprecated
@@ -855,11 +858,12 @@ export type ColHTMLAttributes<T extends EventTarget = HTMLTableColElement> = HTM
     // charoff is deprecated
     // valign is deprecated
     // width is deprecated
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
+    role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/colgroup#attributes */
 export type ColgroupHTMLAttributes<T extends EventTarget = HTMLTableColElement> = HTMLAttributes<T> & {
-    role?: never
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/colgroup#span */
     span?: number
     // align is deprecated
@@ -868,6 +872,8 @@ export type ColgroupHTMLAttributes<T extends EventTarget = HTMLTableColElement> 
     // charoff is deprecated
     // valign is deprecated
     // width is deprecated
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
+    role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/data#attributes */
@@ -884,6 +890,7 @@ export type DataListHTMLAttributes<T extends EventTarget = HTMLDataListElement> 
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dd#attributes */
 export type DdHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: never
 }
 
@@ -918,6 +925,7 @@ export type DialogHTMLAttributes<T extends HTMLDialogElement = HTMLDialogElement
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dl#attributes */
 export type DlHTMLAttributes<T extends EventTarget = HTMLDListElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: 'group' | 'list' | 'none' | 'presentation'
 }
 
@@ -935,8 +943,9 @@ export type EmbedHTMLAttributes<T extends EventTarget = HTMLEmbedElement> = HTML
     src?: string
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/embed#type */
     type?: string
-    /** Reference:  */
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/embed#width */
     width?: number | string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: 'application' | 'document' | 'img' | 'none' | 'presentation'
 }
 
@@ -948,16 +957,19 @@ export type FieldsetHTMLAttributes<T extends EventTarget = HTMLFieldSetElement> 
     form?: string
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/fieldset#name */
     name?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: 'group' | 'none' | 'presentation' | 'radiogroup'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/figcaption#attributes */
 export type FigcaptionHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: 'group' | 'none' | 'presentation'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/footer#attributes */
 export type FooterHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: 'contentinfo' | 'group' | 'none' | 'presentation' | 'doc-footnote'
 }
 
@@ -966,8 +978,6 @@ export type FormHTMLAttributes<T extends HTMLFormElement = HTMLFormElement> = HT
     // accept is deprecated
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#accept-charset */
     'accept-charset'?: string
-    /** Refernce: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#autocapitalize */
-    autocapitalize?: string
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#autocomplete */
     autocomplete?: string
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#name */
@@ -987,26 +997,31 @@ export type FormHTMLAttributes<T extends HTMLFormElement = HTMLFormElement> = HT
     novalidate?: boolean
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#target */
     target?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: 'form' | 'none' | 'presentation' | 'search'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/Heading_Elements */
 export type HeadingHTMLAttributes<T extends EventTarget = HTMLHeadingElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: 'heading' | 'none' | 'presentation' | 'tab' | 'doc-subtitle'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/head#attributes */
 export type HeadHTMLAttributes<T extends EventTarget = HTMLHeadElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/header#attributes */
 export type HeaderHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: 'banner' | 'group' | 'none' | 'presentation'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/hr#attributes */
 export type HrHTMLAttributes<T extends EventTarget = HTMLHRElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: 'separator' | 'none' | 'presentation' | 'doc-pagebreak'
 }
 
@@ -1052,6 +1067,7 @@ export type IframeHTMLAttributes<T extends EventTarget = HTMLIFrameElement> = HT
     // marginheight is deprecated
     // marginwidth is deprecated
     // scrolling is deprecated
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: 'application' | 'document' | 'img' | 'none' | 'presentation'
 }
 
@@ -1103,10 +1119,12 @@ export type ImgAriaRolesAccessibleName =
 /** Valid aria combinations for HTMLImageElement */
 export type ImgAriaRoles =
     | {
-        'aria-label': string,
+        'aria-label': string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
         role?: ImgAriaRolesAccessibleName
     } | {
-        'aria-labelledby': string,
+        'aria-labelledby': string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
         role?: ImgAriaRolesAccessibleName
     } | {
         /**
@@ -1114,128 +1132,349 @@ export type ImgAriaRoles =
          * 
          * Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#alt
          */
-        alt: string,
+        alt: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
         role?: ImgAriaRolesAccessibleName
     } | {
-        title: string,
+        title: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
         role?: ImgAriaRolesAccessibleName
     } | {
-        'aria-label'?: never,
-        'aria-labelledby'?: never,
+        'aria-label'?: never
+        'aria-labelledby'?: never
         /** Reference: Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#alt */
-        alt?: never,
-        title?: never,
+        alt?: never
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/title */
+        title?: never
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
         role?: 'img' | 'none' | 'presentation'
     }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#attributes */
-export type ImgHTMLAttributes<T extends EventTarget = HTMLImageElement> = Omit<
-    PartialImgHTMLAttributes<T>,
-    'role' | 'aria-label' | 'aria-labelledby' | 'title'
-> & ImgAriaRoles
+export type ImgHTMLAttributes<T extends EventTarget = HTMLImageElement> =
+    Omit<PartialImgHTMLAttributes<T>,'role' | 'aria-label' | 'aria-labelledby' | 'title'>
+    & ImgAriaRoles
 
 /** Partial set of attributions for HTMLInputElement (to be combined with InputAriaRoles) */
 export type PartialInputHTMLAttributes<T extends HTMLInputElement> = HTMLAttributes<T> & HTMLInputElementEventHandlers<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#autocomplete */
     autocomplete?: string
-    /** https://www.w3.org/TR/html-media-capture/#the-capture-attribute */
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#autocomplete */
+    autofocus?: boolean
+    /**
+     * The capture attribute specifies that, optionally, a new file should be captured, and which device
+     * should be used to capture that new media of a type defined by the accept attribute.
+     * 
+     * The capture attribute takes as its value a string that specifies which camera to use for capture of
+     * image or video data, if the accept attribute indicates that the input should be of one of those types.
+     * 
+     * Values:
+     * * `user` - The user-facing camera and/or microphone should be used.
+     * * `environment` - The outward-facing camera and/or microphone should be used
+     * 
+     * References:
+     * * Input capture: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#capture
+     * 
+     * * Media capture: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/capture
+     * 
+     * * W3 spec: https://www.w3.org/TR/html-media-capture/#the-capture-attribute */
     capture?: 'user' | 'environment'
-    checked?: boolean
-    defaultchecked?: boolean
-    defaultvalue?: string | number
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#disabled */
     disabled?: boolean
-    enterkeyhint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send'
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#form */
     form?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#formaction */
     formaction?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#formenctype */
     formenctype?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#formmethod */
     formmethod?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#formnovalidate */
     formnovalidate?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#formtarget */
     formtarget?: string
-    height?: number | string
-    indeterminate?: boolean
-    max?: number | string
-    maxlength?: number
-    min?: number | string
-    minlength?: number
-    multiple?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#name */
     name?: string
-    pattern?: string
-    placeholder?: string
-    readonly?: boolean
-    required?: boolean
-    size?: number
-    src?: string
-    step?: number | string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#value */
     value?: string | number
-    width?: number | string
 }
 
 /** Valid aria type + role combinations for HTMLInputElement */
 export type InputAriaRoles =
     | {
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/button */
         type: 'button'
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#popovertarget */
+        popovertarget?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#popovertargetaction */
+        popovertargetaction?: 'hide' | 'show' | 'toggle'
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
         role?: 'button' | 'checkbox' | 'combobox' | 'gridcell' | 'link'
         | 'menuitem' | 'menuitemcheckbox' | 'menuitemradio' | 'option' | 'radio'
         | 'separator' | 'slider' | 'switch' | 'tab' | 'treeitem'
     } | {
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/checkbox */
         type: 'checkbox'
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#checked */
+        checked?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#required */
+        required?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/checkbox#indeterminate_state_checkboxes */
+        indeterminate?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
         role?: 'checkbox' | 'button' | 'menuitemcheckbox' | 'option' | 'switch'
     } | {
-        type: 'email'
-        list?: never
-        role?: 'textbox'
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/color */
+        type: 'color'
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#list */
+        list?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
+        role?: never
     } | {
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/email */
+        type: 'email'
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#maxlength */
+        maxlength?: number
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#minlength */
+        minlength?: number
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#dirname */
+        dirname?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#list */
+        list?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#multiple */
+        multiple?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#pattern */
+        pattern?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#placeholder_2 */
+        placeholder?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#readonly */
+        readonly?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#required */
+        required?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#size_2 */
+        size?: number
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
+        role?: 'textbox' | 'combobox'
+    } | {
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/image */
         type: 'image'
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#height */
+        height?: number | string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#width */
+        width?: number | string
         /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#alt */
         alt?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#src */
+        src?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
         role?: 'button' | 'checkbox' | 'gridcell' | 'link' | 'menuitem'
         | 'menuitemcheckbox' | 'menuitemradio' | 'option' | 'separator' | 'slider'
         | 'switch' | 'tab' | 'treeitem'
     } | {
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/number */
         type: 'number'
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#list */
+        list?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#max */
+        max?: number | string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#min */
+        min?: number | string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#placeholder_2 */
+        placeholder?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#readonly */
+        readonly?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#required */
+        required?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#step */
+        step?: number | string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
         role?: 'spinbutton'
     } | {
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/radio */
         type: 'radio'
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#checked */
+        checked?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#required */
+        required?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
         role?: 'radio' | 'menuitemradio'
     } | {
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/range */
         type: 'range'
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#list */
+        list?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#max */
+        max?: number | string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#min */
+        min?: number | string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#step */
+        step?: number | string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
         role?: 'slider'
     } | {
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/reset */
         type: 'reset'
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
         role?: 'button' | 'checkbox' | 'combobox' | 'gridcell' | 'link'
         | 'menuitem' | 'menuitemcheckbox' | 'menuitemradio' | 'option' | 'radio'
         | 'separator' | 'slider' | 'switch' | 'tab' | 'treeitem'
     } | {
-        type: 'search'
-        list?: never
-        role?: 'searchbox'
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/search */
+        type?: 'search'
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#dirname */
+        dirname?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#maxlength */
+        maxlength?: number
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#minlength */
+        minlength?: number
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#list */
+        list?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#pattern */
+        pattern?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#placeholder_2 */
+        placeholder?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#readonly */
+        readonly?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#required */
+        required?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
+        role?: 'combobox' | 'searchbox'
     } | {
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/submit */
         type: 'submit'
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
         role?: 'button' | 'checkbox' | 'combobox' | 'gridcell' | 'link'
         | 'menuitem' | 'menuitemcheckbox' | 'menuitemradio' | 'option' | 'radio'
         | 'separator' | 'slider' | 'switch' | 'tab' | 'treeitem'
     } | {
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/tel */
         type: 'tel'
-        list?: never
-        role?: 'textbox'
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#maxlength */
+        maxlength?: number
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#minlength */
+        minlength?: number
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#dirname */
+        dirname?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#list */
+        list?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#pattern */
+        pattern?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#placeholder_2 */
+        placeholder?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#readonly */
+        readonly?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#required */
+        required?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#size_2 */
+        size?: number
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
+        role?: 'textbox' | 'combobox'
     } | {
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/text */
         type?: 'text'
-        list?: never
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#maxlength */
+        maxlength?: number
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#minlength */
+        minlength?: number
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#dirname */
+        dirname?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#list */
+        list?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#pattern */
+        pattern?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#placeholder_2 */
+        placeholder?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#readonly */
+        readonly?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#required */
+        required?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#size_2 */
+        size?: number
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
         role?: 'textbox' | 'combobox' | 'searchbox' | 'spinbutton'
     } | {
-        type?: 'text' | 'search' | 'tel' | 'url' | 'email'
-        list?: string
-        role?: 'combobox'
-    } | {
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/url */
         type: 'url'
-        list?: never
-        role?: 'textbox'
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#maxlength */
+        maxlength?: number
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#minlength */
+        minlength?: number
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#dirname */
+        dirname?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#list */
+        list?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#pattern */
+        pattern?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#placeholder_2 */
+        placeholder?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#readonly */
+        readonly?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#required */
+        required?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#size_2 */
+        size?: number
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
+        role?: 'textbox' | 'combobox'
     } | {
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/email */
         type: 'file'
         /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#accept */
         accept?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#multiple */
+        multiple?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#required */
+        required?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
         role?: never
     } | {
-        type: 'color' | 'date' | 'datetime-local' | 'hidden' | 'month' | 'password' | 'time' | 'week'
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/hidden */
+        type: 'hidden'
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#dirname */
+        dirname?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
+        role?: never
+    } | {
+        /**
+         * References:
+         * * date - https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/date
+         * * datetime-local - https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/datetime-local
+         * * month - https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/month
+         * * week - https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/week
+         * * time - https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/time
+         */
+        type: 'date' | 'datetime-local' | 'month' | 'time' | 'week'
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#list */
+        list?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#max */
+        max?: number | string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#min */
+        min?: number | string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#readonly */
+        readonly?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#required */
+        required?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#step */
+        step?: number | string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
+        role?: never
+    } | {
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/password */
+        type: 'password'
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#maxlength */
+        maxlength?: number
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#minlength */
+        minlength?: number
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#pattern */
+        pattern?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#placeholder_2 */
+        placeholder?: string
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#readonly */
+        readonly?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#required */
+        required?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#size_2 */
+        size?: number
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
         role?: never
     }
 
@@ -1244,228 +1483,378 @@ export type InputHTMLAttributes<T extends HTMLInputElement = HTMLInputElement> =
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/ins#attributes */
 export type InsHTMLAttributes<T extends EventTarget = HTMLModElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/ins#cite */
     cite?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/ins#datetime */
     datetime?: string
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/label#attributes */
 export type LabelHTMLAttributes<T extends EventTarget = HTMLLabelElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/label#for */
     for?: string
-    form?: string
-    htmlfor?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/label#technical_summary */
     role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/legend#attributes */
 export type LegendHTMLAttributes<T extends EventTarget = HTMLLegendElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/li#attributes */
 export type LiHTMLAttributes<T extends EventTarget = HTMLLIElement> = HTMLAttributes<T> & {
+    /** Reference:  */
     value?: string | number
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/link#attributes */
 export type LinkHTMLAttributes<T extends EventTarget = HTMLLinkElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/link#as */
     as?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/link#blocking */
+    blocking?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/link#crossorigin */
     crossorigin?: HTMLAttributeCrossOrigin
+    /**
+     * For rel="stylesheet" only, the disabled Boolean attribute indicates whether the described stylesheet
+     * should be loaded and applied to the document. If disabled is specified in the HTML when it is loaded,
+     * the stylesheet will not be loaded during page load. Instead, the stylesheet will be loaded on-demand,
+     * if and when the disabled attribute is changed to false or removed.
+     * 
+     * Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/link#disabled
+     */
+    disabled?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/link#fetchpriority */
     fetchpriority?: 'high' | 'low' | 'auto'
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/link#href */
     href?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/link#hreflang */
     hreflang?: string
+    /**
+     * For rel="preload" and as="image" only, the imagesrcset attribute has similar syntax and semantics
+     * as the srcset attribute that indicates to preload the appropriate resource used by an img element
+     * with corresponding values for its srcset and sizes attributes.
+     * 
+     * Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/link#imagesizes
+     */
+    imagesizes?: string
+    /**
+     * For rel="preload" and as="image" only, the imagesrcset attribute has similar syntax and semantics
+     * as the srcset attribute that indicates to preload the appropriate resource used by an img element
+     * with corresponding values for its srcset and sizes attributes.
+     * 
+     * Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/link#imagesrcset
+     */
+    imagesrcset?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/link#integrity */
     integrity?: string
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/link#media */
     media?: string
-    imagesrcset?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/link#referrerpolicy */
     referrerpolicy?: HTMLAttributeReferrerPolicy
+    /**
+     * This attribute names a relationship of the linked document to the current document. The attribute
+     * must be a space-separated list of link type values.
+     * 
+     * Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/link#rel
+     * 
+     * Rel attribute: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/rel
+     */
     rel?: string
-    role?: never;
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/link#sizes */
     sizes?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/link#type */
     type?: string
-    charset?: string
+    // target is deprecated
+    // charset is deprecated
+    // rev is deprecated
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
+    role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/main#attributes */
 export type MainHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: 'main'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/map#attributes */
 export type MapHTMLAttributes<T extends EventTarget = HTMLMapElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/map#name */
     name?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: never
 }
 
 /** Common attributes for HTMLMediaElements, reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement */
 export type MediaHTMLAttributes<T extends HTMLMediaElement = HTMLMediaElement> = HTMLAttributes<T> & HTMLMediaElementEventHandlers<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/autoplay */
     autoplay?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/controls */
     controls?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/controlsList */
     controlslist?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/crossOrigin */
     crossorigin?: HTMLAttributeCrossOrigin
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/currentTime */
     currenttime?: number
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/defaultMuted */
     defaultmuted?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/defaultPlaybackRate */
     defaultplaybackrate?: number
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/disableRemotePlayback */
     disableremoteplayback?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/loop */
     loop?: boolean
-    mediagroup?: string
+    // mediagroup is deprecated
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/muted */
     muted?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/playbackRate */
     playbackrate?: number
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/preload */
     preload?: 'auto' | 'metadata' | 'none'
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/preservesPitch */
     preservespitch?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/src */
     src?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/srcObject */
     srcobject?: MediaStream | MediaSource | Blob | File | null
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/volume */
     volume?: string | number
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/menu#attributes */
 export type MenuHTMLAttributes<T extends EventTarget = HTMLMenuElement> = HTMLAttributes<T> & {
+    // type is deprecated
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role: 'list' | 'group' | 'listbox' | 'menu' | 'menubar' | 'none'
         | 'presentation' | 'radiogroup' | 'tablist' | 'toolbar' | 'tree'
-    type?: string
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta#attributes */
 export type MetaHTMLAttributes<T extends EventTarget = HTMLMetaElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta#charset */
     charset?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta#attributes */
     content?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta#http-equiv */
     'http-equiv'?: string
-    httpEquiv?: string
-    name?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta#media */
     media?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta#name */
+    name?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meter#attributes */
 export type MeterHTMLAttributes<T extends EventTarget = HTMLMeterElement> = HTMLAttributes<T> & {
-    form?: string
-    high?: number
-    low?: number
-    max?: number | string
-    min?: number | string
-    optimum?: number
-    role?: 'meter'
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meter#value */
     value?: string | number
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meter#min */
+    min?: number | string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meter#max */
+    max?: number | string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meter#low */
+    low?: number
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meter#high */
+    high?: number
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meter#optimum */
+    optimum?: number
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
+    role?: 'meter'
 }
 
 /** https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/nav#attributes */
 export type NavHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: 'navigation' | 'menu' | 'menubar' | 'none' | 'presentation' | 'tablist'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/noscript#attributes */
 export type NoScriptHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/object#attributes */
 export type ObjectHTMLAttributes<T extends EventTarget = HTMLObjectElement> = HTMLAttributes<T> & {
-    classID?: string
+    // archive is deprecated
+    // border is deprecated
+    // classid is deprecated
+    // codebase is deprecated
+    // codetype is deprecated
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/object#data */
     data?: string
+    // declare is deprecated
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/object#form */
     form?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/object#height */
     height?: number | string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/object#name */
     name?: string
-    role?: 'application' | 'document' | 'img'
+    // standby is deprecated
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/object#type */
     type?: string
-    usemap?: string
-    useMap?: string
+    // usemap is deprecated
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/object#width */
     width?: number | string
-    wmode?: string
+    // wmode is deprecated
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
+    role?: 'application' | 'document' | 'img'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/ol#attributes */
 export type OlHTMLAttributes<T extends EventTarget = HTMLOListElement> = HTMLAttributes<T> & {
+    // compact is deprecated
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/ol#reversed */
     reversed?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/ol#start */
+    start?: number
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/ol#type */
+    type?: '1' | 'a' | 'A' | 'i' | 'I'
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: 'list' | 'group' | 'listbox' | 'menu' | 'menubar' | 'none'
         | 'presentation' | 'radiogroup' | 'tablist' | 'toolbar' | 'tree'
-    start?: number
-    type?: '1' | 'a' | 'A' | 'i' | 'I'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/optgroup#attributes */
 export type OptgroupHTMLAttributes<T extends EventTarget = HTMLOptGroupElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/optgroup#disabled */
     disabled?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/optgroup#label */
     label?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: 'group'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/option#attributes */
 export type OptionHTMLAttributes<T extends EventTarget = HTMLOptionElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/option#disabled */
     disabled?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/option#label */
     label?: string
-    role?: 'option'
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/option#selected */
     selected?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/option#value */
     value?: string | number
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
+    role?: 'option'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/output#attributes */
 export type OutputHTMLAttributes<T extends EventTarget = HTMLOutputElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/output#for */
     for?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/output#form */
     form?: string
-    htmlFor?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/output#name */
     name?: string
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/picture#attributes */
 export type PictureHTMLAttributes<T extends EventTarget = HTMLPictureElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/progress#attributes */
 export type ProgressHTMLAttributes<T extends EventTarget = HTMLProgressElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/progress#max */
     max?: number | string
-    role?: 'progressbar'
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/progress#value */
     value?: string | number
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
+    role?: 'progressbar'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/q#attributes */
 export type QuoteHTMLAttributes<T extends EventTarget = HTMLQuoteElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/q#cite */
     cite?: string
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script#attributes */
 export type ScriptHTMLAttributes<T extends EventTarget = HTMLScriptElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script#async */
     async?: boolean
+    // attributionsrc is experimental
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script#blocking */
+    blocking?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script#crossorigin */
     crossorigin?: HTMLAttributeCrossOrigin
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script#defer */
     defer?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script#fetchpriority */
+    fetchpriority?: 'high' | 'low' | 'auto'
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script#integrity */
     integrity?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script#nomodule */
     nomodule?: boolean
-    noModule?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script#nonce */
+    nonce?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script#referrerpolicy */
     referrerpolicy?: HTMLAttributeReferrerPolicy
-    role?: never;
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script#src */
     src?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script#type */
     type?: string
+    // charset is deprecated
+    // language is deprecated
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
+    role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/search#attributes */
 export type SearchHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: 'search' | 'form' | 'group' | 'none' | 'presentation' | 'region'
 }
 
 /** Partial set of attributions for HTMLSelectElement (to be combined with SelectAriaRoles) */
 export type PartialSelectHTMLAttributes<T extends EventTarget> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select#autocomplete */
     autocomplete?: string
-    defaultvalue?: string | number
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select#autofocus */
+    autofocus?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select#disabled */
     disabled?: boolean
+    /** Reference:  */
+    defaultvalue?: string | number
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select#form */
     form?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select#name */
     name?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select#required */
     required?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select#size */
     size?: number
+    /** Reference: https://html.spec.whatwg.org/multipage/form-elements.html#dom-select-value */
     value?: string | number
-    onChange?: GenericEventHandler<T>
 }
 
 /** Valid aria combinations for HTMLSelectElement */
 export type SelectAriaRoles =
     | {
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select#multiple */
         multiple?: never;
-        // Spec states this branch is limited to "no `multiple` attribute AND no `size` attribute greater than 1".
-        // `1` as a default, however, caused some web compat issues and forced Firefox to default to `0` instead.
+        /**
+         * Spec states this branch is limited to "no `multiple` attribute AND no `size` attribute greater than 1".
+         * `1` as a default, however, caused some web compat issues and forced Firefox to default to `0` instead.
+         * 
+         * Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select#size
+         */
         size?: 0 | 1 | never
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
         role?: 'combobox' | 'menu'
-    }
-    | {
+    } | {
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select#multiple */
         multiple?: boolean
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select#size */
         size?: number
+        /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
         role?: 'listbox'
     }
 
@@ -1474,28 +1863,42 @@ export type SelectHTMLAttributes<T extends EventTarget = HTMLSelectElement> = Om
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/slot#attributes */
 export type SlotHTMLAttributes<T extends EventTarget = HTMLSlotElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/slot#name */
     name?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/source#attributes */
 export type SourceHTMLAttributes<T extends EventTarget = HTMLSourceElement> = HTMLAttributes<T> & {
+    /** Reference:  */
     height?: number | string
+    /** Reference:  */
     media?: string
-    role?: never
+    /** Reference:  */
     sizes?: string
+    /** Reference:  */
     src?: string
+    /** Reference:  */
     srcset?: string
+    /** Reference:  */
     type?: string
+    /** Reference:  */
     width?: number | string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
+    role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/style#attributes */
 export type StyleHTMLAttributes<T extends EventTarget = HTMLStyleElement> = HTMLAttributes<T> & {
+    /** Reference:  */
     media?: string
-    role?: never;
+    /** Reference:  */
     scoped?: boolean
+    /** Reference:  */
     type?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
+    role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/table#attributes */
@@ -1503,85 +1906,136 @@ export type TableHTMLAttributes<T extends EventTarget = HTMLTableElement> = HTML
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/td#attributes */
 export type TdHTMLAttributes<T extends EventTarget = HTMLTableCellElement> = HTMLAttributes<T> & {
-    align?:  'left' | 'center' | 'right' | 'justify' | 'char'
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/td#colspan */
     colspan?: number
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/td#headers */
     headers?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/td#rowspan */
     rowspan?: number
-    scope?: string
-    abbr?: string
-    height?: number | string
-    width?: number | string
-    valign?: 'top' | 'middle' | 'bottom' | 'baseline'
+    // abbr is deprecated
+    // align is deprecated
+    // axis is deprecated
+    // bgcolor is deprecated
+    // char is deprecated
+    // charoff is deprecated
+    // height is deprecated
+    // scope is deprecated
+    // valign is deprecated
+    // width is deprecated
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/template#attributes */
 export type TemplateHTMLAttributes<T extends EventTarget = HTMLTemplateElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea#attributes */
 export type TextareaHTMLAttributes<T extends EventTarget = HTMLTextAreaElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea#autocomplete */
     autocomplete?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea#autocorrect */
+    autocorrect?: 'on' | 'off'
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea#autofocus */
+    autofocus?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea#cols */
     cols?: number
-    defaultvalue?: string | number
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea#dirname */
     dirname?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea#disabled */
     disabled?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea#form */
     form?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea#maxlength */
     maxlength?: number
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea#minlength */
     minlength?: number
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea#name */
     name?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea#placeholder */
     placeholder?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea#readonly */
     readonly?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea#required */
     required?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea#rows */
+    rows?: number
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLTextAreaElement/value */
+    value?: string | number
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea#wrap */
+    wrap?: 'hard' | 'soft' | 'off'
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/textbox_role */
     role?: 'textbox'
-    rows?: number
-    value?: string | number
-    wrap?: 'hard' | 'soft' | 'off'
-    onChange?: GenericEventHandler<T>
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/th#attributes */
 export type ThHTMLAttributes<T extends EventTarget = HTMLTableCellElement> = HTMLAttributes<T> & {
-    align?:  'left' | 'center' | 'right' | 'justify' | 'char'
-    colspan?: number
-    headers?: string
-    rowspan?: number
-    scope?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/th#abbr */
     abbr?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/th#colspan */
+    colspan?: number
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/th#headers */
+    headers?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/th#rowspan */
+    rowspan?: number
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/th#scope */
+    scope?: string
+    // align is deprecated
+    // axis is deprecated
+    // bgcolor is deprecated
+    // char is deprecated
+    // charoff is deprecated
+    // height is deprecated
+    // valign is deprecated
+    // width is deprecated
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/time#attributes */
 export type TimeHTMLAttributes<T extends EventTarget = HTMLTimeElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/time#datetime */
     datetime?: string
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/title#attributes */
 export type TitleHTMLAttributes<T extends EventTarget = HTMLTitleElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/track#attributes */
 export type TrackHTMLAttributes<T extends HTMLTrackElement = HTMLTrackElement> = HTMLAttributes<T> & HTMLTrackElementEventHandlers<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/track#default */
     default?: boolean
-    kind?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/track#kind */
+    kind?: 'subtitles' | 'captions' | 'chapters' | 'metadata'
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/track#label */
     label?: string
-    role?: never
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/track#src */
+    src?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/track#srclang */
     srclang?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
+    role?: never
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/ul#attributes */
 export type UlHTMLAttributes<T extends EventTarget = HTMLUListElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles */
     role?: 'list' | 'group' | 'listbox' | 'menu' | 'menubar' | 'none'
         | 'presentation' | 'radiogroup' | 'tablist' | 'toolbar' | 'tree'
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video#attributes */
 export type VideoHTMLAttributes<T extends HTMLVideoElement = HTMLVideoElement> = MediaHTMLAttributes<T> & HTMLVideoElementEventHandlers<T> & {
-    disablePictureInPicture?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video#disablepictureinpicture */
+    disablepicturetnpicture?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video#height */
     height?: number | string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video#playsinline */
     playsinline?: boolean
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video#poster */
     poster?: string
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video#width */
     width?: number | string
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/application_role */
     role?: 'application'
@@ -1589,6 +2043,7 @@ export type VideoHTMLAttributes<T extends HTMLVideoElement = HTMLVideoElement> =
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/wbr#attributes */
 export type WbrHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
+    /** Reference: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/presentation_role */
     role?: 'none' | 'presentation'
 }
 

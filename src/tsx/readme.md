@@ -150,7 +150,7 @@ class MoreComplexComponent extends Component<MoreComplexAttrsType, HTMLElement> 
     }
     otherMethod = () => {
         console.log("MoreComplexComponent otherMethod() called")
-        // Update the value of the RenderBasic, this will rerender only the one {this.otherMethodCallCount} element created in render() above
+        // Update the value of the RenderBasic object, this will rerender only the one {this.otherMethodCallCount} element created in render() above
         this.otherMethodCallCount.value+=1
     }
     someMethod = () => {

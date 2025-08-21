@@ -126,7 +126,7 @@ export declare namespace h {
         /** JSX types for elements and their accepted attributes, in Micro just set to any */
         interface IntrinsicElements {
             /** Allow all attributes for all elements */
-            [elemName: string]: any
+            [elementName: string]: any
         }
     }
 }

@@ -457,7 +457,8 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
     #eventDispatchDelay: number = 0
     #eventDispatched: boolean = false
     #eventListeningKey() {
-        return `vt-oc-${this.vtKey}`
+        // VeloType - Render Object - {key}
+        return `vt-ro-${this.vtKey}`
     }
     #emitOnChangeEvent() {
         emitEvent(this.#eventListeningKey(), new VelotypeEvent(this,'onChange'))
@@ -1122,13 +1123,13 @@ function unmountComponentElementHelper(component: InternalComponent | MultiRende
     }
 }
 /**
- * Unount the children of this element
+ * Unmount the children of this element
  */
 function unmountComponentElementChildren(element: HTMLElement): void {
     traverseElementChildren(element, unmountComponentElementHelper)
 }
 /**
- * Unount this element and all of its children
+ * Unmount this element and all of its children
  */
 function unmountComponentElement(element: AnchorElement): void {
     if (instanceOfHTMLElement(element)) {
@@ -1401,9 +1402,9 @@ export function getComponent<T>(componentElement: ChildrenTypes[] | AnchorElemen
 }
 
 /**
- * Appends a Root Component to an element that is on the document based on an elementId
+ * Replaces an element that is on the document with a rootComponent
  */
-export function replaceElementWithRoot(rootComponent: AnchorElement, element: HTMLElement): AnchorElement | null {
+export function replaceElementWithRoot(rootComponent: AnchorElement, element: HTMLElement): AnchorElement {
     element.replaceWith(rootComponent)
     mountComponentElement(rootComponent)
     return rootComponent

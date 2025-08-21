@@ -408,8 +408,8 @@ export class UpdateHandlerLink {
     /** Stashed references to make selected updates more performant */
     updateRefs: any
     /** Create a new UpdateHandlerLink */
-    constructor(element: ChildTypes, updateRefs: any) {
-        this.result = element
+    constructor(result: ChildTypes, updateRefs: any) {
+        this.result = result
         this.updateRefs = updateRefs
     }
 }
@@ -424,7 +424,7 @@ export type RenderObjectHandleUpdateType<DataType> = (element: AnchorElement, up
  * 
  * (currently only supports rendering to HTMLElements for RenderObjectArray)
  */
-export type RenderObjectRenderFunctionType<DataType> = (data: DataType) => ChildTypes | UpdateHandlerLink
+export type RenderObjectRenderFunctionType<DataType> = (data: DataType, thisArg: RenderObject<DataType>) => ChildTypes | UpdateHandlerLink
 
 type RenderObjectElementsType<DataType> = {
     /** element */
@@ -571,7 +571,7 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
             if (element.hU && element.uR) {
                 element.hU(element.e, element.uR, this.#data, newData)
             } else {
-                const render = element.rF(newData)
+                const render = element.rF(newData, this)
                 if (render instanceof UpdateHandlerLink) {
                     const newElement = wrapElementIfNeeded(childToElement(render.result))
                     setAttributeHelper(newElement, domKeyName, key)
@@ -651,7 +651,7 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
      * the passed renderFunction and handleUpdate function
      */
     render(renderFunction: RenderObjectRenderFunctionType<DataType>, handleUpdate?: RenderObjectHandleUpdateType<DataType>): AnchorElement {
-        const render = renderFunction(this.#data)
+        const render = renderFunction(this.#data, this)
         const newElement = wrapElementIfNeeded(childToElement((render instanceof UpdateHandlerLink)?render.result:render))
         const componentKey = registerNewVtKey(this, newElement)
         this.#elements.set(componentKey, {

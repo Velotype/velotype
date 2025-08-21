@@ -91,9 +91,24 @@ function appendChild(parent: HTMLElement, child: ChildrenTypes[] | ChildrenTypes
 export type FunctionComponent<AttrsType> = (attrs: Readonly<AttrsType>, children: ChildrenTypes[]) => ChildrenTypes[] | RenderableElements | BasicTypes | null | undefined
 
 /**
+ * Represents a Component that is mountable / unmountable
+ */
+export interface Mountable {
+    /**
+     * Mount is called just after a Component is attached to the DOM
+     */
+    mount: () => void
+
+    /**
+     * Unmount is called just before a Component is removed from the DOM
+     */
+    unmount: () => void
+}
+
+/**
  * A Velotype Class Component that can be used in .tsx files to render HTML Components.
  */
-export abstract class Component<AttrsType, RenderReturnType extends RenderableElements = HTMLElement> {
+export abstract class Component<AttrsType, RenderReturnType extends RenderableElements = HTMLElement> implements Mountable {
 
     /** constructor gets attrs and children */
     constructor(attrs: Readonly<AttrsType>, children: ChildrenTypes[]){}
@@ -105,6 +120,20 @@ export abstract class Component<AttrsType, RenderReturnType extends RenderableEl
      * @param {ChildrenTypes[]} children Any children of this Component
      */
     abstract render(attrs: Readonly<AttrsType>, children: ChildrenTypes[]): RenderReturnType
+
+    /**
+     * Mount is called just after this Component is attached to the DOM.
+     * 
+     * May be overriden by a specific Component that extends Component
+     */
+    mount(): void {}
+
+    /**
+     * Unmount is called just before this Component is removed from the DOM.
+     * 
+     * May be overriden by a specific Component that extends Component
+     */
+    unmount(): void {}
 
     /**
      * Trigger re-rendering of this Comonent and all child Components.
@@ -138,6 +167,7 @@ function replaceElement(element: HTMLElement | undefined, newElement: HTMLElemen
         const isFocused = document.hasFocus() ? document.activeElement == element : false
         unmountComponentElementChildren(element)
         element.replaceWith(newElement)
+        mountComponentElementChildren(newElement)
         if (isFocused) {
             newElement.focus()
         }
@@ -146,7 +176,27 @@ function replaceElement(element: HTMLElement | undefined, newElement: HTMLElemen
 }
 
 /**
- * Unount the children of this element
+ * Mount the children of this element
+ */
+function mountComponentElementChildren(element: Element) {
+    if (element instanceof HTMLElement) {
+        for (let i = 0; i < element.children.length; i++) {
+            const child = element.children[i]
+            mountComponentElementChildren(child)
+            const key = child.getAttribute(domKeyName)
+            if (key) {
+                const component = domReferences.get(key)
+                if (component) {
+                    // Mount Component
+                    component.mount()
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Unmount the children of this element
  */
 function unmountComponentElementChildren(element: Element) {
     if (element instanceof HTMLElement) {
@@ -157,7 +207,8 @@ function unmountComponentElementChildren(element: Element) {
             if (key) {
                 const component = domReferences.get(key)
                 if (component) {
-                    // Release the Component's vtKey
+                    // Unmount Component and release the Component's vtKey
+                    component.unmount()
                     domReferences.delete(component.vtKey)
                 }
             }
@@ -317,17 +368,12 @@ export function getComponent<T>(componentElement: ChildrenTypes[] | HTMLElement 
 }
 
 /**
- * Appends a Root Component to an element that is on the document based on an elementId
+ * Appends a Root Component to an element that is on the document
  */
-export function appendRootComponentTo(rootComponent: HTMLElement, elementId: string): HTMLElement | null {
-    const element = document.getElementById(elementId)
-    if (element) {
-        element.appendChild(rootComponent)
-        return rootComponent
-    } else {
-        console.error("Append to null", rootComponent, elementId)
-        return null
-    }
+export function appendRootComponentTo(rootComponent: HTMLElement, element: HTMLElement): HTMLElement {
+    element.appendChild(rootComponent)
+    mountComponentElementChildren(element)
+    return rootComponent
 }
 
 /** Basic JSX types */
@@ -337,7 +383,7 @@ export declare namespace h {
         /** JSX types for elements and their accepted attributes, in Micro just set to any */
         interface IntrinsicElements {
             /** Allow all attributes for all elements */
-            [elemName: string]: any
+            [elementName: string]: any
         }
     }
 }

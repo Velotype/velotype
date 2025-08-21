@@ -691,7 +691,7 @@ export class RenderBasic<DataType extends BasicTypes> extends RenderObject<DataT
     /** Create a new BasicComponent */
     constructor(initialData: DataType) {
         super(initialData, function(data: DataType) {
-            return createElement('span', null, data.toString()) as HTMLSpanElement
+            return createElement('span', displayContents, data.toString()) as HTMLSpanElement
         })
     }
     /**

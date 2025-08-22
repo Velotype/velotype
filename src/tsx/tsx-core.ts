@@ -1471,7 +1471,7 @@ export class RenderObjectArray<DataType> extends RenderObject<RenderObject<DataT
      */
     pushAll(newData: DataType[]): void {
         this.value = this.value.concat(newData.map(d => {
-            const obj = new RenderObject<DataType>(d, this.#renderFunction)
+            const obj = new RenderObject<DataType>(d, this.#renderFunction, this.#handleUpdate)
             this.getElements().forEach(element => {
                 element.appendChild(renderableElementToElement(obj))
             })

@@ -1470,13 +1470,13 @@ export class RenderObjectArray<DataType> extends RenderObject<RenderObject<DataT
      * Push all of the data points of newData[] into the Array
      */
     pushAll(newData: DataType[]): void {
-        this.value = this.value.concat(newData.map(d => {
+        newData.forEach(d => {
             const obj = new RenderObject<DataType>(d, this.#renderFunction, this.#handleUpdate)
             this.getElements().forEach(element => {
                 element.appendChild(renderableElementToElement(obj))
             })
-            return obj
-        }))
+            this.value.push(obj)
+        })
     }
     /**
      * Delete one or more data points from the Array

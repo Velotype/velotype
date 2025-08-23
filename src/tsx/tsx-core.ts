@@ -1168,23 +1168,29 @@ export function setAttrsOnElement(element: AnchorElement, attrs?: Readonly<any> 
         return
     }
     for (const [name, value] of Object.entries(attrs || {})) {
-        if (name.startsWith('on') && name.toLowerCase() in window) {
+        if (name.startsWith('on') && name.length > 4) {
             // Special handling for event listener attributes
+            //
             // Example attrs:
-            // {onClick: ()=>{} }
-            // {onClick: {handler: ()=>{}, options: {once: true}}}
+            //   <div onClick={()=>{}} >
+            //   <div onClick={{handler: ()=>{}, options: {once: true}}} >
+            //
+            // The length check of 4 is to allow the name[2] test below and to guarantee that
+            // eventName will be at least one char in length. Works because all standard browser
+            // events have at least 2 chars in their name.
 
             if (value) { // Check for <div onClick={null}>
                 let options: boolean | AddEventListenerOptions | undefined = undefined
                 let handler: (this: HTMLElement, ev: Event | UIEvent | WheelEvent) => any = value
-                if (typeof value !== 'function') {
+                if (typeof value !== 'function' && value.handler && value.options !== undefined) {
                     handler = value.handler
                     options = value.options
                 }
-                // TODO the toLowerCase() may be incorrect here (or require more nuance)
-                // See: https://github.com/preactjs/preact/blob/main/src/diff/props.js#L71
-                // and: https://github.com/webcomponents/custom-elements-everywhere/blob/main/libraries/preact/src/components.js#L201
-                element.addEventListener(name.toLowerCase().substring(2) as keyof HTMLElementEventMap, handler, options)
+                // Extract the event name:
+                // If the name has a dash after "on" like: <div on-custom-eventNAME={()=>{}} > then the name is extracted exactly as-is
+                // If the name does not have a dash after "on" then the name is lower cased
+                const eventName = (name[2] == '-') ? name.slice(3) : name.slice(2).toLowerCase()
+                element.addEventListener(eventName, handler, options)
             }
         } else if (name == 'style' && value instanceof Object) {
             // Special handling for style object

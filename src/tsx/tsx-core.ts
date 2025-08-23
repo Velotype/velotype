@@ -1482,7 +1482,7 @@ export class RenderObjectArray<DataType> extends RenderObject<RenderObject<DataT
      * Delete one or more data points from the Array
      */
     deleteAt(startIndex: number, deleteCount?: number): void {
-        const oldData = this.value.splice(startIndex, deleteCount)
+        const oldData = this.value.splice(startIndex, (deleteCount!==undefined&&deleteCount>0)?deleteCount:1)
         oldData.forEach(function(d){
             d.unmount()
             d.removeAll()

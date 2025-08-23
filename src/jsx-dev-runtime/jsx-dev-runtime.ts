@@ -141,7 +141,7 @@ export type Source = {
  * <tag attrOne={} attrTwo={}>{children}</tag>
  * ```
  */
-export function jsxDEV(tag: any, attrs: any, key: string | undefined, _isStaticChildren: boolean, source: Source, parent: any): ChildrenTypes[] | AnchorElement | BasicTypes {
+export function jsxDEV(tag: any, attrs: any, key: string | undefined, _isStaticChildren: boolean, source: Source, _parent: any): ChildrenTypes[] | AnchorElement | BasicTypes {
     // Pull children out of attrs
     const children = attrs.children
     delete attrs.children
@@ -151,9 +151,10 @@ export function jsxDEV(tag: any, attrs: any, key: string | undefined, _isStaticC
         attrs.key = key
     }
 
-    // Stash dev metadata into attrs
-    attrs.__vt_source = source
-    attrs.__vt_parent = parent
+    // Stash source metadata into attrs
+    attrs.__vt_source_fileName = source.fileName
+    attrs.__vt_source_lineNumber = source.lineNumber
+    attrs.__vt_source_columnNumber = source.columnNumber
 
     return createElement(tag, attrs, children)
 }

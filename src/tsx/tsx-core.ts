@@ -96,13 +96,39 @@ function hasSetterInPrototypeChain(object: any, fieldName: string): boolean {
 /**
  * Call either setAttribute() of a setter on element (if defined)
  */
-function setAttributeHelper(element: Element | SVGSVGElement | SVGPathElement, qualifiedName: string, value: any): void {
-    if (hasSetterInPrototypeChain(element, qualifiedName)) {
-        ;(element as any)[qualifiedName] = value
+function setAttributeHelper(element: Element, name: string, value: any): void {
+    if (hasSetterInPrototypeChain(element, name)) {
+        // Detected property, set directly
+        ;(element as any)[name] = value
     } else {
-        element.setAttribute(qualifiedName, value.toString())
+        // No property, set as an attribute
+        element.setAttribute(name, value.toString())
     }
 }
+
+/**
+ * Call either setAttribute() of a setter on element (if defined)
+ * 
+ * Specific to a boolean value to set as empty string when an attribute
+ */
+function setBooleanAttributeHelper(element: Element, name: string, value: boolean): void {
+    if (hasSetterInPrototypeChain(element, name)) {
+        // Detected property, set boolean type directly
+        ;(element as any)[name] = value
+    } else {
+        // No property, set as an attribute
+        if (name.startsWith('aria-') || name.startsWith('data-')) {
+            // Always set the raw boolean attribute for aria- and data- attributes
+            element.setAttribute(name, String(value))
+        } else {
+            // Boolean true gets set to empty string, boolean false does not get set
+            if (value) {
+                element.setAttribute(name, '')
+            }
+        }
+    }
+}
+
 /** Call getAttribute() - used for JS minification */
 function getAttributeHelper(element: Element, qualifiedName: string): string | null {
     return element.getAttribute(qualifiedName)
@@ -1211,13 +1237,7 @@ export function setAttrsOnElement(element: AnchorElement, attrs?: Readonly<any> 
                 }
             }
         } else if (typeof value == 'boolean') {
-            if (name.startsWith('aria-') || name.startsWith('data-')) {
-                // Always set the raw boolean attribute for aria- and data- attributes
-                setAttributeHelper(element, name, String(value))
-            } else if (value) {
-                // Boolean true gets set to empty string, boolean false does not get set
-                setAttributeHelper(element, name, '')
-            }
+            setBooleanAttributeHelper(element, name, value)
         } else if (typeof value == 'function') {
             // Avoid setting the attribute if the value is a function
         } else if (value || value == "") {

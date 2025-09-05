@@ -21,7 +21,8 @@
     "bundle-jsx-dev-runtime": "deno bundle --minify ./src/jsx-dev-runtime/jsx-dev-runtime.ts --output ./dist/jsx-dev-runtime.min.js --sourcemap",
     "bundle-tsx-mini": "deno bundle --minify ./src/tsx-mini/tsx-mini.ts --output ./dist/tsx-mini.min.js --sourcemap",
     "bundle-tsx-micro": "deno bundle --minify ./src/tsx-micro/tsx-micro.ts --output ./dist/tsx-micro.min.js --sourcemap",
-    "test": "deno test ./tests/"
+    "test": "cd ./tests/ && deno run 'bundle*' && cd .. && deno test --allow-read --allow-net --allow-sys --allow-env --allow-write --allow-run",
+    "test-manual": "cd ./tests/ && deno run 'bundle*' && cd .. && deno run --allow-read --allow-net --allow-sys ./tests/manual_server.ts"
   },
   "compilerOptions": {
     "lib": ["dom", "deno.ns", "esnext"]

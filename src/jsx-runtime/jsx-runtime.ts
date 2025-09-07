@@ -16,8 +16,6 @@ import {
     type BasicTypes,
     type RenderableElements,
     type AnchorElement,
-    type ChildTypes,
-    type ChildrenTypes,
 
     // Core types
     type FunctionComponent,
@@ -77,8 +75,6 @@ export {
     type BasicTypes,
     type RenderableElements,
     type AnchorElement,
-    type ChildTypes,
-    type ChildrenTypes,
 
     // Core types
     type FunctionComponent,
@@ -129,7 +125,7 @@ export {
  * <tag attrOne={} attrTwo={}>{children}</tag>
  * ```
  */
-export function jsx(tag: any, attrs: any, key?: string | undefined): ChildrenTypes[] | AnchorElement | BasicTypes {
+export function jsx(tag: any, attrs: any, key?: string | undefined): RenderableElements[] | AnchorElement | BasicTypes {
     // Pull children out of attrs
     const children = attrs.children
     delete attrs.children
@@ -150,12 +146,12 @@ export function jsx(tag: any, attrs: any, key?: string | undefined): ChildrenTyp
  * 
  * Note: Velotype does not distinguish between static and dynamic children arrays so jsx and jsxs are identical
  */
-export const jsxs: (tag: any, attrs: any, key?: string | undefined) => ChildrenTypes[] | AnchorElement | BasicTypes = jsx
+export const jsxs: (tag: any, attrs: any, key?: string | undefined) => RenderableElements[] | AnchorElement | BasicTypes = jsx
 
 /**
  * Create an fragment `<></>` (which just propagates an array of children[])
  */
-export const Fragment: (_attrs: Readonly<any>, ...children: ChildrenTypes[]) => ChildrenTypes[] = createFragment
+export const Fragment: (_attrs: Readonly<any>, ...children: RenderableElements[]) => RenderableElements[] = createFragment
 
 // Export the JSX namespace for JSX type checking
 import type { JSXInternal } from "../jsx-types/jsx-types.d.ts"

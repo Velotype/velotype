@@ -16,8 +16,6 @@ import {
     type BasicTypes,
     type RenderableElements,
     type AnchorElement,
-    type ChildTypes,
-    type ChildrenTypes,
 
     // Core types
     type FunctionComponent,
@@ -77,8 +75,6 @@ export {
     type BasicTypes,
     type RenderableElements,
     type AnchorElement,
-    type ChildTypes,
-    type ChildrenTypes,
 
     // Core types
     type FunctionComponent,
@@ -141,7 +137,7 @@ export type Source = {
  * <tag attrOne={} attrTwo={}>{children}</tag>
  * ```
  */
-export function jsxDEV(tag: any, attrs: any, key: string | undefined, _isStaticChildren: boolean, source: Source, _parent: any): ChildrenTypes[] | AnchorElement | BasicTypes {
+export function jsxDEV(tag: any, attrs: any, key: string | undefined, _isStaticChildren: boolean, source: Source, _parent: any): RenderableElements[] | AnchorElement | BasicTypes {
     // Pull children out of attrs
     const children = attrs.children
     delete attrs.children
@@ -162,7 +158,7 @@ export function jsxDEV(tag: any, attrs: any, key: string | undefined, _isStaticC
 /**
  * Create an fragment `<></>` (which just propagates an array of children[])
  */
-export const Fragment: (_attrs: Readonly<any>, ...children: ChildrenTypes[]) => ChildrenTypes[] = createFragment
+export const Fragment: (_attrs: Readonly<any>, ...children: RenderableElements[]) => RenderableElements[] = createFragment
 
 // Export the JSX namespace for JSX type checking
 import type { JSXInternal } from "../jsx-types/jsx-types.d.ts"

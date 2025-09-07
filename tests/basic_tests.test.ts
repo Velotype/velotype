@@ -103,4 +103,64 @@ describe('basic component rendering', () => {
         }
     )
 
+    itWrap("render void", "return-types", "#component-return-void div", async (selection: ElementHandle) => {
+        assertEquals(await selection.getAttribute("style"),"display: none;")
+    })
+    itWrap("render null", "return-types", "#component-return-null div", async (selection: ElementHandle) => {
+            assertEquals(await selection.getAttribute("style"),"display: none;")
+    })
+    itWrap("render undefined", "return-types", "#component-return-undefined div", async (selection: ElementHandle) => {
+        assertEquals(await selection.getAttribute("style"),"display: none;")
+    })
+
+    itWrap("render text", "return-types", "#component-return-text div", async (selection: ElementHandle) => {
+        assertEquals(await selection.getAttribute("style"),"display: contents;")
+        assertEquals(await selection.innerHTML(),"test text")
+    })
+
+    itWrap("render boolean", "return-types", "#component-return-boolean div", async (selection: ElementHandle) => {
+        assertEquals(await selection.getAttribute("style"),"display: contents;")
+        assertEquals(await selection.innerHTML(),"true")
+    })
+    itWrap("render number", "return-types", "#component-return-number div", async (selection: ElementHandle) => {
+        assertEquals(await selection.getAttribute("style"),"display: contents;")
+        assertEquals(await selection.innerHTML(),"1")
+    })
+    itWrap("render string", "return-types", "#component-return-string div", async (selection: ElementHandle) => {
+        assertEquals(await selection.getAttribute("style"),"display: contents;")
+        assertEquals(await selection.innerHTML(),"test string")
+    })
+    itWrap("render bigint", "return-types", "#component-return-bigint div", async (selection: ElementHandle) => {
+        assertEquals(await selection.getAttribute("style"),"display: contents;")
+        assertEquals(await selection.innerHTML(),"1")
+    })
+
+    itWrap("render array", "return-types", "#component-return-array div", async (selection: ElementHandle) => {
+        assertEquals(await selection.getAttribute("style"),"display: contents;")
+        assertEquals(await selection.innerHTML(),"<div>1</div><span>2</span>3456false")
+    })
+
+    itWrap("render component", "return-types", "#component-return-component div", async (selection: ElementHandle) => {
+        assertEquals(await selection.getAttribute("style"),"display: contents;")
+        assertEquals(await selection.innerText(),"test string")
+    })
+    itWrap("render render-object", "return-types", "#component-return-render-object div", async (selection: ElementHandle) => {
+        assertEquals(await selection.getAttribute("style"),"display: contents;")
+        assertEquals(await selection.innerText(),"2")
+    })
+    itWrap("render render-basic", "return-types", "#component-return-render-basic div", async (selection: ElementHandle) => {
+        assertEquals(await selection.getAttribute("style"),"display: contents;")
+        assertEquals(await selection.innerText(),"2")
+    })
+
+    itWrap("render html-element", "return-types", "#component-return-html-element div", async (selection: ElementHandle) => {
+        assertEquals(await selection.getAttribute("style"),"display: inline-block;")
+    })
+    itWrap("render svg-element", "return-types", "#component-return-svg-element svg", async (selection: ElementHandle) => {
+        assertEquals(await selection.getAttribute("style"),"test style")
+    })
+    itWrap("render mathml-element", "return-types", "#component-return-mathml-element math", async (selection: ElementHandle) => {
+        assertEquals(await selection.getAttribute("style"),"test style")
+    })
+
 })

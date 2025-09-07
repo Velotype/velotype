@@ -9,8 +9,8 @@ export type AnchorElement = HTMLElement | SVGSVGElement | MathMLElement
 /** Basic primitives that are renderable directly */
 export type BasicTypes = string | bigint | number | boolean
 
-/** These are things that can be returned from Component.render() */
-export type RenderableElements = AnchorElement | Component<any, any> | RenderObject<any>
+/** Types that can be returned from Component.render() and FunctionComponent() */
+export type RenderableElements = AnchorElement | Component<any> | RenderObject<any> | RenderableElements[] | BasicTypes | Text | null | undefined | void
 
 /** Type used to represent a constructor function for a Class */
 export type TypeConstructor<T> = new (...args: any[]) => T
@@ -18,17 +18,11 @@ export type TypeConstructor<T> = new (...args: any[]) => T
 /** Type used to represent abstract Class passing */
 export interface Type<T> extends TypeConstructor<T>{}
 
-/** Valid child objects of an Element */
-export type ChildTypes = BasicTypes | Text | RenderableElements | null | undefined
-
-/** Type used to represent children in createElement("",{}, children) */
-export type ChildrenTypes = ChildTypes | ChildTypes[]
-
 /** Type used to represent that no Attrs are accepted for a Component */
 export type EmptyAttrs = Record<string | number | symbol, never>
 
 /** Type used to represent that children are accepted */
-export type ChildrenAttr = { children?: ChildrenTypes[] | ChildrenTypes }
+export type ChildrenAttr = { children?: RenderableElements }
 
 /** Regular console.log() - used for JS minification */
 const consoleLog = console.log
@@ -66,7 +60,7 @@ function instanceOfRenderObject(something: any): something is RenderObject<any> 
     return something instanceof RenderObject
 }
 /** Checks if something is an instanceof Component */
-function instanceOfComponent(something: any): something is Component<any, any> {
+function instanceOfComponent(something: any): something is Component<any> {
     return something instanceof Component
 }
 /** Checks if something is an instanceof Text */
@@ -270,7 +264,7 @@ function releaseVtKeyObject(hasVtKey: HasVtKey): void {
 /**
  * Convert any valid ChildType into an AnchorElement (or undefined)
  */
-function childToElement(child: ChildTypes): AnchorElement | undefined {
+function childToElement(child: RenderableElements): AnchorElement | undefined {
     if (instanceOfBasicTypes(child) || instanceOfText(child)) {
         return createElement("span",null,child)
     } else if (child) {
@@ -280,7 +274,7 @@ function childToElement(child: ChildTypes): AnchorElement | undefined {
 /**
  * Convert any valid ChildType into a Node (or undefined)
  */
-function childToNode(child: ChildTypes): AnchorElement | Text | undefined {
+function childToNode(child: RenderableElements): AnchorElement | Text | undefined {
     if (instanceOfBasicTypes(child)) {
         return document.createTextNode(child.toString())
     } else if (instanceOfText(child)) {
@@ -318,7 +312,7 @@ function renderableElementToElement(child: RenderableElements): AnchorElement {
  * @param parent HTMLElement to append to
  * @param child Children to append
  */
-function appendChild(parent: HTMLElement | DocumentFragment, child: ChildrenTypes[] | ChildrenTypes): void {
+function appendChild(parent: HTMLElement | DocumentFragment, child: RenderableElements): void {
     if (Array.isArray(child)) {
         for (let i = 0; i < child.length; i++) {
             appendChild(parent, child[i])
@@ -367,10 +361,10 @@ function wrapElementIfNeeded(element: SVGSVGElement): AnchorElement
 function wrapElementIfNeeded(element: MathMLElement): AnchorElement
 function wrapElementIfNeeded(element: HTMLElement): HTMLElement
 function wrapElementIfNeeded(element: AnchorElement): AnchorElement
-function wrapElementIfNeeded(element: Component<any, any>): HTMLElement
+function wrapElementIfNeeded(element: Component<any>): HTMLElement
 function wrapElementIfNeeded(element: RenderObject<any>): HTMLElement
-function wrapElementIfNeeded(element: Component<any, any> | RenderObject<any>): HTMLElement
-function wrapElementIfNeeded(element: HTMLElement | Component<any, any> | RenderObject<any> | null | undefined): HTMLElement
+function wrapElementIfNeeded(element: Component<any> | RenderObject<any>): HTMLElement
+function wrapElementIfNeeded(element: HTMLElement | Component<any> | RenderObject<any> | null | undefined): HTMLElement
 function wrapElementIfNeeded(element: RenderableElements | null | undefined): AnchorElement
 function wrapElementIfNeeded(element: RenderableElements | null | undefined): AnchorElement {
     // Check for falsey
@@ -379,7 +373,7 @@ function wrapElementIfNeeded(element: RenderableElements | null | undefined): An
     }
     // If a Component returns a Component or RenderObject as a result of render
     // then it needs to be wrapped in another HTMLElement for rendering to work properly
-    if (instanceOfComponent(element) || instanceOfRenderObject(element) || element.hasAttribute(domKeyName)) {
+    if (instanceOfBasicTypes(element) || instanceOfComponent(element) || instanceOfRenderObject(element) || instanceOfText(element) || Array.isArray(element) || element.hasAttribute(domKeyName)) {
         return createElement(divTag,displayContents,element) as HTMLDivElement
     }
     return element
@@ -430,11 +424,11 @@ export interface Mountable {
  */
 export class UpdateHandlerLink {
     /** Reference to the rendered object */
-    result: ChildTypes
+    result: RenderableElements
     /** Stashed references to make selected updates more performant */
     updateRefs: any
     /** Create a new UpdateHandlerLink */
-    constructor(result: ChildTypes, updateRefs: any) {
+    constructor(result: RenderableElements, updateRefs: any) {
         this.result = result
         this.updateRefs = updateRefs
     }
@@ -450,7 +444,7 @@ export type RenderObjectHandleUpdateType<DataType> = (element: AnchorElement, up
  * 
  * (currently only supports rendering to HTMLElements for RenderObjectArray)
  */
-export type RenderObjectRenderFunctionType<DataType> = (data: DataType, thisArg: RenderObject<DataType>) => ChildTypes | UpdateHandlerLink
+export type RenderObjectRenderFunctionType<DataType> = (data: DataType, thisArg: RenderObject<DataType>) => RenderableElements | UpdateHandlerLink
 
 type RenderObjectElementsType<DataType> = {
     /** element */
@@ -514,7 +508,7 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
      * @param eventDispatchDelay to delay (in ms) onChange event dispatch, will dispatch at most one change event per eventDispatchDelay (default: 0)
      * @returns this
      */
-    registerOnChangeListener(component: Component<any,any>, listener: VelotypeEventListener, triggerOnRegistration?: boolean, eventDispatchDelay?: number): RenderObject<DataType> {
+    registerOnChangeListener(component: Component<any>, listener: VelotypeEventListener, triggerOnRegistration?: boolean, eventDispatchDelay?: number): RenderObject<DataType> {
         this.#hasEventListeners = true
         this.#eventDispatchDelay = (eventDispatchDelay && eventDispatchDelay>0)?eventDispatchDelay:0
         registerEventListener(component, this.#eventListeningKey(), listener)
@@ -730,7 +724,7 @@ export class RenderBasic<DataType extends BasicTypes> extends RenderObject<DataT
      * @param eventDispatchDelay to delay (in ms) onChange event dispatch, will dispatch at most one change event per eventDispatchDelay (default: 0)
      * @returns this
      */
-    override registerOnChangeListener(component: Component<any,any>, listener: VelotypeEventListener, triggerOnRegistration?: boolean): RenderBasic<DataType> {
+    override registerOnChangeListener(component: Component<any>, listener: VelotypeEventListener, triggerOnRegistration?: boolean): RenderBasic<DataType> {
         super.registerOnChangeListener(component, listener, triggerOnRegistration)
         return this
     }
@@ -772,22 +766,22 @@ export class RenderBasic<DataType extends BasicTypes> extends RenderObject<DataT
  * A Velotype Function Component that can be used in .tsx files to render HTML Components.
  * Does not support mount and unmount lifecycle events.
  */
-export type FunctionComponent<AttrsType> = (attrs: Readonly<AttrsType>, children: ChildrenTypes[]) => ChildrenTypes[] | RenderableElements | BasicTypes | null | undefined
+export type FunctionComponent<AttrsType> = (attrs: Readonly<AttrsType>, children: RenderableElements[]) => RenderableElements
 
 /**
  * A Velotype Class Component that can be used in .tsx files to render HTML Components.
  * Supports unmount, render, mount lifecycle events.
  */
-export abstract class Component<AttrsType, RenderReturnType extends RenderableElements = HTMLElement> implements HasVtKey, Mountable {
+export abstract class Component<AttrsType> implements HasVtKey, Mountable {
 
     /** The attributes this Component was created with */
     attrs: AttrsType
 
     /** The children this Component was created with */
-    children: ChildrenTypes[]
+    children: RenderableElements[]
 
     /** constructor gets attrs and children */
-    constructor(attrs: Readonly<AttrsType>, children: ChildrenTypes[]){
+    constructor(attrs: Readonly<AttrsType>, children: RenderableElements[]){
         this.attrs = attrs
         this.children = children
     }
@@ -811,9 +805,9 @@ export abstract class Component<AttrsType, RenderReturnType extends RenderableEl
      * 
      * To be overriden by a specific Component that extends Component
      * @param {Readonly<AttrsType>} attrs The attrs for this Component
-     * @param {ChildrenTypes[]} children Any children of this Component
+     * @param {RenderableElements[]} children Any children of this Component
      */
-    abstract render(attrs: Readonly<AttrsType>, children: ChildrenTypes[]): RenderReturnType
+    abstract render(attrs: Readonly<AttrsType>, children: RenderableElements[]): RenderableElements
 
     /**
      * Trigger re-rendering of this Component and all child Components.
@@ -942,7 +936,7 @@ function removeElement(element: AnchorElement): void {
  */
 class InternalComponent {
 
-    constructor(component: Component<any,any>, attrs: Readonly<any>, children: ChildrenTypes[]) {
+    constructor(component: Component<any>, attrs: Readonly<any>, children: RenderableElements[]) {
         this.c = component
         this.a = attrs
         this.h = children
@@ -966,7 +960,7 @@ class InternalComponent {
     /**
      * Stashes the Velotype Component defined by the user
      */
-    c: Component<any,any>
+    c: Component<any>
 
     /**
      * Stashes a reference to the root AnchorElement of this Component.
@@ -986,7 +980,7 @@ class InternalComponent {
     /**
      * Stashes the children for this Component
      */
-    h: ChildrenTypes[]
+    h: RenderableElements[]
 
     /**
      * Trigger unmount for this Component's children, then re-render
@@ -1172,7 +1166,7 @@ function unmountComponentElement(element: AnchorElement): void {
 /**
  * Render a Component into an AnchorElement
  */
-function componentRender(classComponent: InternalComponent, attrs: Readonly<any>, children: ChildrenTypes[]): AnchorElement {
+function componentRender(classComponent: InternalComponent, attrs: Readonly<any>, children: RenderableElements[]): AnchorElement {
     const render: AnchorElement = wrapElementIfNeeded(classComponent.c.render(attrs, children))
     setAttributeHelper(render, domKeyName, classComponent.k)
     return render
@@ -1257,7 +1251,7 @@ export function setAttrsOnElement(element: AnchorElement, attrs?: Readonly<any> 
  * <tag attrOne={} attrTwo={}>{children}</tag>
  * ```
  */
-export function createElement(tag: 'span', attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLSpanElement
+export function createElement(tag: 'span', attrs: Readonly<any> | null, ...children: RenderableElements[]): HTMLSpanElement
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
@@ -1265,7 +1259,7 @@ export function createElement(tag: 'span', attrs: Readonly<any> | null, ...child
  * <tag attrOne={} attrTwo={}>{children}</tag>
  * ```
  */
-export function createElement(tag: 'div', attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLDivElement
+export function createElement(tag: 'div', attrs: Readonly<any> | null, ...children: RenderableElements[]): HTMLDivElement
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
@@ -1273,7 +1267,7 @@ export function createElement(tag: 'div', attrs: Readonly<any> | null, ...childr
  * <tag attrOne={} attrTwo={}>{children}</tag>
  * ```
  */
-export function createElement(tag: string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
+export function createElement(tag: string, attrs: Readonly<any> | null, ...children: RenderableElements[]): HTMLElement
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
@@ -1281,7 +1275,7 @@ export function createElement(tag: string, attrs: Readonly<any> | null, ...child
  * <tag attrOne={} attrTwo={}>{children}</tag>
  * ```
  */
-export function createElement(tag: Type<Component<any, Component<any, any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
+export function createElement(tag: Type<Component<any>>, attrs: Readonly<any> | null, ...children: RenderableElements[]): HTMLElement
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
@@ -1289,7 +1283,7 @@ export function createElement(tag: Type<Component<any, Component<any, any>>>, at
  * <tag attrOne={} attrTwo={}>{children}</tag>
  * ```
  */
-export function createElement(tag: Type<Component<any, RenderObject<any>>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
+export function createElement(tag: FunctionComponent<any>, attrs: Readonly<any> | null, ...children: RenderableElements[]): RenderableElements[] | AnchorElement | BasicTypes
 /**
  * Create an element with a tag, set it's attributes using attrs, then append children
  * 
@@ -1297,47 +1291,7 @@ export function createElement(tag: Type<Component<any, RenderObject<any>>>, attr
  * <tag attrOne={} attrTwo={}>{children}</tag>
  * ```
  */
-export function createElement(tag: Type<Component<any, HTMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): HTMLElement
-/**
- * Create an element with a tag, set it's attributes using attrs, then append children
- * 
- * ```tsx
- * <tag attrOne={} attrTwo={}>{children}</tag>
- * ```
- */
-export function createElement(tag: Type<Component<any, SVGSVGElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): SVGSVGElement
-/**
- * Create an element with a tag, set it's attributes using attrs, then append children
- * 
- * ```tsx
- * <tag attrOne={} attrTwo={}>{children}</tag>
- * ```
- */
-export function createElement(tag: Type<Component<any, MathMLElement>>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): MathMLElement
-/**
- * Create an element with a tag, set it's attributes using attrs, then append children
- * 
- * ```tsx
- * <tag attrOne={} attrTwo={}>{children}</tag>
- * ```
- */
-export function createElement(tag: FunctionComponent<any>, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): ChildrenTypes[] | AnchorElement | BasicTypes
-/**
- * Create an element with a tag, set it's attributes using attrs, then append children
- * 
- * ```tsx
- * <tag attrOne={} attrTwo={}>{children}</tag>
- * ```
- */
-export function createElement(tag: Type<Component<any, any>> | FunctionComponent<any> | string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): ChildrenTypes[] | AnchorElement | BasicTypes
-/**
- * Create an element with a tag, set it's attributes using attrs, then append children
- * 
- * ```tsx
- * <tag attrOne={} attrTwo={}>{children}</tag>
- * ```
- */
-export function createElement(tag: Type<Component<any, any>> | FunctionComponent<any> | string, attrs: Readonly<any> | null, ...children: ChildrenTypes[]): ChildrenTypes[] | AnchorElement | BasicTypes {
+export function createElement(tag: Type<Component<any>> | FunctionComponent<any> | string, attrs: Readonly<any> | null, ...children: RenderableElements[]): RenderableElements[] | AnchorElement | BasicTypes {
     const notNullAttrs = attrs || {}
     if (typeof tag === 'string') {
         // Base HTML Element
@@ -1354,7 +1308,7 @@ export function createElement(tag: Type<Component<any, any>> | FunctionComponent
     } else if (instanceOfComponent(tag.prototype)) {
         // Create and register Component
         const internalComponent = new InternalComponent(
-            new (tag as Type<Component<any,any>>)(notNullAttrs, children),
+            new (tag as Type<Component<any>>)(notNullAttrs, children),
             notNullAttrs,
             children
         )
@@ -1384,7 +1338,7 @@ export function createElement(tag: Type<Component<any, any>> | FunctionComponent
 /**
  * Create an fragment \<></> (which just propagates an array of children[])
  */
-export function createFragment(_attrs: Readonly<any>, ...children:  ChildrenTypes[]): ChildrenTypes[] {
+export function createFragment(_attrs: Readonly<any>, ...children:  RenderableElements[]): RenderableElements[] {
     return children
 }
 
@@ -1411,7 +1365,7 @@ export function createFragment(_attrs: Readonly<any>, ...children:  ChildrenType
  * return <div>{foo}</div>
  * ```
  */
-export function getComponent<T>(componentElement: ChildrenTypes[] | AnchorElement | BasicTypes | null): T {
+export function getComponent<T>(componentElement: RenderableElements[] | AnchorElement | BasicTypes | null): T {
     if (!componentElement || componentElement instanceof Text || instanceOfBasicTypes(componentElement) || Array.isArray(componentElement)) {
         // Invalid case
         consoleError("Invalid element", componentElement)
@@ -1625,7 +1579,7 @@ export type SVGAttrsType = {
  * 
  * svg:string - content to use in innerHTML of the \<svg> element
  */
-export class SVG<AttrsType extends SVGAttrsType = SVGAttrsType> extends Component<AttrsType,SVGSVGElement> {
+export class SVG<AttrsType extends SVGAttrsType = SVGAttrsType> extends Component<AttrsType> {
     /**
      * Renders this into a \<svg\> element
      */
@@ -1652,7 +1606,7 @@ export type MATHAttrsType = {
  * 
  * svg:string - content to use in innerHTML of the svg element
  */
-export class MATH<AttrsType extends MATHAttrsType = MATHAttrsType> extends Component<AttrsType,MathMLElement> {
+export class MATH<AttrsType extends MATHAttrsType = MATHAttrsType> extends Component<AttrsType> {
     /**
      * Renders this into a \<math\> element
      */
@@ -1682,7 +1636,7 @@ export class VelotypeEvent {
     /**
      * Link to the emitting object
      */
-    emittingObject: Component<any,any> | RenderObject<any>
+    emittingObject: Component<any> | RenderObject<any>
     /**
      * A simple string representing the type of event
      */
@@ -1694,7 +1648,7 @@ export class VelotypeEvent {
     /**
      * Create a new VelotypeEvent
      */
-    constructor(emittingObject: Component<any,any> | RenderObject<any>, event: string, data?: any) {
+    constructor(emittingObject: Component<any> | RenderObject<any>, event: string, data?: any) {
         this.emittingObject = emittingObject
         this.event = event
         this.data = data

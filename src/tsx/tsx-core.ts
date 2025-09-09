@@ -1,5 +1,7 @@
 // deno-lint-ignore-file no-unused-vars no-explicit-any
 
+import type { StyleObjectAttrType } from "../jsx-types/dom-types.d.ts"
+
 /**
  * These are the types that can be used as a Component's anchor, they can
  * register a componentKey (aka a vtKey) and are mountable/unmountable
@@ -21,8 +23,14 @@ export interface Type<T> extends TypeConstructor<T>{}
 /** Type used to represent that no Attrs are accepted for a Component */
 export type EmptyAttrs = Record<string | number | symbol, never>
 
-/** Type used to represent that children are accepted */
+/** Type used to represent that children are accepted by a Component */
 export type ChildrenAttr = { children?: RenderableElements }
+
+/** Type used to represent pass-through style controls by a Component to an underlying Element */
+export type StylePassthroughAttrs = {
+    class?: string
+    style?: StyleObjectAttrType | string
+}
 
 /** Regular console.log() - used for JS minification */
 const consoleLog = console.log

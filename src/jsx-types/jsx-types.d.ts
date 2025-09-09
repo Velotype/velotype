@@ -11,7 +11,7 @@ import type {AnchorHTMLAttributes, HTMLAttributes, AreaHTMLAttributes, ArticleHT
 export namespace JSXInternal {
 
     /** Types that are allowed as a `<tag/>` */
-    export type ElementType<C extends Component<any,any>> = keyof IntrinsicElements
+    export type ElementType<C extends Component<any>> = keyof IntrinsicElements
         | FunctionComponent<any>
         | C
 

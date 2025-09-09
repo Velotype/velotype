@@ -1,6 +1,7 @@
 {
     "tasks": {
         "bundle-return-types": "deno bundle ./test_modules/return-types.tsx --output ./build/return-types.js --sourcemap",
+        "bundle-attrs-types": "deno bundle ./test_modules/attrs-types.tsx --output ./build/attrs-types.js --sourcemap",
         "bundle-basic-div": "deno bundle ./test_modules/basic-div.tsx --output ./build/basic-div.js --sourcemap"
     },
     "nodeModulesDir": "auto",

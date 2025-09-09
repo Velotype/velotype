@@ -163,4 +163,34 @@ describe('basic component rendering', () => {
         assertEquals(await selection.getAttribute("style"),"test style")
     })
 
+    itWrap("render component-children-string", "attrs-types", "#component-children-string div", async (selection: ElementHandle) => {
+        assertEquals(await selection.innerText(),"string")
+    })
+    itWrap("render component-children-number", "attrs-types", "#component-children-number div", async (selection: ElementHandle) => {
+        assertEquals(await selection.innerText(),"1")
+    })
+    itWrap("render component-children-html", "attrs-types", "#component-children-html span", async (selection: ElementHandle) => {
+        assertEquals(await selection.innerText(),"span")
+    })
+
+    itWrap("render component-only-children-string", "attrs-types", "#component-only-children-string div", async (selection: ElementHandle) => {
+        assertEquals(await selection.innerText(),"string")
+    })
+    itWrap("render component-only-children-number", "attrs-types", "#component-only-children-number div", async (selection: ElementHandle) => {
+        assertEquals(await selection.innerText(),"1")
+    })
+    itWrap("render component-only-children-html", "attrs-types", "#component-only-children-html span", async (selection: ElementHandle) => {
+        assertEquals(await selection.innerText(),"span")
+    })
+
+    itWrap("render component-children-attr-string", "attrs-types", "#component-children-attr-string div", async (selection: ElementHandle) => {
+        assertEquals(await selection.innerText(),"string")
+    })
+    itWrap("render component-children-attr-number", "attrs-types", "#component-children-attr-number div", async (selection: ElementHandle) => {
+        assertEquals(await selection.innerText(),"1")
+    })
+    itWrap("render component-children-attr-html", "attrs-types", "#component-children-attr-html span", async (selection: ElementHandle) => {
+        assertEquals(await selection.innerText(),"span")
+    })
+
 })

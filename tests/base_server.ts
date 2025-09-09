@@ -21,7 +21,7 @@ export async function startAppServer(server_port: number): Promise<App> {
         }
     ))
     // TODO calculate dynamically from the test_modules folder
-    const setOfModules = ['basic-div','return-types']
+    const setOfModules = ['basic-div','return-types','attrs-types']
     setOfModules.forEach((module) => {
         router.get(`/${module}`, function() {
             const response = new Response(`<!DOCTYPE html><html><body>

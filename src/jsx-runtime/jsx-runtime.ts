@@ -22,10 +22,11 @@ import {
     Component,
     type EmptyAttrs,
     type ChildrenAttr,
-    UpdateHandlerLink,
+    type StylePassthroughAttrs,
 
     // Specialized
     RenderObject,
+    UpdateHandlerLink,
     type RenderObjectHandleUpdateType,
     type RenderObjectRenderFunctionType,
     RenderBasic,
@@ -81,10 +82,11 @@ export {
     Component,
     type EmptyAttrs,
     type ChildrenAttr,
-    UpdateHandlerLink,
+    type StylePassthroughAttrs,
 
     // Specialized
     RenderObject,
+    UpdateHandlerLink,
     type RenderObjectHandleUpdateType,
     type RenderObjectRenderFunctionType,
     RenderBasic,

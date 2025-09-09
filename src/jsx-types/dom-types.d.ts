@@ -2,10 +2,13 @@
 /** Either a boolean or a string with `'true' | 'false'` */
 export type Booleanish = boolean | "true" | "false"
 
-/** Type for the style={} Attribute object */
-export type CSSProperties = {
+/** Type for the `style={{display: "block"}}` Attribute object */
+export type StyleObjectAttrType = {
     [key: string]: string | number | null | undefined
 }
+
+/** Type for the `style=` Attribute (either a Style object or string) */
+export type StyleAttrType = StyleObjectAttrType | string
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/API/CommandEvent */
 export interface CommandEvent extends Event {
@@ -2122,7 +2125,7 @@ export type HTMLAttributes<RefType extends EventTarget = EventTarget> = HTMLElem
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/spellcheck */
     spellcheck?: boolean
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/style */
-    style?: CSSProperties | string
+    style?: StyleAttrType
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/tabindex */
     tabindex?: number
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/title */

@@ -1,5 +1,5 @@
 import {replaceElementWithRoot, Component} from "jsr:@velotype/velotype"
-import type {AnchorElement, EmptyAttrs, RenderableElements, TargetedMouseEvent} from "jsr:@velotype/velotype"
+import type {EmptyAttrs} from "jsr:@velotype/velotype"
 
 class DivToggleOneLayerRefresh extends Component<EmptyAttrs> {
     isOpen = true

@@ -42,7 +42,7 @@ describe('basic component rendering', () => {
                     if (selection) {
                         await testFn(selection)
                     } else {
-                        fail(`ERROR: Selector not found`)
+                        fail(`ERROR: Selector not found: ${selector}`)
                     }
                 } catch (e) {
                     console.log("Exception",e)
@@ -191,6 +191,29 @@ describe('basic component rendering', () => {
     })
     itWrap("render component-children-attr-html", "attrs-types", "#component-children-attr-html span", async (selection: ElementHandle) => {
         assertEquals(await selection.innerText(),"span")
+    })
+
+    itWrap("clickable event triggers", "event-triggers", "#div-toggle-one-layer-refresh", async (_pageLoadSelection: ElementHandle) => {
+        const setOfVariations = ["div-toggle-one-layer-refresh", "div-toggle-two-layers-refresh", "div-toggle-same-layer-refresh",
+            "div-toggle-one-layer-replace-child", "div-toggle-two-layers-replace-child", "div-toggle-same-layer-replace-child",
+            "button-toggle-one-layer-refresh button", "button-toggle-two-layers-refresh button", "button-toggle-same-layer-refresh button",
+            "button-toggle-one-layer-replace-child button", "button-toggle-two-layers-replace-child button", "button-toggle-same-layer-replace-child button"
+        ]
+        for (const variant of setOfVariations) {
+            console.log("testing variant:", variant)
+            let selection = await page.waitForSelector(`#${variant}`)
+            if (selection) {
+                assertEquals(await selection.innerText(),"Close")
+                await selection.click()
+                selection = await page.waitForSelector(`#${variant}`)
+                assertEquals(await selection.innerText(),"Open")
+                await selection.click()
+                selection = await page.waitForSelector(`#${variant}`)
+                assertEquals(await selection.innerText(),"Close")
+            } else {
+                fail(`ERROR: Selector not found: #${variant}`)
+            }
+        }
     })
 
 })

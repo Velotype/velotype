@@ -21,7 +21,7 @@ export async function startAppServer(server_port: number): Promise<App> {
         }
     ))
     // TODO calculate dynamically from the test_modules folder
-    const setOfModules = ['basic-div','return-types','attrs-types']
+    const setOfModules = ['basic-div','return-types','attrs-types','event-triggers']
     setOfModules.forEach((module) => {
         router.get(`/${module}`, function() {
             const response = new Response(`<!DOCTYPE html><html><body>
@@ -31,6 +31,13 @@ export async function startAppServer(server_port: number): Promise<App> {
             response.headers.set("content-type", "text/html; charset=utf-8")
             return response
         })
+    })
+    router.get('/', function() {
+        const response = new Response(`<!DOCTYPE html><html><body>
+${setOfModules.map(module => `<div><a href="/${module}">${module}</a></div>`).join('')}
+</body></html>`,{status:200})
+        response.headers.set("content-type", "text/html; charset=utf-8")
+        return response
     })
     await router.mountFiles("/build/", `${Deno.cwd()}/tests/build/`)
     const app = new App(router)

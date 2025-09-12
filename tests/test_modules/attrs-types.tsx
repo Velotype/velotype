@@ -40,11 +40,11 @@ class AttrsTypesTest extends Component<EmptyAttrs> {
             <div id="component-children-string"><ComponentWithChildren test="not used">string</ComponentWithChildren></div>
             <div id="component-children-number"><ComponentWithChildren>{1}</ComponentWithChildren></div>
             <div id="component-children-html"><ComponentWithChildren><span>span</span></ComponentWithChildren></div>
-
+            <hr/>
             <div id="component-only-children-string"><ComponentWithOnlyChildren>string</ComponentWithOnlyChildren></div>
             <div id="component-only-children-number"><ComponentWithOnlyChildren>{1}</ComponentWithOnlyChildren></div>
             <div id="component-only-children-html"><ComponentWithOnlyChildren><span>span</span></ComponentWithOnlyChildren></div>
-
+            <hr/>
             <div id="component-children-attr-string"><ComponentWithChildrenAttr ch="string"/></div>
             <div id="component-children-attr-number"><ComponentWithChildrenAttr ch={1}/></div>
             <div id="component-children-attr-html"><ComponentWithChildrenAttr ch={<span>span</span>}/></div>

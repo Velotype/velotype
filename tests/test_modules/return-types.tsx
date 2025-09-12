@@ -104,20 +104,20 @@ class ReturnTypesTest extends Component<EmptyAttrs> {
             <div id="component-return-void"><ComponentReturnVoid/></div>
             <div id="component-return-undefined"><ComponentReturnUndefined/></div>
             <div id="component-return-null"><ComponentReturnNull/></div>
-
+            <hr/>
             <div id="component-return-text"><ComponentReturnText/></div>
-
+            <hr/>
             <div id="component-return-boolean"><ComponentReturnBoolean/></div>
             <div id="component-return-number"><ComponentReturnNumber/></div>
             <div id="component-return-string"><ComponentReturnString/></div>
             <div id="component-return-bigint"><ComponentReturnBigint/></div>
-
+            <hr/>
             <div id="component-return-array"><ComponentReturnArray/></div>
-
+            <hr/>
             <div id="component-return-component"><ComponentReturnComponent/></div>
             <div id="component-return-render-object"><ComponentReturnRenderObject/></div>
             <div id="component-return-render-basic"><ComponentReturnRenderBasic/></div>
-
+            <hr/>
             <div id="component-return-html-element"><ComponentReturnHTMLElement/></div>
             <div id="component-return-svg-element"><ComponentReturnSVGElement/></div>
             <div id="component-return-mathml-element"><ComponentReturnMathMLElement/></div>

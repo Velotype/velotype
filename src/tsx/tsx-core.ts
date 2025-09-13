@@ -43,6 +43,19 @@ export type StylePassthroughAttrs = {
     style?: StyleObjectAttrType
 }
 
+export function passthroughAttrsToElement(element: AnchorElement, attrs: IdAttr & StylePassthroughAttrs): AnchorElement {
+    if (attrs.id) {
+        setAttributeHelper(element, "id", attrs.id)
+    }
+    if (attrs.class) {
+        setAttributeHelper(element, "class", getAttributeHelper(element, "class") + " " + attrs.class)
+    }
+    if (attrs.style) {
+        setAttrsOnElement(element, {style: attrs.style})
+    }
+    return element
+}
+
 /** Regular console.log() - used for JS minification */
 const consoleLog = console.log
 

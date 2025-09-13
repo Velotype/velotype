@@ -1,6 +1,16 @@
 import {replaceElementWithRoot, Component} from "jsr:@velotype/velotype"
 import type {EmptyAttrs} from "jsr:@velotype/velotype"
 
+/**
+ * Test scenarios similar to:
+ * https://www.jovidecroock.com/blog/browser-timings/
+ * https://github.com/preactjs/preact/pull/3608
+ * https://github.com/preactjs/preact/issues/2887
+ * https://github.com/preactjs/preact/issues/3596
+ * https://github.com/preactjs/preact/pull/4322/files
+ * https://github.com/preactjs/preact/issues/3927
+ */
+
 class DivToggleOneLayerRefresh extends Component<EmptyAttrs> {
     isOpen = true
     toggle = () => {

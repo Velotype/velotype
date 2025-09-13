@@ -1,4 +1,4 @@
-import {replaceElementWithRoot, Component, ChildrenAttr, RenderableElements, setAttrsOnElement} from "jsr:@velotype/velotype"
+import {replaceElementWithRoot, passthroughAttrsToElement, Component, ChildrenAttr, RenderableElements, setAttrsOnElement} from "jsr:@velotype/velotype"
 import type {EmptyAttrs, IdAttr, StylePassthroughAttrs} from "jsr:@velotype/velotype"
 
 type TestAttrs = {
@@ -63,6 +63,31 @@ class ComponentWithStyleOverride extends Component<IdAttr & StylePassthroughAttr
     }
 }
 
+class ComponentPassthroughHelperWithId extends Component<IdAttr> {
+    constructor(attrs: IdAttr, children: RenderableElements[]) {
+        super(attrs, children)
+    }
+    override render(attrs: IdAttr, _children: RenderableElements[]) {
+        return passthroughAttrsToElement(<div>1</div>, attrs)
+    }
+}
+class ComponentPassthroughHelperWithStylePassthrough extends Component<IdAttr & StylePassthroughAttrs> {
+    constructor(attrs: IdAttr & StylePassthroughAttrs, children: RenderableElements[]) {
+        super(attrs, children)
+    }
+    override render(attrs: IdAttr & StylePassthroughAttrs, _children: RenderableElements[]) {
+        return passthroughAttrsToElement(<div class="component-class">1</div>, attrs)
+    }
+}
+class ComponentPassthroughHelperWithStyleOverride extends Component<IdAttr & StylePassthroughAttrs> {
+    constructor(attrs: IdAttr & StylePassthroughAttrs, children: RenderableElements[]) {
+        super(attrs, children)
+    }
+    override render(attrs: IdAttr & StylePassthroughAttrs, _children: RenderableElements[]) {
+        return passthroughAttrsToElement(<div class="component-class" style={{marginTop: "3px"}}>1</div>, attrs)
+    }
+}
+
 class AttrsTypesTest extends Component<EmptyAttrs> {
     override render() {
         return <div>
@@ -82,6 +107,11 @@ class AttrsTypesTest extends Component<EmptyAttrs> {
             <div><ComponentWithStylePassthrough id="component-with-style-pass-through" class="custom-class" style={{marginTop: "5px"}}/></div>
             <div><ComponentWithStyleOverride id="component-with-style-override-base" class="custom-class"/></div>
             <div><ComponentWithStyleOverride id="component-with-style-override-custom" class="custom-class" style={{marginTop: "5px"}}/></div>
+            <hr/>
+            <div><ComponentPassthroughHelperWithId id="component-passthrough-helper-with-id"/></div>
+            <div><ComponentPassthroughHelperWithStylePassthrough id="component-passthrough-helper-with-style-pass-through" class="custom-class" style={{marginTop: "5px"}}/></div>
+            <div><ComponentPassthroughHelperWithStyleOverride id="component-passthrough-helper-with-style-override-base" class="custom-class"/></div>
+            <div><ComponentPassthroughHelperWithStyleOverride id="component-passthrough-helper-with-style-override-custom" class="custom-class" style={{marginTop: "5px"}}/></div>
         </div>
     }
 }

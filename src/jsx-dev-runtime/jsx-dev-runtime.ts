@@ -36,6 +36,7 @@ import {
 
     // TSX integration
     setAttrsOnElement,
+    passthroughAttrsToElement,
     createElement,
     createFragment,
     getComponent,
@@ -97,6 +98,7 @@ export {
 
     // TSX integration
     setAttrsOnElement,
+    passthroughAttrsToElement,
     createElement,
     createFragment,
     getComponent,

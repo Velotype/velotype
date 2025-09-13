@@ -160,7 +160,12 @@ describe('basic component rendering', () => {
             {selector: "#component-with-id", text: "1"},
             {selector: "#component-with-style-pass-through", attributes: [{name: "class", value: "component-class custom-class"},{name: "style", value: "margin-top: 5px;"}]},
             {selector: "#component-with-style-override-base", attributes: [{name: "class", value: "component-class custom-class"},{name: "style", value: "margin-top: 3px;"}]},
-            {selector: "#component-with-style-override-custom", attributes: [{name: "class", value: "component-class custom-class"},{name: "style", value: "margin-top: 5px;"}]}
+            {selector: "#component-with-style-override-custom", attributes: [{name: "class", value: "component-class custom-class"},{name: "style", value: "margin-top: 5px;"}]},
+
+            {selector: "#component-passthrough-helper-with-id", text: "1"},
+            {selector: "#component-passthrough-helper-with-style-pass-through", attributes: [{name: "class", value: "component-class custom-class"},{name: "style", value: "margin-top: 5px;"}]},
+            {selector: "#component-passthrough-helper-with-style-override-base", attributes: [{name: "class", value: "component-class custom-class"},{name: "style", value: "margin-top: 3px;"}]},
+            {selector: "#component-passthrough-helper-with-style-override-custom", attributes: [{name: "class", value: "component-class custom-class"},{name: "style", value: "margin-top: 5px;"}]}
         ]
         await testVariations(setOfVariations)
     })

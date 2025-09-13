@@ -1,5 +1,5 @@
-import {replaceElementWithRoot, Component, ChildrenAttr, RenderableElements} from "jsr:@velotype/velotype"
-import type {EmptyAttrs} from "jsr:@velotype/velotype"
+import {replaceElementWithRoot, Component, ChildrenAttr, RenderableElements, setAttrsOnElement} from "jsr:@velotype/velotype"
+import type {EmptyAttrs, IdAttr, StylePassthroughAttrs} from "jsr:@velotype/velotype"
 
 type TestAttrs = {
     test?: string
@@ -34,6 +34,35 @@ class ComponentWithChildrenAttr extends Component<TestChildrenAttr> {
     }
 }
 
+class ComponentWithId extends Component<IdAttr> {
+    constructor(attrs: IdAttr, children: RenderableElements[]) {
+        super(attrs, children)
+    }
+    override render(attrs: IdAttr, _children: RenderableElements[]) {
+        return <div id={attrs.id}>1</div>
+    }
+}
+class ComponentWithStylePassthrough extends Component<IdAttr & StylePassthroughAttrs> {
+    constructor(attrs: IdAttr & StylePassthroughAttrs, children: RenderableElements[]) {
+        super(attrs, children)
+    }
+    override render(attrs: IdAttr & StylePassthroughAttrs, _children: RenderableElements[]) {
+        return <div id={attrs.id} class={`component-class ${attrs.class}`} style={attrs.style}>1</div>
+    }
+}
+class ComponentWithStyleOverride extends Component<IdAttr & StylePassthroughAttrs> {
+    constructor(attrs: IdAttr & StylePassthroughAttrs, children: RenderableElements[]) {
+        super(attrs, children)
+    }
+    override render(attrs: IdAttr & StylePassthroughAttrs, _children: RenderableElements[]) {
+        const divElement = <div id={attrs.id} class={`component-class ${attrs.class}`} style={{marginTop: "3px"}}>1</div>
+        if (attrs.style) {
+            setAttrsOnElement(divElement, {style: attrs.style})
+        }
+        return divElement
+    }
+}
+
 class AttrsTypesTest extends Component<EmptyAttrs> {
     override render() {
         return <div>
@@ -48,6 +77,11 @@ class AttrsTypesTest extends Component<EmptyAttrs> {
             <div id="component-children-attr-string"><ComponentWithChildrenAttr ch="string"/></div>
             <div id="component-children-attr-number"><ComponentWithChildrenAttr ch={1}/></div>
             <div id="component-children-attr-html"><ComponentWithChildrenAttr ch={<span>span</span>}/></div>
+            <hr/>
+            <div><ComponentWithId id="component-with-id"/></div>
+            <div><ComponentWithStylePassthrough id="component-with-style-pass-through" class="custom-class" style={{marginTop: "5px"}}/></div>
+            <div><ComponentWithStyleOverride id="component-with-style-override-base" class="custom-class"/></div>
+            <div><ComponentWithStyleOverride id="component-with-style-override-custom" class="custom-class" style={{marginTop: "5px"}}/></div>
         </div>
     }
 }

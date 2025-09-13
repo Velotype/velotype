@@ -51,29 +51,36 @@ describe('basic component rendering', () => {
             }
         })
     }
-
-    itWrap("render div with text", "basic-div", "#hello-div",
-        async (selection: ElementHandle) => {
-            const text = await selection.innerHTML()
-            assertEquals(text,`Hello Velotype!`)
+    type TestVariation = {
+        selector: string
+        text?: string
+        html?: string
+        attributes?: {
+            name: string
+            value: string
+        }[]
+    }
+    const testVariations = async (setOfVariations: TestVariation[]) => {
+        for (const variant of setOfVariations) {
+            console.log("testing variant:", variant)
+            const selection = await page.waitForSelector(variant.selector)
+            if (selection) {
+                if (variant.text) {
+                    assertEquals(await selection.innerText(),variant.text)
+                }
+                if (variant.html) {
+                    assertEquals(await selection.innerHTML(),variant.html)
+                }
+                if (variant.attributes) {
+                    for (const attribute of variant.attributes) {
+                        assertEquals(await selection.getAttribute(attribute.name),attribute.value)
+                    }
+                }
+            } else {
+                fail(`ERROR: Selector not found: #${variant}`)
+            }
         }
-    )
-
-    itWrap("render div with style string", "basic-div", "#style-string",
-        async (selection: ElementHandle) => {
-            console.log("styleText-start")
-            const styleText = await selection.getAttribute("style")
-            console.log("styleText",styleText)
-            assertEquals(styleText,`display: flex; margin-top: 4px;`)
-        }
-    )
-    itWrap("render div with style object", "basic-div", "#style-object",
-        async (selection: ElementHandle) => {
-            const styleText = await selection.getAttribute("style")
-            console.log("styleText",styleText)
-            assertEquals(styleText,`display: flex; margin-top: 4px;`)
-        }
-    )
+    }
 
     itWrap("render div with boolean attribute default true", "basic-div", "#boolean-attribute-default-true",
         async (selection: ElementHandle) => {
@@ -91,109 +98,74 @@ describe('basic component rendering', () => {
         }
     )
 
-    itWrap("button onclick with RenderBasic", "basic-div", "#button-onclick",
-        async (_selection: ElementHandle) => {
-            const text = await (await page.waitForSelector("#button-onclick span")).innerHTML()
-            assertEquals(text,"false")
-            
-            await (await page.waitForSelector("#button-onclick")).click()
+    itWrap("set of basic-div tests", "basic-div", "#hello-div", async (_pageLoadSelection: ElementHandle) => {
+        // button onclick with RenderBasic
+        const text = await (await page.waitForSelector("#button-onclick span")).innerHTML()
+        assertEquals(text,"false")
 
-            const text2 = await (await page.waitForSelector("#button-onclick span")).innerHTML()
-            assertEquals(text2,"true")
-        }
-    )
+        await (await page.waitForSelector("#button-onclick")).click()
 
-    itWrap("render void", "return-types", "#component-return-void div", async (selection: ElementHandle) => {
-        assertEquals(await selection.getAttribute("style"),"display: none;")
-    })
-    itWrap("render null", "return-types", "#component-return-null div", async (selection: ElementHandle) => {
-            assertEquals(await selection.getAttribute("style"),"display: none;")
-    })
-    itWrap("render undefined", "return-types", "#component-return-undefined div", async (selection: ElementHandle) => {
-        assertEquals(await selection.getAttribute("style"),"display: none;")
+        const text2 = await (await page.waitForSelector("#button-onclick span")).innerHTML()
+        assertEquals(text2,"true")
+
+        const setOfVariations = [
+            {selector: "#hello-div", html: "Hello Velotype!"},
+
+            {selector: "#style-string", attributes: [{name: "style", value: "display: flex; margin-top: 4px;"}]},
+            {selector: "#style-object", attributes: [{name: "style", value: "display: flex; margin-top: 4px;"}]},
+        ]
+        await testVariations(setOfVariations)
     })
 
-    itWrap("render text", "return-types", "#component-return-text div", async (selection: ElementHandle) => {
-        assertEquals(await selection.getAttribute("style"),"display: contents;")
-        assertEquals(await selection.innerHTML(),"test text")
+    itWrap("set of return-type tests", "return-types", "#component-return-void", async (_pageLoadSelection: ElementHandle) => {
+        const setOfVariations = [
+            {selector: "#component-return-void div", attributes: [{name: "style", value: "display: none;"}]},
+            {selector: "#component-return-null div", attributes: [{name: "style", value: "display: none;"}]},
+            {selector: "#component-return-undefined div", attributes: [{name: "style", value: "display: none;"}]},
+
+            {selector: "#component-return-text div", attributes: [{name: "style", value: "display: contents;"}], html: "test text"},
+
+            {selector: "#component-return-boolean div", attributes: [{name: "style", value: "display: contents;"}], html: "true"},
+            {selector: "#component-return-number div", attributes: [{name: "style", value: "display: contents;"}], html: "1"},
+            {selector: "#component-return-string div", attributes: [{name: "style", value: "display: contents;"}], html: "test string"},
+            {selector: "#component-return-bigint div", attributes: [{name: "style", value: "display: contents;"}], html: "1"},
+
+            {selector: "#component-return-array div", attributes: [{name: "style", value: "display: contents;"}], html: "<div>1</div><span>2</span>3456false"},
+
+            {selector: "#component-return-component div", attributes: [{name: "style", value: "display: contents;"}], text: "test string"},
+            {selector: "#component-return-render-object div", attributes: [{name: "style", value: "display: contents;"}], text: "2"},
+            {selector: "#component-return-render-basic div", attributes: [{name: "style", value: "display: contents;"}], text: "2"},
+
+            {selector: "#component-return-html-element div", attributes: [{name: "style", value: "display: inline-block;"}]},
+            {selector: "#component-return-svg-element svg", attributes: [{name: "style", value: "test style"}]},
+            {selector: "#component-return-mathml-element math", attributes: [{name: "style", value: "test style"}]}
+        ]
+        await testVariations(setOfVariations)
     })
 
-    itWrap("render boolean", "return-types", "#component-return-boolean div", async (selection: ElementHandle) => {
-        assertEquals(await selection.getAttribute("style"),"display: contents;")
-        assertEquals(await selection.innerHTML(),"true")
-    })
-    itWrap("render number", "return-types", "#component-return-number div", async (selection: ElementHandle) => {
-        assertEquals(await selection.getAttribute("style"),"display: contents;")
-        assertEquals(await selection.innerHTML(),"1")
-    })
-    itWrap("render string", "return-types", "#component-return-string div", async (selection: ElementHandle) => {
-        assertEquals(await selection.getAttribute("style"),"display: contents;")
-        assertEquals(await selection.innerHTML(),"test string")
-    })
-    itWrap("render bigint", "return-types", "#component-return-bigint div", async (selection: ElementHandle) => {
-        assertEquals(await selection.getAttribute("style"),"display: contents;")
-        assertEquals(await selection.innerHTML(),"1")
+    itWrap("set of attrs-types tests", "attrs-types", "#component-children-string", async (_pageLoadSelection: ElementHandle) => {
+        const setOfVariations = [
+            {selector: "#component-children-string div", text: "string"},
+            {selector: "#component-children-number div", text: "1"},
+            {selector: "#component-children-html span", text: "span"},
+
+            {selector: "#component-only-children-string div", text: "string"},
+            {selector: "#component-only-children-number div", text: "1"},
+            {selector: "#component-only-children-html span", text: "span"},
+
+            {selector: "#component-children-attr-string div", text: "string"},
+            {selector: "#component-children-attr-number div", text: "1"},
+            {selector: "#component-children-attr-html span", text: "span"},
+
+            {selector: "#component-with-id", text: "1"},
+            {selector: "#component-with-style-pass-through", attributes: [{name: "class", value: "component-class custom-class"},{name: "style", value: "margin-top: 5px;"}]},
+            {selector: "#component-with-style-override-base", attributes: [{name: "class", value: "component-class custom-class"},{name: "style", value: "margin-top: 3px;"}]},
+            {selector: "#component-with-style-override-custom", attributes: [{name: "class", value: "component-class custom-class"},{name: "style", value: "margin-top: 5px;"}]}
+        ]
+        await testVariations(setOfVariations)
     })
 
-    itWrap("render array", "return-types", "#component-return-array div", async (selection: ElementHandle) => {
-        assertEquals(await selection.getAttribute("style"),"display: contents;")
-        assertEquals(await selection.innerHTML(),"<div>1</div><span>2</span>3456false")
-    })
-
-    itWrap("render component", "return-types", "#component-return-component div", async (selection: ElementHandle) => {
-        assertEquals(await selection.getAttribute("style"),"display: contents;")
-        assertEquals(await selection.innerText(),"test string")
-    })
-    itWrap("render render-object", "return-types", "#component-return-render-object div", async (selection: ElementHandle) => {
-        assertEquals(await selection.getAttribute("style"),"display: contents;")
-        assertEquals(await selection.innerText(),"2")
-    })
-    itWrap("render render-basic", "return-types", "#component-return-render-basic div", async (selection: ElementHandle) => {
-        assertEquals(await selection.getAttribute("style"),"display: contents;")
-        assertEquals(await selection.innerText(),"2")
-    })
-
-    itWrap("render html-element", "return-types", "#component-return-html-element div", async (selection: ElementHandle) => {
-        assertEquals(await selection.getAttribute("style"),"display: inline-block;")
-    })
-    itWrap("render svg-element", "return-types", "#component-return-svg-element svg", async (selection: ElementHandle) => {
-        assertEquals(await selection.getAttribute("style"),"test style")
-    })
-    itWrap("render mathml-element", "return-types", "#component-return-mathml-element math", async (selection: ElementHandle) => {
-        assertEquals(await selection.getAttribute("style"),"test style")
-    })
-
-    itWrap("render component-children-string", "attrs-types", "#component-children-string div", async (selection: ElementHandle) => {
-        assertEquals(await selection.innerText(),"string")
-    })
-    itWrap("render component-children-number", "attrs-types", "#component-children-number div", async (selection: ElementHandle) => {
-        assertEquals(await selection.innerText(),"1")
-    })
-    itWrap("render component-children-html", "attrs-types", "#component-children-html span", async (selection: ElementHandle) => {
-        assertEquals(await selection.innerText(),"span")
-    })
-
-    itWrap("render component-only-children-string", "attrs-types", "#component-only-children-string div", async (selection: ElementHandle) => {
-        assertEquals(await selection.innerText(),"string")
-    })
-    itWrap("render component-only-children-number", "attrs-types", "#component-only-children-number div", async (selection: ElementHandle) => {
-        assertEquals(await selection.innerText(),"1")
-    })
-    itWrap("render component-only-children-html", "attrs-types", "#component-only-children-html span", async (selection: ElementHandle) => {
-        assertEquals(await selection.innerText(),"span")
-    })
-
-    itWrap("render component-children-attr-string", "attrs-types", "#component-children-attr-string div", async (selection: ElementHandle) => {
-        assertEquals(await selection.innerText(),"string")
-    })
-    itWrap("render component-children-attr-number", "attrs-types", "#component-children-attr-number div", async (selection: ElementHandle) => {
-        assertEquals(await selection.innerText(),"1")
-    })
-    itWrap("render component-children-attr-html", "attrs-types", "#component-children-attr-html span", async (selection: ElementHandle) => {
-        assertEquals(await selection.innerText(),"span")
-    })
-
-    itWrap("clickable event triggers", "event-triggers", "#div-toggle-one-layer-refresh", async (_pageLoadSelection: ElementHandle) => {
+    itWrap("set of event-triggers tests", "event-triggers", "#div-toggle-one-layer-refresh", async (_pageLoadSelection: ElementHandle) => {
         const setOfVariations = ["div-toggle-one-layer-refresh", "div-toggle-two-layers-refresh", "div-toggle-same-layer-refresh",
             "div-toggle-one-layer-replace-child", "div-toggle-two-layers-replace-child", "div-toggle-same-layer-replace-child",
             "button-toggle-one-layer-refresh button", "button-toggle-two-layers-refresh button", "button-toggle-same-layer-refresh button",

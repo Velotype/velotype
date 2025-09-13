@@ -21,6 +21,7 @@ import {
     type FunctionComponent,
     Component,
     type EmptyAttrs,
+    type IdAttr,
     type ChildrenAttr,
     type StylePassthroughAttrs,
 
@@ -81,6 +82,7 @@ export {
     type FunctionComponent,
     Component,
     type EmptyAttrs,
+    type IdAttr,
     type ChildrenAttr,
     type StylePassthroughAttrs,
 

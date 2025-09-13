@@ -23,13 +23,24 @@ export interface Type<T> extends TypeConstructor<T>{}
 /** Type used to represent that no Attrs are accepted for a Component */
 export type EmptyAttrs = Record<string | number | symbol, never>
 
+/** Type used to represent pass-through id to an underlying Element of a Component */
+export type IdAttr = {
+    /** An id to pass-through to the underlying Element of this Component */
+    id?: string
+}
+
 /** Type used to represent that children are accepted by a Component */
-export type ChildrenAttr = { children?: RenderableElements }
+export type ChildrenAttr = {
+    /** A collection of RenderableElements to place as children of this Component */
+    children?: RenderableElements
+}
 
 /** Type used to represent pass-through style controls by a Component to an underlying Element */
 export type StylePassthroughAttrs = {
+    /** A string of CSS class names to pass-through to the underlying Element of this Component */
     class?: string
-    style?: StyleObjectAttrType | string
+    /** CSS styles to pass-through to the underlying Element of this Component */
+    style?: StyleObjectAttrType
 }
 
 /** Regular console.log() - used for JS minification */

@@ -2141,9 +2141,11 @@ export type HTMLAttributes<RefType extends EventTarget = EventTarget> = HTMLElem
      * A set of RenderObjects to pass lifecycle management responsibility to this Element
      * 
      * Cannot be set on an Element that is controlled by a Component or RenderObject
+     * 
+     * Velotype custom attribute
      */
     // deno-lint-ignore no-explicit-any
-    with?: RenderObject<any>[]
+    vtwith?: RenderObject<any>[]
 
     /**
      * WAI-ARIA Attributes

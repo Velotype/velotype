@@ -1296,10 +1296,10 @@ export function setAttrsOnElement(element: AnchorElement, attrs?: Readonly<any> 
             setBooleanAttributeHelper(element, name, value)
         } else if (typeof value == 'function') {
             // Avoid setting the attribute if the value is a function
-        } else if (name == "with") {
+        } else if (name == "vtwith") {
             const key = getAttributeHelper(element,domKeyName)
             if (key) {
-                consoleError("With attr set on element that already has a key", key)
+                consoleError("vtwith attr set on element that already has a key", key)
             } else {
                 const withComponent = new WithComponent(value)
                 setAttributeHelper(element,domKeyName,withComponent.k)

@@ -11,10 +11,10 @@ class RenderWithTest extends Component<EmptyAttrs> {
         if (this.buttonClicked) {
             const num1 = new RenderBasic<number>(1)
             const num2 = new RenderBasic<number>(2)
-            elementSection = <div with={[num1,num2]}>{num1}{num2}</div>
+            elementSection = <div vtwith={[num1,num2]}>{num1}{num2}</div>
         } else {
             const str = new RenderBasic<string>("render string")
-            elementSection = <div with={[str]}>{str}</div>
+            elementSection = <div vtwith={[str]}>{str}</div>
         }
         console.log(__vtAppMetadata.domReferences)
         return <div>

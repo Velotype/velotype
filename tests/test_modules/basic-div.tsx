@@ -1,6 +1,4 @@
 // deno-lint-ignore-file jsx-boolean-value
-/// <reference lib="dom" />
-
 import {replaceElementWithRoot, Component, RenderBasic} from "jsr:@velotype/velotype"
 import type {EmptyAttrs} from "jsr:@velotype/velotype"
 

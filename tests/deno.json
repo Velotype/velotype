@@ -1,9 +1,12 @@
 {
     "tasks": {
         "bundle-event-triggers": "deno bundle ./test_modules/event-triggers.tsx --output ./build/event-triggers.js --sourcemap",
+        "bundle-render-object": "deno bundle ./test_modules/render-object.tsx --output ./build/render-object.js --sourcemap",
         "bundle-return-types": "deno bundle ./test_modules/return-types.tsx --output ./build/return-types.js --sourcemap",
+        "bundle-render-with": "deno bundle ./test_modules/render-with.tsx --output ./build/render-with.js --sourcemap",
         "bundle-attrs-types": "deno bundle ./test_modules/attrs-types.tsx --output ./build/attrs-types.js --sourcemap",
-        "bundle-basic-div": "deno bundle ./test_modules/basic-div.tsx --output ./build/basic-div.js --sourcemap"
+        "bundle-basic-div": "deno bundle ./test_modules/basic-div.tsx --output ./build/basic-div.js --sourcemap",
+        "bundle-raw-tags": "deno bundle ./test_modules/raw-tags.tsx --output ./build/raw-tags.js --sourcemap"
     },
     "nodeModulesDir": "auto",
     "imports": {

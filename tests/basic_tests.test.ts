@@ -82,29 +82,21 @@ describe('basic component rendering', () => {
         }
     }
 
-    itWrap("render div with boolean attribute default true", "basic-div", "#boolean-attribute-default-true",
-        async (selection: ElementHandle) => {
-            assertEquals(await selection.getAttribute("disabled"),"")
-        }
-    )
-    itWrap("render div with boolean attribute default true", "basic-div", "#boolean-attribute-explicit-true",
-        async (selection: ElementHandle) => {
-            assertEquals(await selection.getAttribute("disabled"),"")
-        }
-    )
-    itWrap("render div with boolean attribute default true", "basic-div", "#boolean-attribute-explicit-false",
-        async (selection: ElementHandle) => {
-            assertEquals(await selection.getAttribute("disabled"),null)
-        }
-    )
-
     itWrap("set of basic-div tests", "basic-div", "#hello-div", async (_pageLoadSelection: ElementHandle) => {
+        let selection: ElementHandle
+        selection = await page.waitForSelector("#boolean-attribute-default-true")
+        assertEquals(await selection.getAttribute("disabled"),"")
+
+        selection = await page.waitForSelector("#boolean-attribute-explicit-true")
+        assertEquals(await selection.getAttribute("disabled"),"")
+
+        selection = await page.waitForSelector("#boolean-attribute-explicit-false")
+        assertEquals(await selection.getAttribute("disabled"),null)
+
         // button onclick with RenderBasic
         const text = await (await page.waitForSelector("#button-onclick span")).innerHTML()
         assertEquals(text,"false")
-
         await (await page.waitForSelector("#button-onclick")).click()
-
         const text2 = await (await page.waitForSelector("#button-onclick span")).innerHTML()
         assertEquals(text2,"true")
 
@@ -193,4 +185,65 @@ describe('basic component rendering', () => {
         }
     })
 
+    itWrap("set of basic-div tests", "basic-div", "#hello-div", async (_pageLoadSelection: ElementHandle) => {
+        let selection: ElementHandle
+        selection = await page.waitForSelector("#boolean-attribute-default-true")
+        assertEquals(await selection.getAttribute("disabled"),"")
+
+        selection = await page.waitForSelector("#boolean-attribute-explicit-true")
+        assertEquals(await selection.getAttribute("disabled"),"")
+
+        selection = await page.waitForSelector("#boolean-attribute-explicit-false")
+        assertEquals(await selection.getAttribute("disabled"),null)
+
+        // button onclick with RenderBasic
+        const text = await (await page.waitForSelector("#button-onclick span")).innerHTML()
+        assertEquals(text,"false")
+        await (await page.waitForSelector("#button-onclick")).click()
+        const text2 = await (await page.waitForSelector("#button-onclick span")).innerHTML()
+        assertEquals(text2,"true")
+
+        const setOfVariations = [
+            {selector: "#hello-div", html: "Hello Velotype!"},
+
+            {selector: "#style-string", attributes: [{name: "style", value: "display: flex; margin-top: 4px;"}]},
+            {selector: "#style-object", attributes: [{name: "style", value: "display: flex; margin-top: 4px;"}]},
+        ]
+        await testVariations(setOfVariations)
+    })
+
+    itWrap("set of raw-tags tests", "raw-tags", "#raw-tags-tests", async (_pageLoadSelection: ElementHandle) => {
+        const setOfVariations = [
+            {selector: "#raw-html-1-outer-div", html: '<div id="raw-html-1-inner-div">raw html 1</div>'},
+            {selector: "#raw-html-1-inner-div", text: 'raw html 1'},
+            {selector: "#raw-html-2-outer-div", html: '<div id="raw-html-2-inner-div">raw html 2</div>'},
+            {selector: "#raw-html-2-inner-div", text: 'raw html 2'},
+            {selector: "#raw-html-3-outer-div", html: '<div id="raw-html-3-inner-div">raw html 3</div>', attributes: [{name: "vtk", value: "raw-html-3-outer-div"}]},
+            {selector: "#raw-html-3-inner-div", text: 'raw html 3'},
+        ]
+        await testVariations(setOfVariations)
+    })
+    itWrap("set of render-object tests", "render-object", "#render-object-tests", async (_pageLoadSelection: ElementHandle) => {
+        let setOfVariations = [
+            {selector: "#str1-default", text: 'default'},
+            {selector: "#str2-default", text: 'default'},
+            {selector: "#str2-custom-1", text: 'default custom render 1'},
+            {selector: "#str2-custom-2", text: 'default custom render 2'}
+        ]
+        await testVariations(setOfVariations)
+
+        let selection: ElementHandle
+        selection = await page.waitForSelector("#str1-input")
+        await selection.type("str1")
+        selection = await page.waitForSelector("#str2-input")
+        await selection.type("str2")
+
+        setOfVariations = [
+            {selector: "#str1-default", text: 'str1'},
+            {selector: "#str2-default", text: 'str2'},
+            {selector: "#str2-custom-1", text: 'str2 custom render 1'},
+            {selector: "#str2-custom-2", text: 'str2 custom render 2'}
+        ]
+        await testVariations(setOfVariations)
+    })
 })

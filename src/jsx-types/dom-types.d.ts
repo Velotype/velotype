@@ -1,4 +1,4 @@
-import { RenderObject } from "../tsx/tsx-core.ts";
+import type { RenderObject } from "../tsx/tsx-core.ts"
 
 /** Either a boolean or a string with `'true' | 'false'` */
 export type Booleanish = boolean | "true" | "false"

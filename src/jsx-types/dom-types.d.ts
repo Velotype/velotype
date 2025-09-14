@@ -1,3 +1,4 @@
+import { RenderObject } from "../tsx/tsx-core.ts";
 
 /** Either a boolean or a string with `'true' | 'false'` */
 export type Booleanish = boolean | "true" | "false"
@@ -2135,6 +2136,14 @@ export type HTMLAttributes<RefType extends EventTarget = EventTarget> = HTMLElem
     // virtualkeyboardpolicy is experimental
     /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/writingsuggestions */
     writingsuggestions?: boolean
+
+    /**
+     * A set of RenderObjects to pass lifecycle management responsibility to this Element
+     * 
+     * Cannot be set on an Element that is controlled by a Component or RenderObject
+     */
+    // deno-lint-ignore no-explicit-any
+    with?: RenderObject<any>[]
 
     /**
      * WAI-ARIA Attributes

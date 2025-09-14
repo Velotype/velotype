@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-unused-vars no-explicit-any
 
-import type { StyleObjectAttrType } from "../jsx-types/dom-types.d.ts"
+import type { HTMLAttributes, StyleObjectAttrType } from "../jsx-types/dom-types.d.ts"
 
 /**
  * These are the types that can be used as a Component's anchor, they can
@@ -43,7 +43,7 @@ export type StylePassthroughAttrs = {
     style?: StyleObjectAttrType
 }
 
-export function passthroughAttrsToElement(element: AnchorElement, attrs: IdAttr & StylePassthroughAttrs): AnchorElement {
+export function passthroughAttrsToElement<T extends AnchorElement>(element: T, attrs: IdAttr & StylePassthroughAttrs): T {
     if (attrs.id) {
         setAttributeHelper(element, "id", attrs.id)
     }
@@ -99,6 +99,11 @@ function instanceOfComponent(something: any): something is Component<any> {
 function instanceOfText(something: any): something is Text {
     return something instanceof Text
 }
+/** Checks if something is an instanceof WithComponent */
+function instanceOfWithComponent(something: any): something is WithComponent {
+    return something instanceof WithComponent
+}
+
 /** Checks if somthing is an instanceof any of the BasicTypes (string, bigint, number, boolean) */
 function instanceOfBasicTypes(something: any): something is BasicTypes {
     if (typeof something === 'string' || typeof something === 'bigint' || typeof something === 'number' || typeof something === 'boolean') {
@@ -176,7 +181,7 @@ function lowerCamelToHypenCase(text: string): string {
 }
 
 /** Map of DOM keys to Velotype Component references */
-const domReferences: Map<string, InternalComponent | MultiRenderable> = new Map<string, InternalComponent | MultiRenderable>()
+const domReferences: Map<string, InternalComponent | MultiRenderable | WithComponent> = new Map<string, InternalComponent | MultiRenderable | WithComponent>()
 
 /** The next key to use for DOM bindings */
 let domNextKey: bigint = 1n
@@ -258,13 +263,13 @@ export interface HasVtKey {
 /**
  * `domReferences.get(key)` - used for JS minification
  */
-function getDOMreference(key: string): InternalComponent | MultiRenderable | undefined {
+function getDOMreference(key: string): InternalComponent | MultiRenderable | WithComponent | undefined {
     return domReferences.get(key)
 }
 /**
  * Acquire a new componentKey to reference component and if (element) then set the domKey attribute
  */
-function registerNewVtKey(component: InternalComponent | MultiRenderable, element?: AnchorElement): string {
+function registerNewVtKey(component: InternalComponent | MultiRenderable | WithComponent, element?: AnchorElement): string {
     const componentKey = String(domNextKey)
     domNextKey++
     if (element) {
@@ -580,7 +585,7 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
      * 
      * DO NOT CALL directly (will be called by Velotype core)
      * 
-     * Used to trigger set of registered onUnmounts and then trigger `this.removeAll()`
+     * Used to trigger set of registered onUnmounts
      */
     unmount(): void {
         this.#onUnmounts.forEach(onUnmount => {onUnmount()})
@@ -1023,13 +1028,6 @@ class InternalComponent {
     }
 
     /**
-     * Release this Component's ComponentKey
-     */
-    r: () => void = (): void => {
-        releaseVtKey(this.k)
-    }
-
-    /**
      * replaceChild()
      */
     q: (child: AnchorElement, newChild: RenderableElements) => AnchorElement = (child: AnchorElement, newChild: RenderableElements): AnchorElement => {
@@ -1094,7 +1092,7 @@ class InternalComponent {
  * @param element the element to search through
  * @param callback the callback to trigger
  */
-function traverseElementChildren(element: Element, callback: (component: InternalComponent | MultiRenderable, key: string) => void): void {
+function traverseElementChildren(element: Element, callback: (component: InternalComponent | MultiRenderable | WithComponent, key: string) => void): void {
     if (instanceOfHTMLElement(element) || instanceOfSVGSVGElement(element) || instanceOfMathMLElement(element)) {
         for (let i = 0; i < element.children.length; i++) {
             const child = element.children[i]
@@ -1113,7 +1111,7 @@ function traverseElementChildren(element: Element, callback: (component: Interna
 /**
  * Call `.mount()` on linked Components
  */
-function mountComponentElementHelper(component: InternalComponent | MultiRenderable, _key: string): void {
+function mountComponentElementHelper(component: InternalComponent | MultiRenderable | WithComponent, _key: string): void {
     if (instanceOfInternalComponent(component)) {
         const internalComponent = component as InternalComponent
         // Mount the main Component
@@ -1151,7 +1149,7 @@ function mountComponentElementChildren(element: HTMLElement): void {
 /**
  * Call `.unmount()` on linked Components and release vtKeys
  */
-function unmountComponentElementHelper(component: InternalComponent | MultiRenderable, key: string): void {
+function unmountComponentElementHelper(component: InternalComponent | MultiRenderable | WithComponent, key: string): void {
     if (instanceOfInternalComponent(component)) {
         // component: InternalComponent
         removeComponentListeners(component.c)
@@ -1168,7 +1166,11 @@ function unmountComponentElementHelper(component: InternalComponent | MultiRende
             }
         })
         // Release the Component's vtKey
-        component.r()
+        releaseVtKey(component.k)
+    } else if (instanceOfWithComponent(component)) {
+        // component: WithComponent
+        component.unmount()
+        releaseVtKey(component.k)
     } else {
         // component: MultiRenderable
         component.unmountKey(key)
@@ -1202,6 +1204,34 @@ function componentRender(classComponent: InternalComponent, attrs: Readonly<any>
     const render: AnchorElement = wrapElementIfNeeded(classComponent.c.render(attrs, children))
     setAttributeHelper(render, domKeyName, classComponent.k)
     return render
+}
+
+/**
+ * A Velotype internal class used to manage RenderObject lifecycles
+ * by attaching them to AnchorElements for cleanup on unmount
+ */
+class WithComponent {
+
+    /**
+     * Array of RenderObjects to manage
+     */
+    w: RenderObject<any>[]
+
+    /**
+     * Stashes the Component vtKey for this Component
+     */
+    readonly k: string
+
+    constructor(withObjects: RenderObject<any>[]) {
+        this.w = withObjects
+        this.k = registerNewVtKey(this)
+    }
+    unmount(): void {
+        this.w.forEach(function(obj) {
+            obj.unmount()
+            releaseVtKeyObject(obj)
+        })
+    }
 }
 
 /**
@@ -1266,6 +1296,14 @@ export function setAttrsOnElement(element: AnchorElement, attrs?: Readonly<any> 
             setBooleanAttributeHelper(element, name, value)
         } else if (typeof value == 'function') {
             // Avoid setting the attribute if the value is a function
+        } else if (name == "with") {
+            const key = getAttributeHelper(element,domKeyName)
+            if (key) {
+                consoleError("With attr set on element that already has a key", key)
+            } else {
+                const withComponent = new WithComponent(value)
+                setAttributeHelper(element,domKeyName,withComponent.k)
+            }
         } else if (value || value == "") {
             // Regular attribute
             setAttributeHelper(element, name, value)
@@ -1567,11 +1605,13 @@ export class RenderObjectArray<DataType> extends RenderObject<RenderObject<DataT
 }
 
 /** Attributes type for the HTML Component */
-export type HTMLAttrsType = {
-    /** which html tag to use for this element (defaults to \<div>, does not support \<svg> or \<math>) */
+export type HTMLAttrsType<ElementAttrsType> = {
+    /** which html tag to use for this element (defaults to `<div>`, does not support `<svg>` or `<math>`) */
     tag?: string
     /** content to use in innerHTML */
-    html: string
+    innerHTML: string
+    /** attributes to set on the created element */
+    elementAttrs?: ElementAttrsType
 }
 /**
  * Fully custom HTML
@@ -1582,18 +1622,13 @@ export type HTMLAttrsType = {
  * 
  * html:string - content to use in innerHTML
  */
-export class HTML<AttrsType extends HTMLAttrsType = HTMLAttrsType> extends Component<AttrsType> {
+export class HTML<AttrsType = HTMLAttributes> extends Component<HTMLAttrsType<AttrsType>> {
     /**
      * Renders this into a generic HTML element
      */
-    override render(attrs: AttrsType): HTMLElement {
-        const html = attrs.html
-        const tag = attrs.tag
-        const tempAttrs: any = {...attrs}
-        delete tempAttrs.html
-        delete tempAttrs.tag
-        const container = createElement(tag || divTag, tempAttrs) as HTMLElement
-        container.innerHTML = html || ""
+    override render(attrs: Readonly<HTMLAttrsType<AttrsType>>): HTMLElement {
+        const container = createElement(attrs.tag || divTag, attrs.elementAttrs || null) as HTMLElement
+        container.innerHTML = attrs.innerHTML
         return container
     }
 }
@@ -1601,7 +1636,9 @@ export class HTML<AttrsType extends HTMLAttrsType = HTMLAttrsType> extends Compo
 /** Attributes type for the SVG Component */
 export type SVGAttrsType = {
     /** content to use in innerHTML of the \<svg> element */
-    svg: string
+    innerHTML: string
+    /** attributes to set on the created element */
+    elementAttrs?: any
 }
 
 /**
@@ -1611,17 +1648,14 @@ export type SVGAttrsType = {
  * 
  * svg:string - content to use in innerHTML of the \<svg> element
  */
-export class SVG<AttrsType extends SVGAttrsType = SVGAttrsType> extends Component<AttrsType> {
+export class SVG extends Component<SVGAttrsType> {
     /**
      * Renders this into a \<svg\> element
      */
-    override render(attrs: Readonly<AttrsType>): SVGSVGElement {
-        const svg = attrs.svg
-        const tempAttrs: any = {...attrs}
-        delete tempAttrs.svg
+    override render(attrs: Readonly<SVGAttrsType>): SVGSVGElement {
         const container = document.createElementNS("http://www.w3.org/2000/svg", "svg") as SVGSVGElement
-        setAttrsOnElement(container, tempAttrs)
-        container.innerHTML = svg || ""
+        setAttrsOnElement(container, attrs.elementAttrs || null)
+        container.innerHTML = attrs.innerHTML || ""
         return container
     }
 }
@@ -1629,7 +1663,9 @@ export class SVG<AttrsType extends SVGAttrsType = SVGAttrsType> extends Componen
 /** Attributes type for the MATH Component */
 export type MATHAttrsType = {
     /** content to use in innerHTML of the \<math> element */
-    math: string
+    innerHTML: string
+    /** attributes to set on the created element */
+    elementAttrs?: any
 }
 /**
  * Custom MathML element
@@ -1638,17 +1674,14 @@ export type MATHAttrsType = {
  * 
  * svg:string - content to use in innerHTML of the svg element
  */
-export class MATH<AttrsType extends MATHAttrsType = MATHAttrsType> extends Component<AttrsType> {
+export class MATH extends Component<MATHAttrsType> {
     /**
      * Renders this into a \<math\> element
      */
-    override render(attrs: Readonly<AttrsType>): MathMLElement {
-        const math = attrs.math
-        const tempAttrs: any = {...attrs}
-        delete tempAttrs.math
+    override render(attrs: Readonly<MATHAttrsType>): MathMLElement {
         const container = document.createElementNS("http://www.w3.org/1998/Math/MathML", "math") as MathMLElement
-        setAttrsOnElement(container, tempAttrs)
-        container.innerHTML = math || ""
+        setAttrsOnElement(container, attrs.elementAttrs || null)
+        container.innerHTML = attrs.innerHTML || ""
         return container
     }
 }

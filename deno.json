@@ -4,7 +4,6 @@
   "version": "0.0.23",
   "exports": {
     ".": "./src/jsx-runtime/jsx-runtime.ts",
-    "./tsx-micro": "./src/tsx-micro/tsx-micro.ts",
     "./tsx-mini": "./src/tsx-mini/tsx-mini.ts",
     "./jsx-runtime": "./src/jsx-runtime/jsx-runtime.ts",
     "./jsx-dev-runtime": "./src/jsx-dev-runtime/jsx-dev-runtime.ts"
@@ -20,7 +19,6 @@
     "bundle-jsx-runtime": "deno bundle --minify ./src/jsx-runtime/jsx-runtime.ts --output ./dist/jsx-runtime.min.js --sourcemap",
     "bundle-jsx-dev-runtime": "deno bundle --minify ./src/jsx-dev-runtime/jsx-dev-runtime.ts --output ./dist/jsx-dev-runtime.min.js --sourcemap",
     "bundle-tsx-mini": "deno bundle --minify ./src/tsx-mini/tsx-mini.ts --output ./dist/tsx-mini.min.js --sourcemap",
-    "bundle-tsx-micro": "deno bundle --minify ./src/tsx-micro/tsx-micro.ts --output ./dist/tsx-micro.min.js --sourcemap",
     "test": "cd ./tests/ && deno run 'bundle*' && cd .. && deno test --allow-read --allow-net --allow-sys --allow-env --allow-write --allow-run",
     "test-manual": "cd ./tests/ && deno run 'bundle*' && cd .. && deno run --allow-read --allow-net --allow-sys ./tests/manual_server.ts"
   },

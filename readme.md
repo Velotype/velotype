@@ -37,12 +37,6 @@ Velotype resolves style objects to make inline styling quick and easy.
 const divTag: HTMLDivElement = <div style={{display: "inline",marginTop:"4px"}}>this is a div</div>
 ```
 
-or set style as a string directly:
-
-```tsx
-const divTag: HTMLDivElement = <div style="display:inline;margin-top:4pm;">this is a div</div>
-```
-
 ## Types of Components
 
 Components are the objects that can be created as Tags in tsx `<tag></tag>`

@@ -8,7 +8,6 @@ class BasicDivTest extends Component<EmptyAttrs> {
         return <div>
             <div id="hello-div">Hello Velotype!</div>
             <hr/>
-            <div id="style-string" style="display:flex;margin-top:4px;">style string</div>
             <div id="style-object" style={{display:"flex", marginTop:"4px"}}>style object</div>
             <hr/>
             <button id="boolean-attribute-default-true" type="button" disabled>boolean attribute default true</button>

@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-unused-vars no-explicit-any
 
-import type { HTMLAttributes, StyleObjectAttrType } from "../jsx-types/dom-types.d.ts"
+import type { HTMLAttributes, StyleAttrType } from "../jsx-types/dom-types.d.ts"
 
 /**
  * These are the types that can be used as a Component's anchor, they can
@@ -40,7 +40,7 @@ export type StylePassthroughAttrs = {
     /** A string of CSS class names to pass-through to the underlying Element of this Component */
     class?: string
     /** CSS styles to pass-through to the underlying Element of this Component */
-    style?: StyleObjectAttrType
+    style?: StyleAttrType
 }
 
 export function passthroughAttrsToElement<T extends AnchorElement>(element: T, attrs: IdAttr & StylePassthroughAttrs): T {

@@ -4,12 +4,9 @@ import type { RenderObject } from "../tsx/tsx-core.ts"
 export type Booleanish = boolean | "true" | "false"
 
 /** Type for the `style={{display: "block"}}` Attribute object */
-export type StyleObjectAttrType = {
+export type StyleAttrType = {
     [key: string]: string | number | null | undefined
 }
-
-/** Type for the `style=` Attribute (either a Style object or string) */
-export type StyleAttrType = StyleObjectAttrType | string
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/API/CommandEvent */
 export interface CommandEvent extends Event {

@@ -77,13 +77,13 @@ class ComponentReturnRenderBasic extends Component<EmptyAttrs> {
 }
 
 class ComponentReturnHTMLElement extends Component<EmptyAttrs> {
-    override render() {
-        return <div style="display:inline-block;">html</div>
+    override render(): HTMLDivElement {
+        return <div style={{display: "inline-block"}}>html</div> as HTMLDivElement
     }
 }
 
 class ComponentReturnSVGElement extends Component<EmptyAttrs> {
-    override render() {
+    override render(): SVGSVGElement {
         const element = document.createElementNS("http://www.w3.org/2000/svg", "svg") as SVGSVGElement
         element.setAttribute("style","test style")
         return element
@@ -91,7 +91,7 @@ class ComponentReturnSVGElement extends Component<EmptyAttrs> {
 }
 
 class ComponentReturnMathMLElement extends Component<EmptyAttrs> {
-    override render() {
+    override render(): MathMLElement {
         const element = document.createElementNS("http://www.w3.org/1998/Math/MathML", "math") as MathMLElement
         element.setAttribute("style","test style")
         return element

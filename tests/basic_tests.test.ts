@@ -103,7 +103,6 @@ describe('basic component rendering', () => {
         const setOfVariations = [
             {selector: "#hello-div", html: "Hello Velotype!"},
 
-            {selector: "#style-string", attributes: [{name: "style", value: "display: flex; margin-top: 4px;"}]},
             {selector: "#style-object", attributes: [{name: "style", value: "display: flex; margin-top: 4px;"}]},
         ]
         await testVariations(setOfVariations)

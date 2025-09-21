@@ -1,10 +1,9 @@
 {
   "name": "@velotype/velotype",
   "license": "MIT",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "exports": {
     ".": "./src/jsx-runtime/jsx-runtime.ts",
-    "./tsx-mini": "./src/tsx-mini/tsx-mini.ts",
     "./jsx-runtime": "./src/jsx-runtime/jsx-runtime.ts",
     "./jsx-dev-runtime": "./src/jsx-dev-runtime/jsx-dev-runtime.ts"
   },
@@ -18,7 +17,6 @@
   "tasks": {
     "bundle-jsx-runtime": "deno bundle --minify ./src/jsx-runtime/jsx-runtime.ts --output ./dist/jsx-runtime.min.js --sourcemap",
     "bundle-jsx-dev-runtime": "deno bundle --minify ./src/jsx-dev-runtime/jsx-dev-runtime.ts --output ./dist/jsx-dev-runtime.min.js --sourcemap",
-    "bundle-tsx-mini": "deno bundle --minify ./src/tsx-mini/tsx-mini.ts --output ./dist/tsx-mini.min.js --sourcemap",
     "test": "cd ./tests/ && deno run 'bundle*' && cd .. && deno test --allow-read --allow-net --allow-sys --allow-env --allow-write --allow-run",
     "test-manual": "cd ./tests/ && deno run 'bundle*' && cd .. && deno run --allow-read --allow-net --allow-sys ./tests/manual_server.ts"
   },

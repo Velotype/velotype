@@ -79,10 +79,10 @@ export type EventHandlerOptions<E extends TargetedEvent> = {
      * 
      * ```ts
      * interface AddEventListenerOptions extends EventListenerOptions {
-     *     once?: boolean; // A boolean value indicating that the listener should be invoked at most once after being added. If true, the listener would be automatically removed when invoked. If not specified, defaults to false.
-     *     passive?: boolean; // A boolean value that, if true, indicates that the function specified by listener will never call preventDefault(). Reference: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#using_passive_listeners
-     *     signal?: AbortSignal; // An AbortSignal. The listener will be removed when the abort() method of the AbortController which owns the AbortSignal is called.
-     *     capture?: boolean; // A boolean value indicating that events of this type will be dispatched to the registered listener before being dispatched to any EventTarget beneath it in the DOM tree.
+     *     once?: boolean // A boolean value indicating that the listener should be invoked at most once after being added. If true, the listener would be automatically removed when invoked. If not specified, defaults to false.
+     *     passive?: boolean // A boolean value that, if true, indicates that the function specified by listener will never call preventDefault(). Reference: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#using_passive_listeners
+     *     signal?: AbortSignal // An AbortSignal. The listener will be removed when the abort() method of the AbortController which owns the AbortSignal is called.
+     *     capture?: boolean // A boolean value indicating that events of this type will be dispatched to the registered listener before being dispatched to any EventTarget beneath it in the DOM tree.
      * }
      * ```
      * 
@@ -620,7 +620,7 @@ export type WAIAriaRole =
     | 'status' | 'strong' | 'structure' | 'subscript' | 'superscript' | 'switch'
     | 'tab' | 'table' | 'tablist' | 'tabpanel' | 'term' | 'textbox' | 'time'
     | 'timer' | 'toolbar' | 'tooltip' | 'tree' | 'treegrid' | 'treeitem'
-    | 'widget' | 'window' | 'none presentation';
+    | 'widget' | 'window' | 'none presentation'
 
 /** Digital Publishing WAI-ARIA 1.0 role attribute values from https://www.w3.org/TR/dpub-aria-1.0/#role_definitions */
 export type DPubAriaRole =
@@ -728,7 +728,7 @@ export type AreaAriaRoles =
  * 
  * Spec: https://html.spec.whatwg.org/multipage/image-maps.html#the-area-element
  */
-export type AreaHTMLAttributes<T extends EventTarget = HTMLAreaElement> = Omit<PartialAreaHTMLAttributes<T>, 'role'> & AreaAriaRoles;
+export type AreaHTMLAttributes<T extends EventTarget = HTMLAreaElement> = Omit<PartialAreaHTMLAttributes<T>, 'role'> & AreaAriaRoles
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/article#attributes */
 export type ArticleHTMLAttributes<T extends EventTarget = HTMLElement> = HTMLAttributes<T> & {
@@ -1840,7 +1840,7 @@ export type PartialSelectHTMLAttributes<T extends EventTarget> = HTMLAttributes<
 export type SelectAriaRoles =
     | {
         /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select#multiple */
-        multiple?: never;
+        multiple?: never
         /**
          * Spec states this branch is limited to "no `multiple` attribute AND no `size` attribute greater than 1".
          * `1` as a default, however, caused some web compat issues and forced Firefox to default to `0` instead.

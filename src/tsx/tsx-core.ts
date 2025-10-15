@@ -1391,10 +1391,6 @@ export function createElement(tag: Type<Component<any>> | FunctionComponent<any>
             return output
         } else if (Array.isArray(output)) {
             return output
-        } else if (instanceOfSVGSVGElement(output)) {
-            return wrapElementIfNeeded(output)
-        } else if (instanceOfMathMLElement(output)) {
-            return wrapElementIfNeeded(output)
         } else {
             return wrapElementIfNeeded(output)
         }

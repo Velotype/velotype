@@ -209,12 +209,16 @@ describe('basic component rendering', () => {
         await selection.type("str1")
         selection = await page.waitForSelector("#str2-input")
         await selection.type("str2")
+        selection = await page.waitForSelector("#str4-input")
+        await selection.type("str4")
 
         setOfVariations = [
             {selector: "#str1-default", text: 'str1'},
             {selector: "#str2-default", text: 'str2'},
             {selector: "#str2-custom-1", text: 'str2 custom render 1'},
-            {selector: "#str2-custom-2", text: 'str2 custom render 2'}
+            {selector: "#str2-custom-2", text: 'str2 custom render 2'},
+            {selector: "#str3-default", text: 'str4'},
+            {selector: "#str4-default", text: 'str4'},
         ]
         await testVariations(setOfVariations)
     })

@@ -539,17 +539,22 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
     /**
      * Register an EventListener to receive an onChange event when the value of this RenderObject changes.
      * 
-     * @param component the Component this RenderObject is created within or a child of the owning Component (has undefined behavior if registered to a non-child of the owning Component)
      * @param listener the EventListener to register
-     * @param triggerOnRegistration should an onChange event be emitted immediately upon registration? (default: false)
-     * @param eventDispatchDelay to delay (in ms) onChange event dispatch, will dispatch at most one change event per eventDispatchDelay (default: 0)
+     * @param options optional set of options
      * @returns this
      */
-    registerOnChangeListener(component: Component<any>, listener: VelotypeEventListener, triggerOnRegistration?: boolean, eventDispatchDelay?: number): RenderObject<DataType> {
+    registerOnChangeListener(listener: VelotypeEventListener, options?: {
+        /** If specified then this eventListener will get removed on the lifecycle of the HasVtKey (defaults to the RenderObject's lifecycle) */
+        hasVtKey?: HasVtKey,
+        /** should an onChange event be emitted immediately upon registration? (default: false) */
+        triggerOnRegistration?: boolean,
+        /** delay (in ms) onChange event dispatch, will dispatch at most one change event per eventDispatchDelay (default: 0) */
+        eventDispatchDelay?: number
+    }): RenderObject<DataType> {
         this.#hasEventListeners = true
-        this.#eventDispatchDelay = (eventDispatchDelay && eventDispatchDelay>0)?eventDispatchDelay:0
-        registerEventListener(component, this.#eventListeningKey(), listener)
-        if (triggerOnRegistration) {
+        this.#eventDispatchDelay = (options?.eventDispatchDelay && options?.eventDispatchDelay>0)?options?.eventDispatchDelay:0
+        registerEventListener(options?.hasVtKey || this, this.#eventListeningKey(), listener)
+        if (options?.triggerOnRegistration) {
             vtSetImmediate(() => {this.#emitOnChangeEvent()})
         }
         return this
@@ -755,14 +760,19 @@ export class RenderBasic<DataType extends BasicTypes> extends RenderObject<DataT
      * Register an EventListener to receive an onChange event when the value of
      * this RenderBasic changes.
      * 
-     * @param component the Component this RenderBasic is created within or a child of the owning Component (has undefined behavior if registered to a non-child of the owning Component)
      * @param listener the EventListener to register
-     * @param triggerOnRegistration should an onChange event be emitted immediately upon registration? (default: false)
-     * @param eventDispatchDelay to delay (in ms) onChange event dispatch, will dispatch at most one change event per eventDispatchDelay (default: 0)
+     * @param options optional set of options
      * @returns this
      */
-    override registerOnChangeListener(component: Component<any>, listener: VelotypeEventListener, triggerOnRegistration?: boolean): RenderBasic<DataType> {
-        super.registerOnChangeListener(component, listener, triggerOnRegistration)
+    override registerOnChangeListener(listener: VelotypeEventListener, options?: {
+        /** If specified then this eventListener will get removed on the lifecycle of the HasVtKey */
+        hasVtKey?: HasVtKey,
+        /** should an onChange event be emitted immediately upon registration? (default: false) */
+        triggerOnRegistration?: boolean,
+        /** delay (in ms) onChange event dispatch, will dispatch at most one change event per eventDispatchDelay (default: 0) */
+        eventDispatchDelay?: number
+    }): RenderBasic<DataType> {
+        super.registerOnChangeListener(listener, options)
         return this
     }
     /**
@@ -1449,6 +1459,8 @@ export function getComponent<T>(componentElement: RenderableElements[] | AnchorE
 
 /**
  * Replaces an element that is on the document with a rootComponent
+ * 
+ * Returns `rootComponent`
  */
 export function replaceElementWithRoot(rootComponent: AnchorElement, element: HTMLElement): AnchorElement {
     element.replaceWith(rootComponent)

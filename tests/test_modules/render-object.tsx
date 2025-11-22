@@ -4,6 +4,10 @@ import type {EmptyAttrs, TargetedInputEvent} from "jsr:@velotype/velotype"
 class RenderObjectTest extends Component<EmptyAttrs> {
     str1 = new RenderBasic<string>("default")
     str2 = new RenderBasic<string>("default")
+    str3 = new RenderBasic<string>("default")
+    str4 = new RenderBasic<string>("default").registerOnChangeListener(()=>{
+        this.str3.value = this.str4.value
+    })
     override render() {
         return <div id="render-object-tests">
             <input id="str1-input" type="text" onInput={(event: TargetedInputEvent<HTMLInputElement>) => {
@@ -25,6 +29,14 @@ class RenderObjectTest extends Component<EmptyAttrs> {
             <div id="str2-custom-2">{this.str2.render((data: string) => {
                 return data + " custom render 2"
             })}</div>
+            <hr/>
+            <input id="str4-input" type="text" onInput={(event: TargetedInputEvent<HTMLInputElement>) => {
+                if (event.target && (event.target instanceof HTMLInputElement)) {
+                    this.str4.set(event.target?.value)
+                }
+            }}/>
+            <div id="str3-default">{this.str3}</div>
+            <div id="str4-default">{this.str4}</div>
         </div>
     }
 }

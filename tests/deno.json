@@ -11,7 +11,7 @@
     "imports": {
         "@std/testing": "jsr:@std/testing@^1.0.16",
         "@velotype/velotype/jsx-runtime": "../src/jsx-runtime/jsx-runtime.ts",
-        "@velotype/velotype": "../src/jsx-runtime/jsx-runtime.ts",
+        "@velotype/velotype": "../src/jsx-runtime/jsx-runtime.ts"
     },
     "lint": {
         "rules": {

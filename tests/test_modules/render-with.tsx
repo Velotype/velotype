@@ -1,7 +1,7 @@
 /// <reference lib="dom" />
 
-import {replaceElementWithRoot, Component, RenderBasic, __vtAppMetadata} from "jsr:@velotype/velotype"
-import type {EmptyAttrs} from "jsr:@velotype/velotype"
+import {replaceElementWithRoot, Component, RenderBasic, __vtAppMetadata} from "@velotype/velotype"
+import type {EmptyAttrs} from "@velotype/velotype"
 
 class RenderWithTest extends Component<EmptyAttrs> {
     buttonClicked: boolean = false

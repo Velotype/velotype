@@ -9,9 +9,9 @@
         "bundle-raw-tags": "deno bundle ./test_modules/raw-tags.tsx --output ./build/raw-tags.js --sourcemap"
     },
     "imports": {
-        "@velotype/veloserver": "jsr:@velotype/veloserver@^0.0.2",
-        "jsr:@velotype/velotype/jsx-runtime": "../src/jsx-runtime/jsx-runtime.ts",
-        "jsr:@velotype/velotype": "../src/jsx-runtime/jsx-runtime.ts"
+        "@std/testing": "jsr:@std/testing@^1.0.16",
+        "@velotype/velotype/jsx-runtime": "../src/jsx-runtime/jsx-runtime.ts",
+        "@velotype/velotype": "../src/jsx-runtime/jsx-runtime.ts",
     },
     "lint": {
         "rules": {

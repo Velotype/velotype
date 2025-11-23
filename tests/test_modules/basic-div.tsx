@@ -1,6 +1,6 @@
 // deno-lint-ignore-file jsx-boolean-value
-import {replaceElementWithRoot, Component, RenderBasic} from "jsr:@velotype/velotype"
-import type {EmptyAttrs} from "jsr:@velotype/velotype"
+import {replaceElementWithRoot, Component, RenderBasic} from "@velotype/velotype"
+import type {EmptyAttrs} from "@velotype/velotype"
 
 class BasicDivTest extends Component<EmptyAttrs> {
     buttonClicked = new RenderBasic<boolean>(false)

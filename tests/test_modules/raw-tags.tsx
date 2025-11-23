@@ -1,5 +1,5 @@
-import {replaceElementWithRoot, Component, HTML} from "jsr:@velotype/velotype"
-import type {EmptyAttrs} from "jsr:@velotype/velotype"
+import {replaceElementWithRoot, Component, HTML} from "@velotype/velotype"
+import type {EmptyAttrs} from "@velotype/velotype"
 
 class RawTagsTest extends Component<EmptyAttrs> {
     override render() {

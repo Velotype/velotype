@@ -1,5 +1,5 @@
-import {replaceElementWithRoot, Component} from "jsr:@velotype/velotype"
-import type {EmptyAttrs} from "jsr:@velotype/velotype"
+import {replaceElementWithRoot, Component} from "@velotype/velotype"
+import type {EmptyAttrs} from "@velotype/velotype"
 
 /**
  * Test scenarios similar to:

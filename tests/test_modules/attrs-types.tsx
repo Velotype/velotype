@@ -1,5 +1,5 @@
-import {replaceElementWithRoot, passthroughAttrsToElement, Component, ChildrenAttr, RenderableElements, setAttrsOnElement} from "jsr:@velotype/velotype"
-import type {EmptyAttrs, IdAttr, StylePassthroughAttrs} from "jsr:@velotype/velotype"
+import {replaceElementWithRoot, passthroughAttrsToElement, Component, ChildrenAttr, RenderableElements, setAttrsOnElement} from "@velotype/velotype"
+import type {EmptyAttrs, IdAttr, StylePassthroughAttrs} from "@velotype/velotype"
 
 type TestAttrs = {
     test?: string

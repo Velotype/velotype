@@ -1,5 +1,5 @@
-import {replaceElementWithRoot, Component, RenderBasic} from "jsr:@velotype/velotype"
-import type {EmptyAttrs, TargetedInputEvent} from "jsr:@velotype/velotype"
+import {replaceElementWithRoot, Component, RenderBasic} from "@velotype/velotype"
+import type {EmptyAttrs, TargetedInputEvent} from "@velotype/velotype"
 
 class RenderObjectTest extends Component<EmptyAttrs> {
     str1 = new RenderBasic<string>("default")

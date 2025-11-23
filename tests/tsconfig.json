@@ -6,7 +6,7 @@
     "target": "esnext",
     "module": "esnext",
     "jsx": "react-jsx",
-    "jsxImportSource": "jsr:@velotype/velotype",
+    "jsxImportSource": "@velotype/velotype",
     "listEmittedFiles": true,
     "sourceMap": true,
     "lib": [ "dom", "esnext" ],

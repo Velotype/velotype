@@ -1,4 +1,4 @@
-import { App, Context, Inspector, RequestInspectorResponse, Router } from "jsr:@velotype/veloserver"
+import { App, Context, Inspector, RequestInspectorResponse, Router } from "@velotype/veloserver"
 
 export async function startAppServer(server_port: number): Promise<App> {
     const router: Router = new Router()

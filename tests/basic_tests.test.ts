@@ -1,12 +1,12 @@
 /// <reference lib="deno.ns" />
 
-import { afterAll, beforeAll, describe, it } from "jsr:@std/testing/bdd"
-import { fail, assertEquals } from "jsr:@std/assert"
+import { afterAll, beforeAll, describe, it } from "@std/testing/bdd"
+import { fail, assertEquals } from "@std/assert"
 
-import {App} from "jsr:@velotype/veloserver"
+import {App} from "@velotype/veloserver"
 
-import { launch } from "jsr:@astral/astral"
-import type { Browser, ElementHandle, Page } from "jsr:@astral/astral"
+import { launch } from "@astral/astral"
+import type { Browser, ElementHandle, Page } from "@astral/astral"
 import { startAppServer } from "./base_server.ts"
 
 const server_port = 3000

@@ -1,5 +1,5 @@
-import {replaceElementWithRoot, Component, RenderObject, RenderBasic} from "jsr:@velotype/velotype"
-import type {EmptyAttrs} from "jsr:@velotype/velotype"
+import {replaceElementWithRoot, Component, RenderObject, RenderBasic} from "@velotype/velotype"
+import type {EmptyAttrs} from "@velotype/velotype"
 
 class ComponentReturnUndefined extends Component<EmptyAttrs> {
     override render() {

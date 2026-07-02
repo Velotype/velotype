@@ -43,7 +43,15 @@ export type StylePassthroughAttrs = {
     style?: StyleAttrType
 }
 
-export function passthroughAttrsToElement<T extends AnchorElement>(element: T, attrs: IdAttr & StylePassthroughAttrs): T {
+/**
+ * Convinence function to passthrough commonly passed attrs onto an element
+ * 
+ * Will set:
+ * * `id`
+ * * `class`
+ * * `style`
+ */
+export function passthroughAttrsToElement<T extends HTMLElement>(element: T, attrs: IdAttr & StylePassthroughAttrs): T {
     if (attrs.id) {
         setAttributeHelper(element, "id", attrs.id)
     }
@@ -112,6 +120,7 @@ function instanceOfBasicTypes(something: any): something is BasicTypes {
     return false
 }
 
+/** Determines if an `object` has a setter for `fieldName` in its prototype chain */
 function hasSetterInPrototypeChain(object: any, fieldName: string): boolean {
     let currentObject = object
     while (currentObject) {

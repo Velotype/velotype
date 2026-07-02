@@ -4,6 +4,7 @@ import type {EmptyAttrs} from "@velotype/velotype"
 
 class BasicDivTest extends Component<EmptyAttrs> {
     buttonClicked = new RenderBasic<boolean>(false)
+    buttonClickedTimes = new RenderBasic<number>(0)
     override render() {
         return <div>
             <div id="hello-div">Hello Velotype!</div>
@@ -15,6 +16,8 @@ class BasicDivTest extends Component<EmptyAttrs> {
             <button id="boolean-attribute-explicit-false" type="button" disabled={false}>boolean attribute explicit false</button>
             <hr/>
             <button id="button-onclick" type="button" onClick={()=>{this.buttonClicked.value = true}}>clickable button has been clicked: {this.buttonClicked}</button>
+            <hr/>
+            <button id="button-onclick-times" type="button" onClick={()=>{this.buttonClickedTimes.value += 1}}>clickable button has been clicked: {this.buttonClickedTimes} times</button>
         </div>
     }
 }

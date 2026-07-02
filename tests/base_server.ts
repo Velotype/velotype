@@ -1,3 +1,5 @@
+/// <reference lib="deno.ns" />
+
 import { App, Context, Inspector, RequestInspectorResponse, Router } from "@velotype/veloserver"
 
 export async function startAppServer(server_port: number): Promise<App> {

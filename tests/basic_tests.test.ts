@@ -1,4 +1,3 @@
-/// <reference lib="deno.ns" />
 
 import { afterAll, beforeAll, describe, it } from "@std/testing/bdd"
 import { fail, assertEquals } from "@std/assert"
@@ -93,12 +92,25 @@ describe('basic component rendering', () => {
         selection = await page.waitForSelector("#boolean-attribute-explicit-false")
         assertEquals(await selection.getAttribute("disabled"),null)
 
-        // button onclick with RenderBasic
+        // button onclick with RenderBasic<boolean>
         const text = await (await page.waitForSelector("#button-onclick span")).innerHTML()
         assertEquals(text,"false")
         await (await page.waitForSelector("#button-onclick")).click()
         const text2 = await (await page.waitForSelector("#button-onclick span")).innerHTML()
         assertEquals(text2,"true")
+
+        // button onclick with RenderBasic<number>
+        const textNum0 = await (await page.waitForSelector("#button-onclick-times span")).innerHTML()
+        assertEquals(textNum0,"0")
+        await (await page.waitForSelector("#button-onclick-times")).click()
+        const textNum1 = await (await page.waitForSelector("#button-onclick-times span")).innerHTML()
+        assertEquals(textNum1,"1")
+        await (await page.waitForSelector("#button-onclick-times")).click()
+        const textNum2 = await (await page.waitForSelector("#button-onclick-times span")).innerHTML()
+        assertEquals(textNum2,"2")
+        await (await page.waitForSelector("#button-onclick-times")).click()
+        const textNum3 = await (await page.waitForSelector("#button-onclick-times span")).innerHTML()
+        assertEquals(textNum3,"3")
 
         const setOfVariations = [
             {selector: "#hello-div", html: "Hello Velotype!"},

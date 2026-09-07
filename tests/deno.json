@@ -11,7 +11,9 @@
         "bundle-function-components": "deno bundle ./test_modules/function-components.tsx --output ./build/function-components.js --sourcemap=linked",
         "bundle-lifecycle": "deno bundle ./test_modules/lifecycle.tsx --output ./build/lifecycle.js --sourcemap=linked",
         "bundle-misc": "deno bundle ./test_modules/misc.tsx --output ./build/misc.js --sourcemap=linked",
-        "bundle-event-bus": "deno bundle ./test_modules/event-bus.tsx --output ./build/event-bus.js --sourcemap=linked"
+        "bundle-event-bus": "deno bundle ./test_modules/event-bus.tsx --output ./build/event-bus.js --sourcemap=linked",
+        "bundle-devtools-hook": "deno bundle ./test_modules/devtools-hook.tsx --output ./build/devtools-hook.js --sourcemap=linked",
+        "bundle-render-object-advanced": "deno bundle ./test_modules/render-object-advanced.tsx --output ./build/render-object-advanced.js --sourcemap=linked"
     },
     "imports": {
         "@astral/astral": "jsr:@astral/astral@^0.5.4",

@@ -24,11 +24,25 @@ export async function startAppServer(server_port: number): Promise<App> {
     ))
     // TODO calculate dynamically from the test_modules folder
     const setOfModules = ['basic-div','return-types','attrs-types','event-triggers','render-with','raw-tags','render-object',
-        'render-object-array','function-components','lifecycle','misc','event-bus']
+        'render-object-array','function-components','lifecycle','misc','event-bus','devtools-hook','render-object-advanced']
+    // Raw <script> HTML injected before a module's own <script type="module"> tag runs. `type="module"`
+    // scripts are deferred, so a plain classic script placed earlier in the document always executes
+    // first - used here to seed a fake pre-existing devtools hook instance before Velotype's own
+    // installDevtoolsHook() runs, simulating a second Velotype bundle already on the page.
+    const extraHeadHtml: Record<string, string> = {
+        'devtools-hook': `<script>
+window.__VELOTYPE_DEVTOOLS_HOOK__ = {
+    instances: new Map([[1, {domKeyName: "vk"}]]),
+    register(metadata) { this.instances.set(2, metadata); return 2 },
+    unregister(instanceId) { this.instances.delete(instanceId) }
+}
+</script>`
+    }
     setOfModules.forEach((module) => {
         router.get(`/${module}`, function() {
             const response = new Response(`<!DOCTYPE html><html><body>
 <div id="main-page"></div>
+${extraHeadHtml[module] || ''}
 <script src="/build/${module}.js" type="module" ></script>
 </body></html>`,{status:200})
             response.headers.set("content-type", "text/html; charset=utf-8")

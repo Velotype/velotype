@@ -372,4 +372,45 @@ describe('basic component rendering', () => {
         // c is still mounted but its listener was removed, so its count must not have advanced
         assertEquals(await innerTextOf("#subscriber-c .received-count"), "2")
     })
+
+    itWrap("set of devtools-hook tests", "devtools-hook", "#devtools-hook-tests", async (_pageLoadSelection: ElementHandle) => {
+        const innerTextOf = async (selector: string) => (await (await page.waitForSelector(selector)).innerText()).replace(/\s+/g, " ").trim()
+
+        // The test page pre-seeds a fake hook instance claiming domKeyName "vk" before this bundle loads,
+        // so installDevtoolsHook() must detect the collision and pick a non-colliding name instead
+        assertEquals(await innerTextOf("#dom-key-name"), "vk-2")
+        // Both the fake pre-seeded instance and this page's real Velotype instance must be registered
+        assertEquals(await innerTextOf("#hook-instances-size"), "2")
+
+        // unregister() removes this instance from the hook's registry
+        await (await page.waitForSelector("#unregister-self")).click()
+        assertEquals(await innerTextOf("#unregister-result"), "removed")
+    })
+
+    itWrap("set of render-object-advanced tests", "render-object-advanced", "#render-object-advanced-tests", async (_pageLoadSelection: ElementHandle) => {
+        const innerTextOf = async (selector: string) => (await (await page.waitForSelector(selector)).innerText()).replace(/\s+/g, " ").trim()
+
+        // RenderObject.registerOnMount()'s onMount callback fires when the owning Component mounts
+        assertEquals(await innerTextOf("#register-on-mount-child"), "on-mount calls: 1")
+
+        // registerOnMount()'s onUnmount callback fires when the owning Component unmounts
+        await (await page.waitForSelector("#unmount-register-on-mount-child")).click()
+        assertEquals(await innerTextOf("#global-on-unmount-call-count"), "1")
+
+        // UpdateHandlerLink/handleUpdate: the first render calls the renderFunction exactly once
+        assertEquals(await innerTextOf("#full-render-call-count"), "1")
+        assertEquals(await innerTextOf("#handle-update-call-count"), "0")
+
+        // Subsequent updates must take the handleUpdate fast path instead of calling the renderFunction again
+        await (await page.waitForSelector("#increment-counter")).click()
+        assertEquals(await innerTextOf("#full-render-call-count"), "1")
+        assertEquals(await innerTextOf("#handle-update-call-count"), "1")
+        assertEquals(await innerTextOf(".counter-value"), "1")
+
+        await (await page.waitForSelector("#increment-counter")).click()
+        await (await page.waitForSelector("#increment-counter")).click()
+        assertEquals(await innerTextOf("#full-render-call-count"), "1")
+        assertEquals(await innerTextOf("#handle-update-call-count"), "3")
+        assertEquals(await innerTextOf(".counter-value"), "3")
+    })
 })

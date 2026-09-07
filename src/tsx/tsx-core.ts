@@ -225,7 +225,7 @@ const styleSectionMounted: Map<string, StyleSection> = new Map<string, StyleSect
 export const __vtAppMetadata = {
     // ------- For Velotype Core -------
     /** Key name for DOM bindings, only changeable prior to mounting any Components using `setDomKey()` */
-    domKeyName: domKeyName,
+    get domKeyName(): string { return domKeyName },
     /** Map of DOM keys to Velotype Component references */
     domReferences: domReferences,
 
@@ -243,7 +243,7 @@ export const __vtAppMetadata = {
 
 /**
  * Change the attribute name used for DOM -> Component bindings
- * 
+ *
  * ADVANCED - Usage of this should be rare and must be done prior to construction of any Components
  */
 export function setDomKey(newKeyName: string) {
@@ -254,6 +254,79 @@ export function setDomKey(newKeyName: string) {
         consoleError("Name not accepted", newKeyName, domReferences.size)
     }
 }
+
+// ----------------------------------------------------------------------
+//                DevTools hook (for the velodevtools extension)
+// ----------------------------------------------------------------------
+
+/** Per-instance metadata a Velotype instance exposes to the Velotype DevTools browser extension */
+export type VelotypeDevtoolsInstanceMetadata = typeof __vtAppMetadata
+
+/**
+ * Shape of `globalThis.__VELOTYPE_DEVTOOLS_HOOK__`.
+ *
+ * Installed by whichever Velotype instance loads first on a page; every Velotype instance
+ * (including that first one) then just calls `.register()` to add itself under its own id, so
+ * multiple independently-bundled Velotype instances on the same page (e.g. micro-frontends, or
+ * version skew across bundles) can coexist without colliding.
+ */
+export interface VelotypeDevtoolsHook {
+    /** All Velotype instances registered on this page, keyed by a hook-assigned instance id */
+    instances: Map<number, VelotypeDevtoolsInstanceMetadata>
+    /** Register a Velotype instance with the hook, returns its assigned instance id */
+    register: (metadata: VelotypeDevtoolsInstanceMetadata) => number
+    /** Remove a previously registered instance */
+    unregister: (instanceId: number) => void
+}
+
+declare global {
+    var __VELOTYPE_DEVTOOLS_HOOK__: VelotypeDevtoolsHook | undefined
+}
+
+/**
+ * Install `globalThis.__VELOTYPE_DEVTOOLS_HOOK__` if no other Velotype instance has already
+ * installed it on this page, then register this instance's `__vtAppMetadata` with it.
+ *
+ * Velotype only ever runs in a browser (see `@velotype/velossr` for server-side rendering), so
+ * `globalThis` is always the `window` here - no environment check is needed.
+ *
+ * By default every Velotype instance uses the same `domKeyName` ("vk") and restarts its vtKey
+ * counter at 1, so two independently-bundled instances on one page would otherwise tag elements
+ * with colliding DOM attributes (both writing `vk="1"`, `vk="2"`, ...). Since this runs before any
+ * Component has mounted (`domReferences` is still empty), it's safe to call `setDomKey()` here to
+ * pick a unique `domKeyName` for this instance whenever another registered instance is already
+ * using the one this instance started with.
+ */
+function installDevtoolsHook(): void {
+    if (!globalThis.__VELOTYPE_DEVTOOLS_HOOK__) {
+        const instances = new Map<number, VelotypeDevtoolsInstanceMetadata>()
+        let nextInstanceId = 1
+        globalThis.__VELOTYPE_DEVTOOLS_HOOK__ = {
+            instances,
+            register(metadata: VelotypeDevtoolsInstanceMetadata): number {
+                instances.set(nextInstanceId, metadata)
+                return nextInstanceId++
+            },
+            unregister(instanceId: number): void {
+                instances.delete(instanceId)
+            }
+        }
+    }
+    const hook = globalThis.__VELOTYPE_DEVTOOLS_HOOK__
+    const namesInUse = new Set(Array.from(hook.instances.values(), metadata => metadata.domKeyName))
+    if (namesInUse.has(domKeyName)) {
+        let suffix = 2
+        while (namesInUse.has(`${domKeyName}-${suffix}`)) {
+            suffix++
+        }
+        setDomKey(`${domKeyName}-${suffix}`)
+    }
+    hook.register(__vtAppMetadata)
+}
+installDevtoolsHook()
+
+// ----------------------------------------------------------------------
+// ----------------------------------------------------------------------
 
 // ----------------------------------------------------------------------
 //                             DOM handling
@@ -643,26 +716,16 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
                 element.hU(element.e, element.uR, this.#data, newData)
             } else {
                 const render = element.rF(newData, this)
-                if (render instanceof UpdateHandlerLink) {
-                    const newElement = wrapElementIfNeeded(childToElement(render.result))
-                    setAttributeHelper(newElement, domKeyName, key)
-                    replaceElement(element.e, newElement)
-                    this.#elements.set(key, {
-                        e: newElement,
-                        rF: element.rF,
-                        hU: element.hU,
-                        uR: render.updateRefs
-                    })
-                } else {
-                    const newElement = wrapElementIfNeeded(childToElement(render))
-                    setAttributeHelper(newElement, domKeyName, key)
-                    replaceElement(element.e, newElement)
-                    this.#elements.set(key, {
-                        e: newElement,
-                        rF: element.rF,
-                        hU: element.hU
-                    })
-                }
+                const isLink = render instanceof UpdateHandlerLink
+                const newElement = wrapElementIfNeeded(childToElement(isLink ? render.result : render))
+                setAttributeHelper(newElement, domKeyName, key)
+                replaceElement(element.e, newElement)
+                this.#elements.set(key, {
+                    e: newElement,
+                    rF: element.rF,
+                    hU: element.hU,
+                    uR: isLink ? render.updateRefs : undefined
+                })
             }
         })
         // Set data
@@ -723,13 +786,14 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
      */
     render(renderFunction: RenderObjectRenderFunctionType<DataType>, handleUpdate?: RenderObjectHandleUpdateType<DataType>): AnchorElement {
         const render = renderFunction(this.#data, this)
-        const newElement = wrapElementIfNeeded(childToElement((render instanceof UpdateHandlerLink)?render.result:render))
+        const isLink = render instanceof UpdateHandlerLink
+        const newElement = wrapElementIfNeeded(childToElement(isLink ? render.result : render))
         const componentKey = registerNewVtKey(this, newElement)
         this.#elements.set(componentKey, {
             e: newElement,
             rF: renderFunction,
             hU: handleUpdate,
-            uR: (render instanceof UpdateHandlerLink)?render.updateRefs:render
+            uR: isLink ? render.updateRefs : render
         })
         return newElement
     }
@@ -1537,24 +1601,14 @@ export class RenderObjectArray<DataType> extends RenderObject<RenderObject<DataT
      * Push all of the data points of newData[] into the Array
      */
     pushAll(newData: DataType[]): void {
-        newData.forEach(d => {
-            const obj = new RenderObject<DataType>(d, this.#renderFunction, this.#handleUpdate)
-            this.getElements().forEach(element => {
-                element.appendChild(renderableElementToElement(obj))
-            })
-            this.value.push(obj)
-        })
+        newData.forEach(d => this.push(d))
     }
     /**
      * Delete one or more data points from the Array
      */
     deleteAt(startIndex: number, deleteCount?: number): void {
         const oldData = this.value.splice(startIndex, (deleteCount!==undefined&&deleteCount>0)?deleteCount:1)
-        oldData.forEach(function(d){
-            d.unmount()
-            d.removeAll()
-            releaseVtKey(d.vtKey)
-        })
+        oldData.forEach(RenderObjectArray.#releaseOne)
     }
     /**
      * Delete a data point from the Array by value
@@ -1600,11 +1654,13 @@ export class RenderObjectArray<DataType> extends RenderObject<RenderObject<DataT
     }
     /** Release the old underlying RenderObjects */
     #releaseAll(): void {
-        this.value.forEach(function(d){
-            d.unmount()
-            d.removeAll()
-            releaseVtKey(d.vtKey)
-        })
+        this.value.forEach(RenderObjectArray.#releaseOne)
+    }
+    /** Unmount, remove all rendered instances of, and release the vtKey of a single underlying RenderObject */
+    static #releaseOne(d: RenderObject<any>): void {
+        d.unmount()
+        d.removeAll()
+        releaseVtKey(d.vtKey)
     }
     /**
      * Gets the length of the Array

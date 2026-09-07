@@ -1,12 +1,17 @@
 {
     "tasks": {
-        "bundle-event-triggers": "deno bundle ./test_modules/event-triggers.tsx --output ./build/event-triggers.js --sourcemap",
-        "bundle-render-object": "deno bundle ./test_modules/render-object.tsx --output ./build/render-object.js --sourcemap",
-        "bundle-return-types": "deno bundle ./test_modules/return-types.tsx --output ./build/return-types.js --sourcemap",
-        "bundle-render-with": "deno bundle ./test_modules/render-with.tsx --output ./build/render-with.js --sourcemap",
-        "bundle-attrs-types": "deno bundle ./test_modules/attrs-types.tsx --output ./build/attrs-types.js --sourcemap",
-        "bundle-basic-div": "deno bundle ./test_modules/basic-div.tsx --output ./build/basic-div.js --sourcemap",
-        "bundle-raw-tags": "deno bundle ./test_modules/raw-tags.tsx --output ./build/raw-tags.js --sourcemap"
+        "bundle-event-triggers": "deno bundle ./test_modules/event-triggers.tsx --output ./build/event-triggers.js --sourcemap=linked",
+        "bundle-render-object": "deno bundle ./test_modules/render-object.tsx --output ./build/render-object.js --sourcemap=linked",
+        "bundle-return-types": "deno bundle ./test_modules/return-types.tsx --output ./build/return-types.js --sourcemap=linked",
+        "bundle-render-with": "deno bundle ./test_modules/render-with.tsx --output ./build/render-with.js --sourcemap=linked",
+        "bundle-attrs-types": "deno bundle ./test_modules/attrs-types.tsx --output ./build/attrs-types.js --sourcemap=linked",
+        "bundle-basic-div": "deno bundle ./test_modules/basic-div.tsx --output ./build/basic-div.js --sourcemap=linked",
+        "bundle-raw-tags": "deno bundle ./test_modules/raw-tags.tsx --output ./build/raw-tags.js --sourcemap=linked",
+        "bundle-render-object-array": "deno bundle ./test_modules/render-object-array.tsx --output ./build/render-object-array.js --sourcemap=linked",
+        "bundle-function-components": "deno bundle ./test_modules/function-components.tsx --output ./build/function-components.js --sourcemap=linked",
+        "bundle-lifecycle": "deno bundle ./test_modules/lifecycle.tsx --output ./build/lifecycle.js --sourcemap=linked",
+        "bundle-misc": "deno bundle ./test_modules/misc.tsx --output ./build/misc.js --sourcemap=linked",
+        "bundle-event-bus": "deno bundle ./test_modules/event-bus.tsx --output ./build/event-bus.js --sourcemap=linked"
     },
     "imports": {
         "@astral/astral": "jsr:@astral/astral@^0.5.4",

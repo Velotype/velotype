@@ -15,8 +15,8 @@
     ]
   },
   "tasks": {
-    "bundle-jsx-runtime": "deno bundle --minify ./src/jsx-runtime/jsx-runtime.ts --output ./dist/jsx-runtime.min.js --sourcemap",
-    "bundle-jsx-dev-runtime": "deno bundle --minify ./src/jsx-dev-runtime/jsx-dev-runtime.ts --output ./dist/jsx-dev-runtime.min.js --sourcemap",
+    "bundle-jsx-runtime": "deno bundle --minify ./src/jsx-runtime/jsx-runtime.ts --output ./dist/jsx-runtime.min.js --sourcemap=linked",
+    "bundle-jsx-dev-runtime": "deno bundle --minify ./src/jsx-dev-runtime/jsx-dev-runtime.ts --output ./dist/jsx-dev-runtime.min.js --sourcemap=linked",
     "test": "cd ./tests/ && deno run 'bundle*' && cd .. && deno test --allow-read --allow-net --allow-sys --allow-env --allow-write --allow-run",
     "test-manual": "cd ./tests/ && deno run 'bundle*' && cd .. && deno run --allow-read --allow-net --allow-sys ./tests/manual_server.ts"
   },

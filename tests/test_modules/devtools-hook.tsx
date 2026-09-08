@@ -1,4 +1,4 @@
-import {replaceElementWithRoot, Component, RenderBasic, __vtAppMetadata} from "@velotype/velotype"
+import {replaceElementWithRoot, Component, RenderBasic, __vtAppMetadata, getDevtoolsHook} from "@velotype/velotype"
 import type {EmptyAttrs} from "@velotype/velotype"
 
 class DevtoolsHookTest extends Component<EmptyAttrs> {
@@ -9,9 +9,9 @@ class DevtoolsHookTest extends Component<EmptyAttrs> {
             {/* The test page pre-seeds a fake devtools hook instance claiming domKeyName "vk" before this
                 bundle loads, so installDevtoolsHook() must have picked a non-colliding name instead */}
             <div id="dom-key-name">{__vtAppMetadata.domKeyName}</div>
-            <div id="hook-instances-size">{globalThis.__VELOTYPE_DEVTOOLS_HOOK__?.instances.size}</div>
+            <div id="hook-instances-size">{getDevtoolsHook()?.instances.size}</div>
             <button id="unregister-self" type="button" onClick={() => {
-                const hook = globalThis.__VELOTYPE_DEVTOOLS_HOOK__
+                const hook = getDevtoolsHook()
                 const ownEntry = hook && Array.from(hook.instances.entries()).find(([, metadata]) => metadata === __vtAppMetadata)
                 if (hook && ownEntry) {
                     hook.unregister(ownEntry[0])

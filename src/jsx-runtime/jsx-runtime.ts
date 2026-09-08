@@ -3,7 +3,11 @@
 import {
     // Debugging access
     __vtAppMetadata,
+    type VtAppMetadata,
     setDomKey,
+    getDevtoolsHook,
+    type VelotypeDevtoolsHook,
+    type VelotypeDevtoolsInstanceMetadata,
 
     // Interfaces
     type MultiRenderable,
@@ -65,7 +69,11 @@ import {
 export {
     // Debugging access
     __vtAppMetadata,
+    type VtAppMetadata,
     setDomKey,
+    getDevtoolsHook,
+    type VelotypeDevtoolsHook,
+    type VelotypeDevtoolsInstanceMetadata,
 
     // Interfaces
     type MultiRenderable,

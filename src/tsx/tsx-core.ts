@@ -217,12 +217,30 @@ export type StyleSection = {
 const styleSectionMounted: Map<string, StyleSection> = new Map<string, StyleSection>()
 
 /**
+ * Public, type-safe shape of `__vtAppMetadata` (JSR requires an explicit type on every exported
+ * symbol to avoid "slow types"). `domReferences` is typed opaquely since its internal Component
+ * classes are not themselves part of the public API.
+ */
+export type VtAppMetadata = {
+    /** Key name for DOM bindings, only changeable prior to mounting any Components using `setDomKey()` */
+    readonly domKeyName: string
+    /** Map of DOM keys to Velotype Component references */
+    readonly domReferences: ReadonlyMap<string, unknown>
+    /** Forward map listeningKey -> vtKey -> listener */
+    readonly listenersF: ReadonlyMap<string, ReadonlyMap<string, VelotypeEventListener>>
+    /** Reverse map vtKey -> listeningKey -> listener */
+    readonly listenersR: ReadonlyMap<string, ReadonlyMap<string, VelotypeEventListener>>
+    /** Map of style keys to ensure each style key is only mounted once */
+    readonly styleSectionMounted: ReadonlyMap<string, StyleSection>
+}
+
+/**
  * App Metadata
- * 
+ *
  * Stateful storage of various stuffs, this is a Velotype internal object
  * DO NOT USE OR MANPULATE, for debugging only
  */
-export const __vtAppMetadata = {
+export const __vtAppMetadata: VtAppMetadata = {
     // ------- For Velotype Core -------
     /** Key name for DOM bindings, only changeable prior to mounting any Components using `setDomKey()` */
     get domKeyName(): string { return domKeyName },
@@ -279,8 +297,23 @@ export interface VelotypeDevtoolsHook {
     unregister: (instanceId: number) => void
 }
 
-declare global {
-    var __VELOTYPE_DEVTOOLS_HOOK__: VelotypeDevtoolsHook | undefined
+/**
+ * Type of `globalThis` augmented with the (possibly not-yet-installed) devtools hook.
+ *
+ * JSR does not support `declare global` augmentations in published packages (they can affect type
+ * checking of other modules), so this is a local intersection type used only to type-check the
+ * handful of reads/writes to `globalThis.__VELOTYPE_DEVTOOLS_HOOK__` below - it does not change
+ * what any other module sees `globalThis`'s type as.
+ */
+type GlobalThisWithDevtoolsHook = typeof globalThis & {
+    __VELOTYPE_DEVTOOLS_HOOK__?: VelotypeDevtoolsHook
+}
+
+/**
+ * Get the current value of `globalThis.__VELOTYPE_DEVTOOLS_HOOK__`, typed.
+ */
+export function getDevtoolsHook(): VelotypeDevtoolsHook | undefined {
+    return (globalThis as GlobalThisWithDevtoolsHook).__VELOTYPE_DEVTOOLS_HOOK__
 }
 
 /**
@@ -298,10 +331,11 @@ declare global {
  * using the one this instance started with.
  */
 function installDevtoolsHook(): void {
-    if (!globalThis.__VELOTYPE_DEVTOOLS_HOOK__) {
+    const g = globalThis as GlobalThisWithDevtoolsHook
+    if (!g.__VELOTYPE_DEVTOOLS_HOOK__) {
         const instances = new Map<number, VelotypeDevtoolsInstanceMetadata>()
         let nextInstanceId = 1
-        globalThis.__VELOTYPE_DEVTOOLS_HOOK__ = {
+        g.__VELOTYPE_DEVTOOLS_HOOK__ = {
             instances,
             register(metadata: VelotypeDevtoolsInstanceMetadata): number {
                 instances.set(nextInstanceId, metadata)
@@ -312,7 +346,7 @@ function installDevtoolsHook(): void {
             }
         }
     }
-    const hook = globalThis.__VELOTYPE_DEVTOOLS_HOOK__
+    const hook = g.__VELOTYPE_DEVTOOLS_HOOK__
     const namesInUse = new Set(Array.from(hook.instances.values(), metadata => metadata.domKeyName))
     if (namesInUse.has(domKeyName)) {
         let suffix = 2

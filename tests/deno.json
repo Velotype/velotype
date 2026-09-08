@@ -27,5 +27,10 @@
         "rules": {
             "exclude": ["jsx-key"]
         }
+    },
+    "compilerOptions": {
+        "jsx": "react-jsx",
+        "jsxImportSource": "@velotype/velotype",
+        "lib": ["dom", "esnext"]
     }
 }

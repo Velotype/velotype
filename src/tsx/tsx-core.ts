@@ -217,9 +217,7 @@ export type StyleSection = {
 const styleSectionMounted: Map<string, StyleSection> = new Map<string, StyleSection>()
 
 /**
- * Public, type-safe shape of `__vtAppMetadata` (JSR requires an explicit type on every exported
- * symbol to avoid "slow types"). `domReferences` is typed opaquely since its internal Component
- * classes are not themselves part of the public API.
+ * Public, type-safe shape of `__vtAppMetadata`
  */
 export type VtAppMetadata = {
     /** Key name for DOM bindings, only changeable prior to mounting any Components using `setDomKey()` */

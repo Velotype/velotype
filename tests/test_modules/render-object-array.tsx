@@ -216,12 +216,9 @@ seededInstance.seed()
 
 
 /*
- * Item-level callbacks, registered by a renderFunction through its thisArg. These are what
- * #releaseOne fires, and they follow the same rule as a Component's unmount().
- *
- * The mount counter stays at 0 even once the array is attached: mountComponentElement() only
- * calls mount() on Components, so an item RenderObject's onMount never fires. Recorded here so
- * the asymmetry is visible.
+ * Item-level callbacks, registered by a renderFunction through its thisArg. They follow the same
+ * rule as a Component's: an item pushed and dropped again while the array is detached was never
+ * live, so it is released without being unmounted.
  */
 
 const itemCounts = {mounts: 0, unmounts: 0}

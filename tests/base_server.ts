@@ -1,18 +1,39 @@
 /// <reference lib="deno.ns" />
 
-import { App, Context, Inspector, RequestInspectorResponse, Router } from "@velotype/veloserver"
+// Server, Router, Inspector and RequestInspectorResponse are all constructed below, so they are
+// value imports; only Context is used purely as a type.
+import { Inspector, RequestInspectorResponse, Router, Server } from "@velotype/veloserver"
+import type { Context } from "@velotype/veloserver"
 
-export async function startAppServer(server_port: number): Promise<App> {
-    const router: Router = new Router()
-    router.addAllInspector("", new Inspector(
-        (request: Request, context: Context) => {
+/**
+ * Closes a test server. Use this rather than `server.close()` in test teardown.
+ *
+ * `close()` returns before its shutdown callbacks have run, since they fire from a `finished`
+ * handler, so a tick here lets them settle before the caller carries on.
+ */
+export async function closeAppServer(server: Server<ServerContextMetadata>, reason: string): Promise<void> {
+    server.close(reason)
+    await new Promise((resolve) => setTimeout(resolve, 0))
+}
+
+/** Per-request metadata, typed rather than a string-keyed map */
+export type ServerContextMetadata = {
+    /** Request start time (`performance.now()`), set by the timing inspector below */
+    st?: number
+}
+
+export async function startAppServer(server_port: number): Promise<Server<ServerContextMetadata>> {
+    const router: Router<ServerContextMetadata> = new Router<ServerContextMetadata>({
+        context_metadata_constructor: () => ({}),
+    })
+    router.addAllInspector("", new Inspector<ServerContextMetadata>(
+        (request: Request, context: Context<ServerContextMetadata>) => {
             console.log(`START ${request.method} ${request.url}`)
-            const startTime = performance.now()
-            context.metadata.set("st", startTime)
-            return new RequestInspectorResponse(true)
+            context.meta.st = performance.now()
+            return new RequestInspectorResponse()
         },
-        (request: Request, response: Response, context: Context) => {
-            const startTime = context.metadata.get("st")
+        (request: Request, response: Response, context: Context<ServerContextMetadata>) => {
+            const startTime = context.meta.st
             if (startTime != undefined) {
                 const ms = (performance.now() - startTime).toFixed(2)
                 response.headers.set("X-Response-Time", `${ms}ms`);
@@ -57,8 +78,8 @@ ${setOfModules.map(module => `<div><a href="/${module}">${module}</a></div>`).jo
         return response
     })
     await router.mountFiles("/build/", `${Deno.cwd()}/tests/build/`)
-    const app = new App(router)
-    const prom = new Promise<App>((resolve) => {
+    const app = new Server<ServerContextMetadata>(router)
+    const prom = new Promise<Server<ServerContextMetadata>>((resolve) => {
         app.addServerListenCallback(() => {
             resolve(app)
         })

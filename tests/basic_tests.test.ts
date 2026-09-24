@@ -2,18 +2,19 @@
 import { afterAll, beforeAll, describe, it } from "@std/testing/bdd"
 import { fail, assertEquals } from "@std/assert"
 
-import {App} from "@velotype/veloserver"
+import type {Server} from "@velotype/veloserver"
 
 import { launch } from "@astral/astral"
 import type { Browser, ElementHandle, Page } from "@astral/astral"
-import { startAppServer } from "./base_server.ts"
+import { closeAppServer, startAppServer } from "./base_server.ts"
+import type { ServerContextMetadata } from "./base_server.ts"
 
 const server_port = 3000
 const baseUrl = `http://localhost:${server_port}`
 
 
 describe('basic component rendering', () => {
-    let server: App
+    let server: Server<ServerContextMetadata>
     let browser: Browser
     let page: Page
 
@@ -29,7 +30,7 @@ describe('basic component rendering', () => {
     afterAll(async () => {
         await page?.close()
         await browser?.close()
-        await server?.close('End basic tests')
+        if (server) { await closeAppServer(server, 'End basic tests') }
     })
 
     const itWrap = (name: string, module: string, selector: string, testFn: (selection: ElementHandle) => void | Promise<void>) => {
@@ -314,6 +315,36 @@ describe('basic component rendering', () => {
 
         assertEquals(probes, 1)
         assertEquals(tally, "1/0")
+    })
+
+    itWrap("an item dropped from a detached RenderObjectArray is not handed an unmount", "render-object-array", "#item-callbacks", async (_pageLoadSelection: ElementHandle) => {
+        // #releaseOne fires the item's own callbacks, registered through the renderFunction's
+        // thisArg. One item was pushed and deleted while detached, a second was pushed and kept.
+        const tally = (await (await page.waitForSelector("#item-tally")).innerText()).trim()
+        const probes = (await page.$$("#item-callbacks .item-probe")).length
+
+        assertEquals(probes, 1)
+        // The kept item mounts once when the array is placed; the discarded one never mounted, so
+        // it is never unmounted either
+        assertEquals(tally, "1/0")
+    })
+
+    itWrap("an Array rendered in two places mounts each instance once", "render-object-array", "#multi-place", async (_pageLoadSelection: ElementHandle) => {
+        // RenderObject supports many instance elements. A push renders the item once per instance,
+        // so each is its own Component and each needs exactly one mount.
+        const tally = async () => (await (await page.waitForSelector("#multi-tally")).innerText()).trim()
+        const probes = async () => (await page.$$("#multi-place .multi-probe")).length
+
+        assertEquals(await probes(), 0)
+        assertEquals(await tally(), "0/0")
+
+        await (await page.waitForSelector("#multi-push")).click()
+        assertEquals(await probes(), 2)
+        assertEquals(await tally(), "2/0")
+
+        await (await page.waitForSelector("#multi-delete")).click()
+        assertEquals(await probes(), 0)
+        assertEquals(await tally(), "2/2")
     })
 
     itWrap("a RenderObjectArray wrapper can be a real table section", "render-object-array", "#probe-table", async (_pageLoadSelection: ElementHandle) => {

@@ -265,6 +265,92 @@ describe('basic component rendering', () => {
         assertEquals(await innerTextOf("#todo-list"), "")
     })
 
+    itWrap("RenderObjectArray mutations run the lifecycle of what they render", "render-object-array", "#render-object-array-lifecycle-tests", async (_pageLoadSelection: ElementHandle) => {
+        // Each mutation must run the lifecycle itself - none of these buttons call refresh(),
+        // which would rebuild and remount the whole subtree and hide the answer
+        const tally = async () => (await (await page.waitForSelector("#probe-tally")).innerText()).trim()
+        const rowCount = async () => (await page.$$("#probe-table tr.probe-row")).length
+
+        assertEquals(await tally(), "0/0")
+        assertEquals(await rowCount(), 0)
+
+        // push() one: the probe inside it has to mount
+        await (await page.waitForSelector("#probe-push")).click()
+        assertEquals(await rowCount(), 1)
+        assertEquals(await tally(), "1/0")
+
+        // pushAll() is push() twice, so it carries the same guarantee
+        await (await page.waitForSelector("#probe-push-all")).click()
+        assertEquals(await rowCount(), 3)
+        assertEquals(await tally(), "3/0")
+
+        // deleteAt() unmounts exactly the one it removes
+        await (await page.waitForSelector("#probe-delete")).click()
+        assertEquals(await rowCount(), 2)
+        assertEquals(await tally(), "3/1")
+
+        // clear() unmounts the rest
+        await (await page.waitForSelector("#probe-clear")).click()
+        assertEquals(await rowCount(), 0)
+        assertEquals(await tally(), "3/3")
+    })
+
+    itWrap("pushing into a not-yet-attached RenderObjectArray mounts exactly once", "render-object-array", "#push-before-attach", async (_pageLoadSelection: ElementHandle) => {
+        // The row is pushed from the component's constructor, long before it is placed, and the
+        // component is then attached normally - so the only correct answer is one mount
+        const tally = (await (await page.waitForSelector("#early-tally")).innerText()).trim()
+        const probes = (await page.$$("#push-before-attach .early-probe")).length
+
+        assertEquals(probes, 1)
+        assertEquals(tally, "1/0")
+    })
+
+    itWrap("replacing children of a not-yet-attached Component mounts exactly once", "render-object-array", "#seed-before-attach", async (_pageLoadSelection: ElementHandle) => {
+        // The same guard reached through Component.replaceChildrenOfChild, with no
+        // RenderObjectArray involved - which is why it belongs in the mount walk. Seeding twice
+        // covers both halves: the discarded probe is not unmounted, the kept one mounts once.
+        const tally = (await (await page.waitForSelector("#seed-tally")).innerText()).trim()
+        const probes = (await page.$$("#seed-before-attach .seed-probe")).length
+
+        assertEquals(probes, 1)
+        assertEquals(tally, "1/0")
+    })
+
+    itWrap("a RenderObjectArray wrapper can be a real table section", "render-object-array", "#probe-table", async (_pageLoadSelection: ElementHandle) => {
+        // The wrapper element is the <tbody>, so the <tr>s are its direct children with nothing
+        // between them
+        await (await page.waitForSelector("#probe-push")).click()
+
+        const shape = await page.evaluate(`(() => {
+            const table = document.getElementById("probe-table")
+            const body = document.getElementById("probe-rows")
+            const row = table.querySelector("tr.probe-row")
+            return {
+                wrapperTag: body ? body.tagName.toLowerCase() : null,
+                wrapperIsChildOfTable: !!body && body.parentElement === table,
+                rowIsChildOfWrapper: !!row && row.parentElement === body,
+                wrapperDisplay: body ? getComputedStyle(body).display : null,
+                rowDisplay: row ? getComputedStyle(row).display : null,
+                probeInRow: !!(row && row.querySelector("td > span.probe"))
+            }
+        })()`) as {
+            wrapperTag: string | null
+            wrapperIsChildOfTable: boolean
+            rowIsChildOfWrapper: boolean
+            wrapperDisplay: string | null
+            rowDisplay: string | null
+            probeInRow: boolean
+        }
+
+        assertEquals(shape.wrapperTag, "tbody")
+        assertEquals(shape.wrapperIsChildOfTable, true)
+        assertEquals(shape.rowIsChildOfWrapper, true)
+        assertEquals(shape.probeInRow, true)
+        // wrapperAttrs.style replaces the display:contents the wrapper is created with
+        assertEquals(shape.wrapperDisplay, "table-row-group")
+        assertEquals(shape.rowDisplay, "table-row")
+    })
+
     itWrap("set of function-components tests", "function-components", "#function-components-tests", async (_pageLoadSelection: ElementHandle) => {
         const setOfVariations = [
             {selector: "#greeting", text: "Hello Velotype"},

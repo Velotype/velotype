@@ -1054,7 +1054,7 @@ function replaceElement(element: AnchorElement, newElement: AnchorElement): Anch
 /**
  * Appends a toAppendElement to an element and will mount the appended toAppendElement
  */
-function appendElement(element: HTMLElement, toAppendElement: AnchorElement): void {
+function appendElement(element: AnchorElement, toAppendElement: AnchorElement): void {
     element.appendChild(toAppendElement)
     mountComponentElement(toAppendElement)
 }
@@ -1206,17 +1206,18 @@ class InternalComponent {
  * 
  * @param element the element to search through
  * @param callback the callback to trigger
+ * @param wasMounted passed through to callback, whether this subtree is on the page
  */
-function traverseElementChildren(element: Element, callback: (component: InternalComponent | MultiRenderable | WithComponent, key: string) => void): void {
+function traverseElementChildren(element: Element, callback: (component: InternalComponent | MultiRenderable | WithComponent, key: string, wasMounted: boolean) => void, wasMounted: boolean): void {
     if (instanceOfHTMLElement(element) || instanceOfSVGSVGElement(element) || instanceOfMathMLElement(element)) {
         for (let i = 0; i < element.children.length; i++) {
             const child = element.children[i]
-            traverseElementChildren(child, callback)
+            traverseElementChildren(child, callback, wasMounted)
             const key = getAttributeHelper(child,domKeyName)
             if (key) {
                 const component = getDOMreference(key)
                 if (component) {
-                    callback(component, key)
+                    callback(component, key, wasMounted)
                 }
             }
         }
@@ -1226,7 +1227,7 @@ function traverseElementChildren(element: Element, callback: (component: Interna
 /**
  * Call `.mount()` on linked Components
  */
-function mountComponentElementHelper(component: InternalComponent | MultiRenderable | WithComponent, _key: string): void {
+function mountComponentElementHelper(component: InternalComponent | MultiRenderable | WithComponent, _key: string, _wasMounted?: boolean): void {
     if (instanceOfInternalComponent(component)) {
         const internalComponent = component as InternalComponent
         // Mount the main Component
@@ -1241,9 +1242,12 @@ function mountComponentElementHelper(component: InternalComponent | MultiRendera
     }
 }
 /**
- * Mount this element and all children
+ * Mount this element and all children (if element is connected to the DOM)
  */
 function mountComponentElement(element: AnchorElement): void {
+    if (!element.isConnected) {
+        return
+    }
     if (instanceOfHTMLElement(element)) {
         mountComponentElementChildren(element)
     }
@@ -1251,25 +1255,30 @@ function mountComponentElement(element: AnchorElement): void {
     if (key) {
         const component = getDOMreference(key)
         if (component) {
-            mountComponentElementHelper(component, key)
+            mountComponentElementHelper(component, key, true)
         }
     }
 }
 /**
- * Mount the children of this element
+ * Mount the children of this element (if element is connected to the DOM)
  */
 function mountComponentElementChildren(element: HTMLElement): void {
-    traverseElementChildren(element, mountComponentElementHelper)
+    if (!element.isConnected) {
+        return
+    }
+    traverseElementChildren(element, mountComponentElementHelper, true)
 }
 /**
- * Call `.unmount()` on linked Components and release vtKeys
+ * Call `.unmount()` on linked Components (if mounted) and release vtKeys
  */
-function unmountComponentElementHelper(component: InternalComponent | MultiRenderable | WithComponent, key: string): void {
+function unmountComponentElementHelper(component: InternalComponent | MultiRenderable | WithComponent, key: string, wasMounted: boolean): void {
     if (instanceOfInternalComponent(component)) {
         // component: InternalComponent
         removeComponentListeners(component.c)
-        // Unmount the main Component
-        component.c.unmount()
+        // Unmount the main Component, only if it was mounted
+        if (wasMounted) {
+            component.c.unmount()
+        }
         // Iterate component fields and trigger their unmounts
         Object.entries(component.c).forEach(array => {
             const enumberableValue = array[1]
@@ -1295,12 +1304,13 @@ function unmountComponentElementHelper(component: InternalComponent | MultiRende
  * Unmount the children of this element
  */
 function unmountComponentElementChildren(element: HTMLElement): void {
-    traverseElementChildren(element, unmountComponentElementHelper)
+    traverseElementChildren(element, unmountComponentElementHelper, element.isConnected)
 }
 /**
  * Unmount this element and all of its children
  */
 function unmountComponentElement(element: AnchorElement): void {
+    const wasMounted = element.isConnected
     if (instanceOfHTMLElement(element)) {
         unmountComponentElementChildren(element)
     }
@@ -1308,7 +1318,7 @@ function unmountComponentElement(element: AnchorElement): void {
     if (key) {
         const component = getDOMreference(key)
         if (component) {
-            unmountComponentElementHelper(component, key)
+            unmountComponentElementHelper(component, key, wasMounted)
         }
     }
 }
@@ -1412,12 +1422,12 @@ export function setAttrsOnElement(element: AnchorElement, attrs?: Readonly<any> 
         } else if (typeof value == 'function') {
             // Avoid setting the attribute if the value is a function
         } else if (name == "vtwith") {
-            const key = getAttributeHelper(element,domKeyName)
+            const key = getAttributeHelper(element, domKeyName)
             if (key) {
                 consoleError("vtwith attr set on element that already has a key", key)
             } else {
                 const withComponent = new WithComponent(value)
-                setAttributeHelper(element,domKeyName,withComponent.k)
+                setAttributeHelper(element, domKeyName, withComponent.k)
             }
         } else if (value || value == "") {
             // Regular attribute
@@ -1626,7 +1636,7 @@ export class RenderObjectArray<DataType> extends RenderObject<RenderObject<DataT
         const obj = new RenderObject<DataType>(newData, this.#renderFunction, this.#handleUpdate)
         this.value.push(obj)
         this.getElements().forEach(element => {
-            element.appendChild(renderableElementToElement(obj))
+            appendElement(element, renderableElementToElement(obj))
         })
     }
     /**
@@ -1681,16 +1691,19 @@ export class RenderObjectArray<DataType> extends RenderObject<RenderObject<DataT
     /** Will unmount and release all rendered instances of this RenderObjectArray */
     override unmount(): void {
         super.unmount()
-        this.#releaseAll()
         this.value = []
     }
     /** Release the old underlying RenderObjects */
     #releaseAll(): void {
         this.value.forEach(RenderObjectArray.#releaseOne)
     }
-    /** Unmount, remove all rendered instances of, and release the vtKey of a single underlying RenderObject */
+    /**
+     * Unmount (if mounted), remove all rendered instances of, and release the vtKey of a single underlying RenderObject
+     */
     static #releaseOne(d: RenderObject<any>): void {
-        d.unmount()
+        if (d.getElements().some((element) => element.isConnected)) {
+            d.unmount()
+        }
         d.removeAll()
         releaseVtKey(d.vtKey)
     }
@@ -1704,7 +1717,6 @@ export class RenderObjectArray<DataType> extends RenderObject<RenderObject<DataT
      * Clears the Array of all data
      */
     clear(): void {
-        this.#releaseAll()
         this.value = []
     }
 }

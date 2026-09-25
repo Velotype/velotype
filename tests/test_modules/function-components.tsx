@@ -1,5 +1,5 @@
 import {replaceElementWithRoot, Component} from "@velotype/velotype"
-import type {FunctionComponent, EmptyAttrs, RenderableElements} from "@velotype/velotype"
+import type {FunctionComponent, EmptyAttrs, RenderableElements, ChildrenAttr} from "@velotype/velotype"
 
 type GreetingAttrs = {
     name: string
@@ -10,7 +10,8 @@ const Greeting: FunctionComponent<GreetingAttrs> = function(attrs: GreetingAttrs
 
 type WrapperAttrs = {
     label: string
-}
+} & ChildrenAttr
+
 const Wrapper: FunctionComponent<WrapperAttrs> = function(attrs: WrapperAttrs, children: RenderableElements[]) {
     return <div>{attrs.label}: {children}</div>
 }

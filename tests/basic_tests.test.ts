@@ -377,9 +377,28 @@ describe('basic component rendering', () => {
         assertEquals(shape.wrapperIsChildOfTable, true)
         assertEquals(shape.rowIsChildOfWrapper, true)
         assertEquals(shape.probeInRow, true)
-        // wrapperAttrs.style replaces the display:contents the wrapper is created with
+        // A named wrapper tag keeps its own display, with no style passed in wrapperAttrs
         assertEquals(shape.wrapperDisplay, "table-row-group")
         assertEquals(shape.rowDisplay, "table-row")
+    })
+
+    itWrap("only the default RenderObjectArray wrapper is display:contents", "render-object-array", "#render-object-array-tests", async (_pageLoadSelection: ElementHandle) => {
+        // The default div only groups its items. A named tag is the real element, and an inline
+        // display:contents on it would beat any stylesheet the consumer writes for it
+        const wrappers = await page.evaluate(`(() => {
+            const describe = (el) => el ? {inline: el.getAttribute("style"), display: getComputedStyle(el).display} : null
+            const probe = document.querySelector("#push-before-attach .early-probe")
+            return {
+                byDefault: describe(probe ? probe.parentElement : null),
+                named: describe(document.getElementById("todo-list"))
+            }
+        })()`) as {
+            byDefault: {inline: string | null, display: string} | null
+            named: {inline: string | null, display: string} | null
+        }
+
+        assertEquals(wrappers.byDefault?.display, "contents")
+        assertEquals(wrappers.named, {inline: null, display: "block"})
     })
 
     itWrap("set of function-components tests", "function-components", "#function-components-tests", async (_pageLoadSelection: ElementHandle) => {

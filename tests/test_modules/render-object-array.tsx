@@ -81,13 +81,10 @@ class MountProbe extends Component<{label: string}> {
 class RenderObjectArrayLifecycleTest extends Component<EmptyAttrs> {
     #next = 0
 
-    /*
-     * The wrapper element is the tbody itself, with the <tr>s as its direct children. The style in
-     * wrapperAttrs replaces the display:contents the wrapper is created with.
-     */
+    // The wrapper element is the tbody itself, with the <tr>s as its direct children
     rows: RenderObjectArray<Row> = new RenderObjectArray<Row>({
         wrapperElementTag: "tbody",
-        wrapperAttrs: {id: "probe-rows", style: "display:table-row-group;"},
+        wrapperAttrs: {id: "probe-rows"},
         renderFunction: (row: Row) => <tr class="probe-row"><td><MountProbe label={row.label}/></td></tr>
     })
 

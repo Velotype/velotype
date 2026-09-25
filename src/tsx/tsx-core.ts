@@ -198,10 +198,10 @@ let domNextKey: bigint = 1n
 /** Attribute name to use for DOM -> Component bindings */
 let domKeyName = "vk"
 
-/** Velotype Event bus - Forward map listeningKey -> vtKey -> listener */
-const listenersF: Map<string, Map<string, VelotypeEventListener>> = new Map<string,Map<string,VelotypeEventListener>>()
-/** Velotype Event bus - Reverse map vtKey -> listeningKey -> listener */
-const listenersR: Map<string, Map<string, VelotypeEventListener>> = new Map<string,Map<string,VelotypeEventListener>>()
+/** Velotype Event bus - Forward map listeningKey -> vtKey -> listeners */
+const listenersF: Map<string, Map<string, VelotypeEventListener[]>> = new Map<string,Map<string,VelotypeEventListener[]>>()
+/** Velotype Event bus - Reverse map vtKey -> listeningKey -> listeners */
+const listenersR: Map<string, Map<string, VelotypeEventListener[]>> = new Map<string,Map<string,VelotypeEventListener[]>>()
 
 /** Represents a mounted CSS StyleSheet object */
 export type StyleSection = {
@@ -224,10 +224,10 @@ export type VtAppMetadata = {
     readonly domKeyName: string
     /** Map of DOM keys to Velotype Component references */
     readonly domReferences: ReadonlyMap<string, unknown>
-    /** Forward map listeningKey -> vtKey -> listener */
-    readonly listenersF: ReadonlyMap<string, ReadonlyMap<string, VelotypeEventListener>>
-    /** Reverse map vtKey -> listeningKey -> listener */
-    readonly listenersR: ReadonlyMap<string, ReadonlyMap<string, VelotypeEventListener>>
+    /** Forward map listeningKey -> vtKey -> listeners */
+    readonly listenersF: ReadonlyMap<string, ReadonlyMap<string, readonly VelotypeEventListener[]>>
+    /** Reverse map vtKey -> listeningKey -> listeners */
+    readonly listenersR: ReadonlyMap<string, ReadonlyMap<string, readonly VelotypeEventListener[]>>
     /** Map of style keys to ensure each style key is only mounted once */
     readonly styleSectionMounted: ReadonlyMap<string, StyleSection>
 }
@@ -246,9 +246,9 @@ export const __vtAppMetadata: VtAppMetadata = {
     domReferences: domReferences,
 
     // ------- For Event Bus -------
-    /** Forward map listeningKey -> vtKey -> listener */
+    /** Forward map listeningKey -> vtKey -> listeners */
     listenersF: listenersF,
-    /** Reverse map vtKey -> listeningKey -> listener */
+    /** Reverse map vtKey -> listeningKey -> listeners */
     listenersR: listenersR,
 
     // ------- For Styles -------
@@ -634,8 +634,6 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
     readonly #onMounts: Array<()=>void> = []
     readonly #onUnmounts: Array<()=>void> = []
     #mounted: boolean = false
-    #eventDispatchDelay: number = 0
-    #eventDispatched: boolean = false
     #eventListeningKey() {
         // VeloType - Render Object - {key}
         return `vt-ro-${this.vtKey}`
@@ -671,13 +669,33 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
         hasVtKey?: HasVtKey,
         /** should an onChange event be emitted immediately upon registration? (default: false) */
         triggerOnRegistration?: boolean,
-        /** delay (in ms) onChange event dispatch, will dispatch at most one change event per eventDispatchDelay (default: 0) */
+        /** delay (in ms) before this listener receives onChange, at most one per eventDispatchDelay (default: 0) */
         eventDispatchDelay?: number
     }): RenderObject<DataType> {
         this.#hasEventListeners = true
-        this.#eventDispatchDelay = (options?.eventDispatchDelay && options?.eventDispatchDelay>0)?options?.eventDispatchDelay:0
-        registerEventListener(options?.hasVtKey || this, this.#eventListeningKey(), listener)
-        if (options?.triggerOnRegistration) {
+        const owner: HasVtKey = (options && options.hasVtKey) || this
+        const listeningKey: string = this.#eventListeningKey()
+        const delay: number = (options && options.eventDispatchDelay) || 0
+        let listenerToRegister: VelotypeEventListener
+        if (delay > 0) {
+            let pending: boolean = false
+            listenerToRegister = (event) => {
+                if (!pending) {
+                    pending = true
+                    setTimeout(() => {
+                        pending = false
+                        // Skip if removed or unmounted during the delay
+                        if (isListenerRegistered(listeningKey, owner.vtKey, listenerToRegister)) {
+                            listener(event)
+                        }
+                    }, delay)
+                }
+            }
+        } else {
+            listenerToRegister = listener
+        }
+        registerEventListener(owner, listeningKey, listenerToRegister)
+        if (options && options.triggerOnRegistration) {
             vtSetImmediate(() => {this.#emitOnChangeEvent()})
         }
         return this
@@ -781,19 +799,7 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
         this.#data = newData
         // Trigger EventListeners (if set)
         if (this.#hasEventListeners) {
-            if (this.#eventDispatchDelay > 0) {
-                // If a delay is set, then use setTimeout to delay the dispatch
-                if (!this.#eventDispatched) {
-                    this.#eventDispatched = true
-                    setTimeout(() => {
-                        this.#eventDispatched = false
-                        this.#emitOnChangeEvent()
-                    }, this.#eventDispatchDelay)
-                }
-            } else {
-                // No delay is set, so emit the event right away
-                this.#emitOnChangeEvent()
-            }
+            this.#emitOnChangeEvent()
         }
     }
     /**
@@ -891,7 +897,7 @@ export class RenderBasic<DataType extends BasicTypes> extends RenderObject<DataT
         hasVtKey?: HasVtKey,
         /** should an onChange event be emitted immediately upon registration? (default: false) */
         triggerOnRegistration?: boolean,
-        /** delay (in ms) onChange event dispatch, will dispatch at most one change event per eventDispatchDelay (default: 0) */
+        /** delay (in ms) before this listener receives onChange, at most one per eventDispatchDelay (default: 0) */
         eventDispatchDelay?: number
     }): RenderBasic<DataType> {
         super.registerOnChangeListener(listener, options)
@@ -1890,23 +1896,30 @@ export function registerEventListener(hasVtKey: HasVtKey, listeningKey: string, 
 /**
  * Optimization function to register listeners to double maps
  */
-function registerListenerMap(map: Map<string,Map<string,VelotypeEventListener>>, firstKey: string, secondKey: string, listener: VelotypeEventListener): void {
+function registerListenerMap(map: Map<string,Map<string,VelotypeEventListener[]>>, firstKey: string, secondKey: string, listener: VelotypeEventListener): void {
     const keyListeners = map.get(firstKey)
     if (keyListeners !== undefined) {
-        keyListeners.set(secondKey, listener)
+        const listeners = keyListeners.get(secondKey)
+        if (listeners !== undefined) {
+            listeners.push(listener)
+        } else {
+            keyListeners.set(secondKey, [listener])
+        }
     } else {
-        const newKeyListeners = new Map<string,VelotypeEventListener>()
-        newKeyListeners.set(secondKey, listener)
+        const newKeyListeners = new Map<string,VelotypeEventListener[]>()
+        newKeyListeners.set(secondKey, [listener])
         map.set(firstKey, newKeyListeners)
     }
 }
 /**
  * Manually remove and clean up all EventListeners that are listening to
  * a particular hasVtKey Component and listeningKey
+ * 
+ * @param listener if specified, remove only this EventListener
  */
-export function removeEventListeners(hasVtKey: HasVtKey, listeningKey: string): void {
-    removeListenerMap(listenersF, listeningKey, hasVtKey.vtKey)
-    removeListenerMap(listenersR, hasVtKey.vtKey, listeningKey)
+export function removeEventListeners(hasVtKey: HasVtKey, listeningKey: string, listener?: VelotypeEventListener): void {
+    removeListenerMap(listenersF, listeningKey, hasVtKey.vtKey, listener)
+    removeListenerMap(listenersR, hasVtKey.vtKey, listeningKey, listener)
 }
 /**
  * Cleanup all EventListeners that are registered with a hasVtKey Component
@@ -1923,14 +1936,24 @@ function removeComponentListeners(hasVtKey: HasVtKey): void {
 /**
  * Optimization function to remove listeners from double maps
  */
-function removeListenerMap(map: Map<string,Map<string,VelotypeEventListener>>, firstKey: string, secondKey: string): void {
+function removeListenerMap(map: Map<string,Map<string,VelotypeEventListener[]>>, firstKey: string, secondKey: string, listener?: VelotypeEventListener): void {
     const keyListeners = map.get(firstKey)
     if (keyListeners !== undefined) {
-        const listener = keyListeners.get(secondKey)
-        if (listener !== undefined) {
-            keyListeners.delete(secondKey)
-            if (keyListeners.size <= 0) {
-                map.delete(firstKey)
+        const listeners = keyListeners.get(secondKey)
+        if (listeners !== undefined) {
+            if (listener) {
+                const index = listeners.indexOf(listener)
+                if (index < 0) {
+                    consoleLog("WARN removing event listener, listener is not present", firstKey, secondKey)
+                    return
+                }
+                listeners.splice(index, 1)
+            }
+            if (!listener || listeners.length <= 0) {
+                keyListeners.delete(secondKey)
+                if (keyListeners.size <= 0) {
+                    map.delete(firstKey)
+                }
             }
         } else {
             consoleLog("WARN removing event listener, secondKey is not present", firstKey, secondKey)
@@ -1940,15 +1963,28 @@ function removeListenerMap(map: Map<string,Map<string,VelotypeEventListener>>, f
     }
 }
 /**
+ * Is this EventListener still registered
+ */
+function isListenerRegistered(listeningKey: string, vtKey: string, listener: VelotypeEventListener): boolean {
+    const keyListeners = listenersF.get(listeningKey)
+    const listeners = keyListeners && keyListeners.get(vtKey)
+    return listeners ? listeners.includes(listener) : false
+}
+/**
  * Emit a VelotypeEvent on a listeningKey
  */
 export function emitEvent(listeningKey: string, event: VelotypeEvent, hasVtKey?: HasVtKey): void {
     const keyListeners = listenersF.get(listeningKey)
     if (keyListeners !== undefined) {
-        keyListeners.entries().forEach(([vtKey, listener]) => {
+        keyListeners.entries().forEach(([vtKey, listeners]) => {
             // The Component that emitted the Event does not also receive it
             if (!hasVtKey || hasVtKey.vtKey != vtKey) {
-                listener(event)
+                // Skip listeners removed by an earlier listener
+                listeners.slice().forEach(listener => {
+                    if (isListenerRegistered(listeningKey, vtKey, listener)) {
+                        listener(event)
+                    }
+                })
             }
         })
     } else {

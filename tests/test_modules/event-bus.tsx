@@ -56,6 +56,87 @@ class Emitter extends Component<EmptyAttrs> {
     }
 }
 
+const MULTI_KEY = "vt-test-event-bus-multi-key"
+
+class MultiListener extends Component<EmptyAttrs> {
+    countA = new RenderBasic<number>(0)
+    countB = new RenderBasic<number>(0)
+    registeredCount = new RenderBasic<number>(0)
+    aRemovesB = false
+    listenerA: VelotypeEventListener = () => {
+        this.countA.value += 1
+        if (this.aRemovesB) {
+            removeEventListeners(this, MULTI_KEY, this.listenerB)
+        }
+    }
+    listenerB: VelotypeEventListener = () => {
+        this.countB.value += 1
+    }
+    updateRegisteredCount = () => {
+        const keyListeners = __vtAppMetadata.listenersF.get(MULTI_KEY)
+        const listeners = keyListeners && keyListeners.get(this.vtKey)
+        this.registeredCount.value = listeners ? listeners.length : 0
+    }
+    override mount() {
+        registerEventListener(this, MULTI_KEY, this.listenerA)
+        registerEventListener(this, MULTI_KEY, this.listenerB)
+        this.updateRegisteredCount()
+    }
+    override render() {
+        return <div id="multi-listener">
+            <button id="multi-emit" type="button" onClick={() => {
+                emitEvent(MULTI_KEY, new VelotypeEvent(this, "multi"))
+                this.updateRegisteredCount()
+            }}>emit</button>
+            <button id="multi-arm-a-removes-b" type="button" onClick={() => { this.aRemovesB = true }}>arm</button>
+            <button id="multi-remove-a" type="button" onClick={() => {
+                removeEventListeners(this, MULTI_KEY, this.listenerA)
+                this.updateRegisteredCount()
+            }}>remove a</button>
+            <div class="count-a">{this.countA}</div>
+            <div class="count-b">{this.countB}</div>
+            <div class="registered-count">{this.registeredCount}</div>
+        </div>
+    }
+}
+
+const DELAY_MS = 300
+const delaySource = new RenderBasic<number>(0)
+const lateCalls = new RenderBasic<number>(0)
+
+class DelaySubscriber extends Component<EmptyAttrs> {
+    fastCount = new RenderBasic<number>(0)
+    slowCount = new RenderBasic<number>(0)
+    slowValue = new RenderBasic<number>(0)
+    override mount() {
+        delaySource.registerOnChangeListener(() => {
+            this.fastCount.value += 1
+        }, {hasVtKey: this})
+        delaySource.registerOnChangeListener(() => {
+            this.slowCount.value += 1
+            this.slowValue.value = delaySource.value
+        }, {hasVtKey: this, eventDispatchDelay: DELAY_MS})
+    }
+    override render() {
+        return <div id="delay-subscriber">
+            <div class="fast-count">{this.fastCount}</div>
+            <div class="slow-count">{this.slowCount}</div>
+            <div class="slow-value">{this.slowValue}</div>
+        </div>
+    }
+}
+
+class LateSubscriber extends Component<EmptyAttrs> {
+    override mount() {
+        delaySource.registerOnChangeListener(() => {
+            lateCalls.value += 1
+        }, {hasVtKey: this, eventDispatchDelay: DELAY_MS})
+    }
+    override render() {
+        return <div>late subscriber</div>
+    }
+}
+
 class EventBusTest extends Component<EmptyAttrs> {
     listenersCount = new RenderBasic<number>(0)
 
@@ -77,6 +158,8 @@ class EventBusTest extends Component<EmptyAttrs> {
         // the Subscriber must sit inside a plain wrapper div (no vtKey of its own) rather than being passed directly.
         let subscriberAWrapper = <div id="subscriber-a-wrapper"><Subscriber label="a"/></div>
         const placeholderWrapper = <div id="subscriber-a-wrapper"/>
+        let lateSubscriberWrapper = <div id="late-subscriber-wrapper"><LateSubscriber/></div>
+        const lateSubscriberPlaceholder = <div id="late-subscriber-wrapper"/>
         const unmountSubscriberA = () => {
             this.replaceChild(subscriberAWrapper, placeholderWrapper)
             subscriberAWrapper = placeholderWrapper
@@ -97,6 +180,20 @@ class EventBusTest extends Component<EmptyAttrs> {
                 this.updateListenersCount()
             }}>remove subscriber c listener</button>
             <div id="listeners-count">{this.listenersCount}</div>
+            <MultiListener/>
+            <DelaySubscriber/>
+            {lateSubscriberWrapper}
+            <button id="delay-trigger" type="button" onClick={() => {
+                delaySource.value += 1
+                delaySource.value += 1
+                delaySource.value += 1
+            }}>trigger</button>
+            <button id="delay-trigger-and-unmount" type="button" onClick={() => {
+                delaySource.value += 1
+                this.replaceChild(lateSubscriberWrapper, lateSubscriberPlaceholder)
+                lateSubscriberWrapper = lateSubscriberPlaceholder
+            }}>trigger and unmount</button>
+            <div id="late-calls">{lateCalls}</div>
         </div>
     }
 }

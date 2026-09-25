@@ -1622,7 +1622,7 @@ export function replaceElementWithRoot(rootComponent: AnchorElement, element: HT
 /**
  * Parameters used on RenderObjectArray construction
  * 
- * @wrapperElementTag the HTML tag to use for the wrapper element (defaults to a \<div/> tag)
+ * @wrapperElementTag the HTML tag to use for the wrapper element (defaults to a \<div style="display:contents;"/> tag, a named tag is created unstyled)
  * @wrapperAttrs attributes to set on the wrapper element
  * @renderFunction the renderFunction to pass to the underlying RenderObject instances on each data point
  * @handleUpdate advanced functionality used to more efficiently rerender instance elements
@@ -1648,14 +1648,15 @@ export class RenderObjectArray<DataType> extends RenderObject<RenderObject<DataT
      * 
      * Options parameters used on RenderObjectArray construction:
      * 
-     * @wrapperElementTag the HTML tag to use for the wrapper element (defaults to a \<div/> tag)
+     * @wrapperElementTag the HTML tag to use for the wrapper element (defaults to a \<div/> tag styled display:contents; a named tag is created unstyled)
      * @wrapperAttrs attributes to set on the wrapper element
      * @renderFunction the renderFunction to pass to the underlying RenderObject instances on each data point
      * @handleUpdate advanced functionality used to more efficiently rerender instance elements
      */
     constructor(options: RenderObjectArrayOptions<DataType>) {
         super([], (data: RenderObject<DataType>[]) => {
-            const mainElement: HTMLElement = createElement(options.wrapperElementTag || divTag, displayContents) as HTMLElement
+            const tag = options.wrapperElementTag
+            const mainElement: HTMLElement = createElement(tag || divTag, (tag === undefined) ? displayContents : null) as HTMLElement
             setAttrsOnElement(mainElement, options.wrapperAttrs)
             data.forEach(d => {
                 mainElement.appendChild(renderableElementToElement(d))

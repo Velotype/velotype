@@ -507,6 +507,43 @@ describe('basic component rendering', () => {
         assertEquals(await innerTextOf("#subscriber-b .received-count"), "3")
         // c is still mounted but its listener was removed, so its count must not have advanced
         assertEquals(await innerTextOf("#subscriber-c .received-count"), "2")
+
+        // A Component can register several listeners on one key
+        assertEquals(await innerTextOf("#multi-listener .registered-count"), "2")
+        await (await page.waitForSelector("#multi-emit")).click()
+        assertEquals(await innerTextOf("#multi-listener .count-a"), "1")
+        assertEquals(await innerTextOf("#multi-listener .count-b"), "1")
+
+        // A listener removed by an earlier listener during the same emit does not run
+        await (await page.waitForSelector("#multi-arm-a-removes-b")).click()
+        await (await page.waitForSelector("#multi-emit")).click()
+        assertEquals(await innerTextOf("#multi-listener .count-a"), "2")
+        assertEquals(await innerTextOf("#multi-listener .count-b"), "1")
+        assertEquals(await innerTextOf("#multi-listener .registered-count"), "1")
+
+        // removeEventListeners() with a listener removes only that listener
+        await (await page.waitForSelector("#multi-remove-a")).click()
+        assertEquals(await innerTextOf("#multi-listener .registered-count"), "0")
+        await (await page.waitForSelector("#multi-emit")).click()
+        assertEquals(await innerTextOf("#multi-listener .count-a"), "2")
+
+        // eventDispatchDelay applies per listener: the undelayed listener gets every change,
+        // the delayed one gets one event per window and reads the latest value
+        const waitPastDelay = () => new Promise(resolve => setTimeout(resolve, 500))
+        await (await page.waitForSelector("#delay-trigger")).click()
+        assertEquals(await innerTextOf("#delay-subscriber .fast-count"), "3")
+        assertEquals(await innerTextOf("#delay-subscriber .slow-count"), "0")
+        await waitPastDelay()
+        assertEquals(await innerTextOf("#delay-subscriber .slow-count"), "1")
+        assertEquals(await innerTextOf("#delay-subscriber .slow-value"), "3")
+        assertEquals(await innerTextOf("#late-calls"), "1")
+
+        // A delayed listener does not run if its Component unmounts during the delay
+        await (await page.waitForSelector("#delay-trigger-and-unmount")).click()
+        await waitPastDelay()
+        assertEquals(await innerTextOf("#delay-subscriber .slow-count"), "2")
+        assertEquals(await innerTextOf("#delay-subscriber .slow-value"), "4")
+        assertEquals(await innerTextOf("#late-calls"), "1")
     })
 
     itWrap("set of devtools-hook tests", "devtools-hook", "#devtools-hook-tests", async (_pageLoadSelection: ElementHandle) => {

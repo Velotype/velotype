@@ -1611,9 +1611,10 @@ export function getComponent<T>(componentElement: RenderableElements[] | AnchorE
 /**
  * Replaces an element that is on the document with a rootComponent
  * 
- * Returns `rootComponent`
+ * Returns `rootComponent` if successful (and returns `null` if `element` is `null`)
  */
-export function replaceElementWithRoot(rootComponent: AnchorElement, element: HTMLElement): AnchorElement {
+export function replaceElementWithRoot(rootComponent: AnchorElement, element: HTMLElement | null): AnchorElement | null {
+    if (element === null) { return null }
     element.replaceWith(rootComponent)
     mountComponentElement(rootComponent)
     return rootComponent

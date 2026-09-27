@@ -5,6 +5,8 @@ setStylesheet(".stylesheet-test-class { color: rgb(255, 0, 0); }", "misc-test-st
 
 class MiscTest extends Component<EmptyAttrs> {
     numberValue = new RenderBasic<number>(5)
+    boolValue = new RenderBasic<boolean>(true)
+    mixedValue = new RenderBasic<number | string>(0)
     stringResult = new RenderBasic<string>("")
     onceClickCount = new RenderBasic<number>(0)
     customEventCount = new RenderBasic<number>(0)
@@ -21,6 +23,14 @@ class MiscTest extends Component<EmptyAttrs> {
                 this.stringResult.value = this.numberValue.getString()
             }}>get string</button>
             <div id="string-result">{this.stringResult}</div>
+            <div id="bool-value">{this.boolValue}</div>
+            <button id="set-bool-string-btn" type="button" onClick={() => {
+                this.boolValue.setString("false")
+            }}>set bool string</button>
+            <div id="mixed-value">{this.mixedValue}</div>
+            <button id="set-mixed-btn" type="button" onClick={() => {
+                this.mixedValue.value = ""
+            }}>set mixed</button>
             <hr/>
             <button id="once-button" type="button" onClick={{handler: () => {this.onceClickCount.value += 1}, options: {once: true}}}>once button {this.onceClickCount}</button>
             <hr/>

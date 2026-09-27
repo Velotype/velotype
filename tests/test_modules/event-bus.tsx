@@ -137,6 +137,22 @@ class LateSubscriber extends Component<EmptyAttrs> {
     }
 }
 
+const ownedCalls = new RenderBasic<number>(0)
+let ownedRenderObject: RenderBasic<number> | null = null
+
+class OwnedListenerHost extends Component<EmptyAttrs> {
+    owned = new RenderBasic<number>(0).registerOnChangeListener(() => {
+        ownedCalls.value += 1
+    })
+    constructor(attrs: Readonly<EmptyAttrs>, children: RenderableElements[]) {
+        super(attrs, children)
+        ownedRenderObject = this.owned
+    }
+    override render() {
+        return <div>{this.owned}</div>
+    }
+}
+
 class EventBusTest extends Component<EmptyAttrs> {
     listenersCount = new RenderBasic<number>(0)
 
@@ -158,6 +174,12 @@ class EventBusTest extends Component<EmptyAttrs> {
         // the Subscriber must sit inside a plain wrapper div (no vtKey of its own) rather than being passed directly.
         let subscriberAWrapper = <div id="subscriber-a-wrapper"><Subscriber label="a"/></div>
         const placeholderWrapper = <div id="subscriber-a-wrapper"/>
+        let ownedHostWrapper = <div id="owned-host-wrapper"><OwnedListenerHost/></div>
+        const ownedHostPlaceholder = <div id="owned-host-wrapper"/>
+        const ownedKeyRegistered = new RenderBasic<string>("")
+        const updateOwnedKeyRegistered = () => {
+            ownedKeyRegistered.value = String(__vtAppMetadata.listenersF.has(`vt-ro-${ownedRenderObject!.vtKey}`))
+        }
         let lateSubscriberWrapper = <div id="late-subscriber-wrapper"><LateSubscriber/></div>
         const lateSubscriberPlaceholder = <div id="late-subscriber-wrapper"/>
         const unmountSubscriberA = () => {
@@ -194,6 +216,18 @@ class EventBusTest extends Component<EmptyAttrs> {
                 lateSubscriberWrapper = lateSubscriberPlaceholder
             }}>trigger and unmount</button>
             <div id="late-calls">{lateCalls}</div>
+            {ownedHostWrapper}
+            <button id="owned-set" type="button" onClick={() => {
+                ownedRenderObject!.value += 1
+                updateOwnedKeyRegistered()
+            }}>owned set</button>
+            <button id="owned-unmount" type="button" onClick={() => {
+                this.replaceChild(ownedHostWrapper, ownedHostPlaceholder)
+                ownedHostWrapper = ownedHostPlaceholder
+                updateOwnedKeyRegistered()
+            }}>owned unmount</button>
+            <div id="owned-calls">{ownedCalls}</div>
+            <div id="owned-key-registered">{ownedKeyRegistered}</div>
         </div>
     }
 }

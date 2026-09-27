@@ -56,7 +56,8 @@ export function passthroughAttrsToElement<T extends HTMLElement>(element: T, att
         setAttributeHelper(element, "id", attrs.id)
     }
     if (attrs.class) {
-        setAttributeHelper(element, "class", getAttributeHelper(element, "class") + " " + attrs.class)
+        const elementClass = getAttributeHelper(element, "class")
+        setAttributeHelper(element, "class", elementClass ? elementClass + " " + attrs.class : attrs.class)
     }
     if (attrs.style) {
         setAttrsOnElement(element, {style: attrs.style})
@@ -403,6 +404,7 @@ function releaseVtKey(vtKey: string): void {
  */
 function releaseVtKeyObject(hasVtKey: HasVtKey): void {
     domReferences.delete(hasVtKey.vtKey)
+    removeComponentListeners(hasVtKey)
 }
 // ----------------------------------------------------------------------
 // ----------------------------------------------------------------------
@@ -583,9 +585,9 @@ export interface Mountable {
  */
 export class UpdateHandlerLink {
     /** Reference to the rendered object */
-    result: RenderableElements
+    declare result: RenderableElements
     /** Stashed references to make selected updates more performant */
-    updateRefs: any
+    declare updateRefs: any
     /** Create a new UpdateHandlerLink */
     constructor(result: RenderableElements, updateRefs: any) {
         this.result = result
@@ -630,7 +632,6 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
     readonly #elements = new Map<string, RenderObjectElementsType<DataType>>()
     /** This RenderObject's vtKey */
     readonly vtKey: string = registerNewVtKey(this)
-    #hasEventListeners = false
     readonly #onMounts: Array<()=>void> = []
     readonly #onUnmounts: Array<()=>void> = []
     #mounted: boolean = false
@@ -660,6 +661,9 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
     /**
      * Register an EventListener to receive an onChange event when the value of this RenderObject changes.
      * 
+     * A RenderObject in a public field of a Component is released, with the listeners it owns, when that
+     * Component unmounts. To share a RenderObject, pass it in attrs or keep it in a #private field.
+     * 
      * @param listener the EventListener to register
      * @param options optional set of options
      * @returns this
@@ -672,28 +676,21 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
         /** delay (in ms) before this listener receives onChange, at most one per eventDispatchDelay (default: 0) */
         eventDispatchDelay?: number
     }): RenderObject<DataType> {
-        this.#hasEventListeners = true
         const owner: HasVtKey = (options && options.hasVtKey) || this
         const listeningKey: string = this.#eventListeningKey()
         const delay: number = (options && options.eventDispatchDelay) || 0
-        let listenerToRegister: VelotypeEventListener
-        if (delay > 0) {
-            let pending: boolean = false
-            listenerToRegister = (event) => {
-                if (!pending) {
-                    pending = true
-                    setTimeout(() => {
-                        pending = false
-                        // Skip if removed or unmounted during the delay
-                        if (isListenerRegistered(listeningKey, owner.vtKey, listenerToRegister)) {
-                            listener(event)
-                        }
-                    }, delay)
-                }
+        let timer: number = 0
+        const listenerToRegister: VelotypeEventListener = delay > 0 ? (event) => {
+            if (!timer) {
+                timer = setTimeout(() => {
+                    timer = 0
+                    // Skip if removed or unmounted during the delay
+                    if (isListenerRegistered(listeningKey, owner.vtKey, listenerToRegister)) {
+                        listener(event)
+                    }
+                }, delay)
             }
-        } else {
-            listenerToRegister = listener
-        }
+        } : listener
         registerEventListener(owner, listeningKey, listenerToRegister)
         if (options && options.triggerOnRegistration) {
             vtSetImmediate(() => {this.#emitOnChangeEvent()})
@@ -766,7 +763,7 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
      * Will trigger rerenderElements if (this.value != newData)
      */
     set(newData: DataType): void {
-        if (this.#data != newData) {
+        if (this.#data !== newData) {
             this.rerenderElements(newData)
         }
     }
@@ -798,7 +795,7 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
         // Set data
         this.#data = newData
         // Trigger EventListeners (if set)
-        if (this.#hasEventListeners) {
+        if (listenersF.has(this.#eventListeningKey())) {
             this.#emitOnChangeEvent()
         }
     }
@@ -864,7 +861,7 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
      * Removes all instance elements that this RenderObject has generated
      */
     removeAll(): void {
-        this.#elements.entries().forEach(([key, element]) => {
+        this.#elements.forEach((element, key) => {
             removeElement(element.e)
             releaseVtKey(key)
         })
@@ -887,6 +884,9 @@ export class RenderBasic<DataType extends BasicTypes> extends RenderObject<DataT
     /**
      * Register an EventListener to receive an onChange event when the value of
      * this RenderBasic changes.
+     * 
+     * A RenderBasic in a public field of a Component is released, with the listeners it owns, when that
+     * Component unmounts. To share a RenderBasic, pass it in attrs or keep it in a #private field.
      * 
      * @param listener the EventListener to register
      * @param options optional set of options
@@ -932,7 +932,7 @@ export class RenderBasic<DataType extends BasicTypes> extends RenderObject<DataT
         } else if (typeof data === 'number') {
             this.set((Number(newDataString)) as DataType)
         } else if (typeof data === 'boolean') {
-            this.set((Boolean(newDataString)) as DataType)
+            this.set((newDataString === "true") as DataType)
         }
     }
 }
@@ -950,10 +950,10 @@ export type FunctionComponent<AttrsType> = (attrs: Readonly<AttrsType>, children
 export abstract class Component<AttrsType> implements HasVtKey, Mountable {
 
     /** The attributes this Component was created with */
-    attrs: AttrsType
+    declare attrs: AttrsType
 
     /** The children this Component was created with */
-    children: RenderableElements[]
+    declare children: RenderableElements[]
 
     /** constructor gets attrs and children */
     constructor(attrs: Readonly<AttrsType>, children: RenderableElements[]){
@@ -1061,7 +1061,7 @@ export abstract class Component<AttrsType> implements HasVtKey, Mountable {
  * Note: this will detect if the element hasFocus and will set newElement.focus() if needed
  */
 function replaceElement(element: AnchorElement, newElement: AnchorElement): AnchorElement {
-    const isFocused = document.hasFocus() ? document.activeElement == element : false
+    const isFocused = document.hasFocus() && document.activeElement == element
     if (instanceOfHTMLElement(element)) {
         unmountComponentElementChildren(element)
     }
@@ -1135,17 +1135,17 @@ class InternalComponent {
     /**
      * Stashes the Velotype Component defined by the user
      */
-    c: Component<any>
+    declare c: Component<any>
 
     /**
      * Stashes a reference to the root AnchorElement of this Component.
      */
-    e: AnchorElement
+    declare e: AnchorElement
 
     /**
      * Stashes the Component vtKey for this Component
      */
-    readonly k: string
+    declare readonly k: string
 
     /**
      * If this Component is currently mounted
@@ -1155,12 +1155,12 @@ class InternalComponent {
     /**
      * Stashes the attrs for this Component
      */
-    a: Readonly<any>
+    declare a: Readonly<any>
 
     /**
      * Stashes the children for this Component
      */
-    h: RenderableElements[]
+    declare h: RenderableElements[]
 
     /**
      * Trigger unmount for this Component's children, then re-render
@@ -1444,12 +1444,12 @@ export function setAttrsOnElement(element: AnchorElement, attrs?: Readonly<any> 
         } else if (name == 'style' && value instanceof Object) {
             // Special handling for style object
             for (const key of Object.keys(value)) {
-                const keyValue: string | number = (value[key] === null || value[key] === undefined) ? '' : value[key]
+                const keyValue: string | number = value[key] == null ? '' : value[key]
                 const stringKeyValue = (typeof keyValue == 'number') ? keyValue.toString() : keyValue
                 const style = element.style
                 if (stringKeyValue.endsWith('!important')) {
                     // Important requires setProperty() call
-                    style.setProperty(lowerCamelToHypenCase(key), stringKeyValue.substring(0, stringKeyValue.length - 10), 'important')
+                    style.setProperty(lowerCamelToHypenCase(key), stringKeyValue.slice(0, -10), 'important')
                 } else {
                     if (hasSetterInPrototypeChain(style,key)) {
                         // Note: any is used here because "keyof typeof element.style" clashes with "length" and "parentRule" being readonly
@@ -1702,7 +1702,7 @@ export class RenderObjectArray<DataType> extends RenderObject<RenderObject<DataT
      * (note: uses Array.findIndex() so runs in linear time)
      */
     delete(data: DataType): void {
-        const found = this.value.findIndex(x=>x.value==data)
+        const found = this.value.findIndex(x=>x.value===data)
         if (found >= 0) {
             this.deleteAt(found, 1)
         }
@@ -1745,7 +1745,7 @@ export class RenderObjectArray<DataType> extends RenderObject<RenderObject<DataT
     static #releaseOne(d: RenderObject<any>): void {
         d.unmount()
         d.removeAll()
-        releaseVtKey(d.vtKey)
+        releaseVtKeyObject(d)
     }
     /**
      * Gets the length of the Array
@@ -1858,15 +1858,15 @@ export class VelotypeEvent {
     /**
      * Link to the emitting object
      */
-    emittingObject: Component<any> | RenderObject<any>
+    declare emittingObject: Component<any> | RenderObject<any>
     /**
      * A simple string representing the type of event
      */
-    event: string
+    declare event: string
     /**
      * Generic metadata about the event
      */
-    data: any | undefined
+    declare data: any | undefined
     /**
      * Create a new VelotypeEvent
      */
@@ -1897,18 +1897,16 @@ export function registerEventListener(hasVtKey: HasVtKey, listeningKey: string, 
  * Optimization function to register listeners to double maps
  */
 function registerListenerMap(map: Map<string,Map<string,VelotypeEventListener[]>>, firstKey: string, secondKey: string, listener: VelotypeEventListener): void {
-    const keyListeners = map.get(firstKey)
-    if (keyListeners !== undefined) {
-        const listeners = keyListeners.get(secondKey)
-        if (listeners !== undefined) {
-            listeners.push(listener)
-        } else {
-            keyListeners.set(secondKey, [listener])
-        }
+    let keyListeners = map.get(firstKey)
+    if (!keyListeners) {
+        keyListeners = new Map<string,VelotypeEventListener[]>()
+        map.set(firstKey, keyListeners)
+    }
+    const listeners = keyListeners.get(secondKey)
+    if (listeners) {
+        listeners.push(listener)
     } else {
-        const newKeyListeners = new Map<string,VelotypeEventListener[]>()
-        newKeyListeners.set(secondKey, [listener])
-        map.set(firstKey, newKeyListeners)
+        keyListeners.set(secondKey, [listener])
     }
 }
 /**
@@ -1927,7 +1925,7 @@ export function removeEventListeners(hasVtKey: HasVtKey, listeningKey: string, l
 function removeComponentListeners(hasVtKey: HasVtKey): void {
     const keyListeners = listenersR.get(hasVtKey.vtKey)
     if (keyListeners) {
-        Array.from(keyListeners.keys()).forEach(listeningKey => {
+        keyListeners.forEach((_listeners, listeningKey) => {
             removeListenerMap(listenersF, listeningKey, hasVtKey.vtKey)
             removeListenerMap(listenersR, hasVtKey.vtKey, listeningKey)
         })
@@ -1938,9 +1936,9 @@ function removeComponentListeners(hasVtKey: HasVtKey): void {
  */
 function removeListenerMap(map: Map<string,Map<string,VelotypeEventListener[]>>, firstKey: string, secondKey: string, listener?: VelotypeEventListener): void {
     const keyListeners = map.get(firstKey)
-    if (keyListeners !== undefined) {
+    if (keyListeners) {
         const listeners = keyListeners.get(secondKey)
-        if (listeners !== undefined) {
+        if (listeners) {
             if (listener) {
                 const index = listeners.indexOf(listener)
                 if (index < 0) {
@@ -1968,15 +1966,15 @@ function removeListenerMap(map: Map<string,Map<string,VelotypeEventListener[]>>,
 function isListenerRegistered(listeningKey: string, vtKey: string, listener: VelotypeEventListener): boolean {
     const keyListeners = listenersF.get(listeningKey)
     const listeners = keyListeners && keyListeners.get(vtKey)
-    return listeners ? listeners.includes(listener) : false
+    return !!listeners && listeners.includes(listener)
 }
 /**
  * Emit a VelotypeEvent on a listeningKey
  */
 export function emitEvent(listeningKey: string, event: VelotypeEvent, hasVtKey?: HasVtKey): void {
     const keyListeners = listenersF.get(listeningKey)
-    if (keyListeners !== undefined) {
-        keyListeners.entries().forEach(([vtKey, listeners]) => {
+    if (keyListeners) {
+        keyListeners.forEach((listeners, vtKey) => {
             // The Component that emitted the Event does not also receive it
             if (!hasVtKey || hasVtKey.vtKey != vtKey) {
                 // Skip listeners removed by an earlier listener
@@ -2009,18 +2007,21 @@ export function emitEvent(listeningKey: string, event: VelotypeEvent, hasVtKey?:
  */
 export function setStylesheet(sheetText: string, sheetKey: string, resetSheet: boolean = false): void {
     const sheet = styleSectionMounted.get(sheetKey)
+    const sheets = document.adoptedStyleSheets
     if (sheet) {
         // If we should not reset the style, then return
         if (!resetSheet) {
             return
         }
         // Remove old stylesheet, then continue
-        const index = document.adoptedStyleSheets.findIndex(sh=>sh==sheet.sheet)
-        document.adoptedStyleSheets.splice(index, 1)
+        const index = sheets.indexOf(sheet.sheet)
+        if (index >= 0) {
+            sheets.splice(index, 1)
+        }
     }
     const styleSheet = new CSSStyleSheet()
     styleSheet.replace(sheetText)
-    document.adoptedStyleSheets.push(styleSheet)
+    sheets.push(styleSheet)
     styleSectionMounted.set(sheetKey, {
         sheet: styleSheet,
         text: sheetText,

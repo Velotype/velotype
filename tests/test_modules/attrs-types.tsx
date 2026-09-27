@@ -88,6 +88,12 @@ class ComponentPassthroughHelperWithStyleOverride extends Component<IdAttr & Sty
     }
 }
 
+class ComponentPassthroughHelperWithoutClass extends Component<IdAttr & StylePassthroughAttrs> {
+    override render(attrs: IdAttr & StylePassthroughAttrs, _children: RenderableElements[]) {
+        return passthroughAttrsToElement(<div>1</div>, attrs)
+    }
+}
+
 class AttrsTypesTest extends Component<EmptyAttrs> {
     override render() {
         return <div>
@@ -112,6 +118,7 @@ class AttrsTypesTest extends Component<EmptyAttrs> {
             <div><ComponentPassthroughHelperWithStylePassthrough id="component-passthrough-helper-with-style-pass-through" class="custom-class" style={{marginTop: "5px"}}/></div>
             <div><ComponentPassthroughHelperWithStyleOverride id="component-passthrough-helper-with-style-override-base" class="custom-class"/></div>
             <div><ComponentPassthroughHelperWithStyleOverride id="component-passthrough-helper-with-style-override-custom" class="custom-class" style={{marginTop: "5px"}}/></div>
+            <div><ComponentPassthroughHelperWithoutClass id="component-passthrough-helper-without-class" class="custom-class"/></div>
         </div>
     }
 }

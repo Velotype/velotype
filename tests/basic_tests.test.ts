@@ -169,7 +169,8 @@ describe('basic component rendering', () => {
             {selector: "#component-passthrough-helper-with-id", text: "1"},
             {selector: "#component-passthrough-helper-with-style-pass-through", attributes: [{name: "class", value: "component-class custom-class"},{name: "style", value: "margin-top: 5px;"}]},
             {selector: "#component-passthrough-helper-with-style-override-base", attributes: [{name: "class", value: "component-class custom-class"},{name: "style", value: "margin-top: 3px;"}]},
-            {selector: "#component-passthrough-helper-with-style-override-custom", attributes: [{name: "class", value: "component-class custom-class"},{name: "style", value: "margin-top: 5px;"}]}
+            {selector: "#component-passthrough-helper-with-style-override-custom", attributes: [{name: "class", value: "component-class custom-class"},{name: "style", value: "margin-top: 5px;"}]},
+            {selector: "#component-passthrough-helper-without-class", attributes: [{name: "class", value: "custom-class"}]}
         ]
         await testVariations(setOfVariations)
     })
@@ -459,6 +460,14 @@ describe('basic component rendering', () => {
         await (await page.waitForSelector("#get-string-btn")).click()
         assertEquals(await innerTextOf("#string-result"), "42")
 
+        // RenderBasic<boolean>.setString() round-trips "false"
+        await (await page.waitForSelector("#set-bool-string-btn")).click()
+        assertEquals(await innerTextOf("#bool-value"), "false")
+
+        // set() compares strictly, so "" replaces 0
+        await (await page.waitForSelector("#set-mixed-btn")).click()
+        assertEquals(await innerTextOf("#mixed-value"), "")
+
         // The {handler, options} event attr form honors AddEventListenerOptions (here: {once: true})
         const onceButton = await page.waitForSelector("#once-button")
         await onceButton.click()
@@ -544,6 +553,15 @@ describe('basic component rendering', () => {
         assertEquals(await innerTextOf("#delay-subscriber .slow-count"), "2")
         assertEquals(await innerTextOf("#delay-subscriber .slow-value"), "4")
         assertEquals(await innerTextOf("#late-calls"), "1")
+
+        // Listeners owned by a RenderObject field are removed when its Component unmounts
+        await (await page.waitForSelector("#owned-set")).click()
+        assertEquals(await innerTextOf("#owned-calls"), "1")
+        assertEquals(await innerTextOf("#owned-key-registered"), "true")
+        await (await page.waitForSelector("#owned-unmount")).click()
+        assertEquals(await innerTextOf("#owned-key-registered"), "false")
+        await (await page.waitForSelector("#owned-set")).click()
+        assertEquals(await innerTextOf("#owned-calls"), "1")
     })
 
     itWrap("set of devtools-hook tests", "devtools-hook", "#devtools-hook-tests", async (_pageLoadSelection: ElementHandle) => {

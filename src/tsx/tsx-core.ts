@@ -1244,8 +1244,8 @@ class InternalComponent {
  */
 function traverseElementChildren(element: Element, callback: (component: InternalComponent | MultiRenderable | WithComponent, key: string) => void): void {
     if (instanceOfHTMLElement(element) || instanceOfSVGSVGElement(element) || instanceOfMathMLElement(element)) {
-        for (let i = 0; i < element.children.length; i++) {
-            const child = element.children[i]
+        let child = element.firstElementChild
+        while (child) {
             traverseElementChildren(child, callback)
             const key = getAttributeHelper(child,domKeyName)
             if (key) {
@@ -1254,6 +1254,7 @@ function traverseElementChildren(element: Element, callback: (component: Interna
                     callback(component, key)
                 }
             }
+            child = child.nextElementSibling
         }
     }
 }

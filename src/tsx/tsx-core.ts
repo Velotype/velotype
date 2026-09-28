@@ -897,7 +897,12 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
 export class RenderBasic<DataType extends BasicTypes> extends RenderObject<DataType> implements MultiRenderable, HasVtKey, Mountable {
     /** Create a new BasicComponent */
     constructor(initialData: DataType) {
-        super(initialData, (data: DataType) => createElement('span', displayContents, data.toString()) as HTMLSpanElement)
+        super(initialData, (data: DataType) => {
+            const text = document.createTextNode(data.toString())
+            return new UpdateHandlerLink(createElement('span', displayContents, text), text)
+        }, (_element: AnchorElement, text: Text, _oldData: DataType, newData: DataType) => {
+            text.data = newData.toString()
+        })
     }
     /**
      * Get the value of this BasicComponent as a String
@@ -1405,9 +1410,11 @@ export function setAttrsOnElement(element: AnchorElement, attrs?: Readonly<any> 
     }
     // A range input clamps value to min/max when set, so its value is set last
     const valueLast = attrs.type == 'range'
-    for (const [name, value] of Object.entries(attrs)) {
+    const names = Object.keys(attrs)
+    for (let i = 0; i < names.length; i++) {
+        const name = names[i]
         if (!valueLast || name != 'value') {
-            setAttrOnElement(element, name, value)
+            setAttrOnElement(element, name, attrs[name])
         }
     }
     if (valueLast) {

@@ -141,8 +141,8 @@ export {
  */
 export function jsx(tag: any, attrs: any, key?: string | undefined): RenderableElements[] | AnchorElement | BasicTypes {
     // Pull children out of attrs
-    const children = attrs.children
-    delete attrs.children
+    const {children, ...otherAttrs} = attrs
+    attrs = otherAttrs
 
     // Reattach key into attrs if defined
     if (key !== undefined) {

@@ -476,6 +476,10 @@ describe('basic component rendering', () => {
         await (await page.waitForSelector("#handler-only-button")).click()
         assertEquals(await innerTextOf("#handler-only-button span"), "1")
 
+        // A RenderBasic value change updates its <span> in place
+        await (await page.waitForSelector("#basic-in-place-btn")).click()
+        assertEquals(await innerTextOf("#basic-in-place-result"), "true")
+
         // A Component whose render() returns 0 renders "0"
         assertEquals(await innerTextOf("#renders-zero"), "0")
 

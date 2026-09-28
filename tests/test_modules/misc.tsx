@@ -21,6 +21,7 @@ class MiscTest extends Component<EmptyAttrs> {
     stringResult = new RenderBasic<string>("")
     onceClickCount = new RenderBasic<number>(0)
     handlerOnlyCount = new RenderBasic<number>(0)
+    basicInPlaceResult = new RenderBasic<string>("")
     customEventCount = new RenderBasic<number>(0)
 
     override render() {
@@ -48,6 +49,13 @@ class MiscTest extends Component<EmptyAttrs> {
             <div id="renders-zero"><RendersZero/></div>
             <div id="false-child">{false}{showFalse && <span>shown</span>}</div>
             <div id="true-child">{true}</div>
+            <div id="basic-in-place">{this.numberValue}</div>
+            <button id="basic-in-place-btn" type="button" onClick={() => {
+                const span = document.querySelector("#basic-in-place span")
+                this.numberValue.value += 1
+                this.basicInPlaceResult.value = String(span === document.querySelector("#basic-in-place span"))
+            }}>basic in place</button>
+            <div id="basic-in-place-result">{this.basicInPlaceResult}</div>
             <input id="range-value" type="range" value="150" max="200"/>
             <button id="handler-only-button" type="button" onClick={{handler: () => {this.handlerOnlyCount.value += 1}}}>handler only {this.handlerOnlyCount}</button>
             <div id="stylesheet-test-class" class="stylesheet-test-class">styled text</div>

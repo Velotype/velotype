@@ -153,8 +153,8 @@ export type Source = {
  */
 export function jsxDEV(tag: any, attrs: any, key: string | undefined, _isStaticChildren: boolean, source: Source, _parent: any): RenderableElements[] | AnchorElement | BasicTypes {
     // Pull children out of attrs
-    const children = attrs.children
-    delete attrs.children
+    const {children, ...otherAttrs} = attrs
+    attrs = otherAttrs
 
     // Reattach key into attrs if defined
     if (key !== undefined) {

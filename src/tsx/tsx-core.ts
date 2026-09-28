@@ -576,7 +576,7 @@ function wrapElementIfNeeded(element: RenderableElements | null | undefined): An
     }
     // If a Component returns a Component or RenderObject as a result of render
     // then it needs to be wrapped in another HTMLElement for rendering to work properly
-    if (instanceOfBasicTypes(element) || instanceOfComponent(element) || instanceOfRenderObject(element) || instanceOfText(element) || Array.isArray(element) || element.hasAttribute(domKeyName)) {
+    if (instanceOfBasicTypes(element) || instanceOfComponent(element) || instanceOfRenderObject(element) || instanceOfText(element) || Array.isArray(element) || (element as any)[domKeyProperty] !== undefined) {
         const wrapper = displayContentsDiv.cloneNode() as HTMLDivElement
         appendChild(wrapper, element)
         return wrapper
@@ -686,8 +686,9 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
     readonly vtKey: string = registerNewVtKey(this)
     /** VeloType - Render Object - {key} */
     readonly #listeningKey: string = `vt-ro-${this.vtKey}`
-    readonly #onMounts: Array<()=>void> = []
-    readonly #onUnmounts: Array<()=>void> = []
+    // Created on first registerOnMount(), most RenderObjects never register any
+    #onMounts?: Array<()=>void>
+    #onUnmounts?: Array<()=>void>
     #mounted: boolean = false
     #emitOnChangeEvent() {
         emitEvent(this.#listeningKey, new VelotypeEvent(this,'onChange'))
@@ -756,9 +757,15 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
      */
     registerOnMount(onMount?: () => void | undefined, onUnmount?: () => void): this {
         if (onMount) {
+            if (!this.#onMounts) {
+                this.#onMounts = []
+            }
             this.#onMounts.push(onMount)
         }
         if (onUnmount) {
+            if (!this.#onUnmounts) {
+                this.#onUnmounts = []
+            }
             this.#onUnmounts.push(onUnmount)
         }
         return this
@@ -775,7 +782,9 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
             return
         }
         this.#mounted = true
-        this.#onMounts.forEach(onMount => {onMount()})
+        if (this.#onMounts) {
+            this.#onMounts.forEach(onMount => {onMount()})
+        }
     }
     /**
      * Velotype internal function
@@ -789,7 +798,9 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
             return
         }
         this.#mounted = false
-        this.#onUnmounts.forEach(onUnmount => {onUnmount()})
+        if (this.#onUnmounts) {
+            this.#onUnmounts.forEach(onUnmount => {onUnmount()})
+        }
     }
     /** Get the current value of this RenderObject */
     get value(): DataType {
@@ -855,7 +866,7 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
     uK(key: string): boolean {
         const element = this.#elements.get(key)
         if (element) {
-            const componentKey = getAttributeHelper(element.e, domKeyName)
+            const componentKey: string | undefined = (element.e as any)[domKeyProperty]
             if (key == componentKey) {
                 this.#elements.delete(componentKey)
                 releaseVtKey(componentKey||'')
@@ -1503,7 +1514,7 @@ function setAttrOnElement(element: AnchorElement, name: string, value: any): voi
     } else if (typeof value == 'function') {
         // Avoid setting the attribute if the value is a function
     } else if (name == "vtwith") {
-        const key = getAttributeHelper(element, domKeyName)
+        const key: string | undefined = (element as any)[domKeyProperty]
         if (key) {
             consoleError("vtwith attr set on element that already has a key", key)
         } else {
@@ -1639,7 +1650,7 @@ export function getComponent<T>(componentElement: RenderableElements[] | AnchorE
         consoleError("Invalid element", componentElement)
         return null as T
     }
-    const component = getDOMreference(getAttributeHelper(componentElement,domKeyName)||"")
+    const component = getDOMreference((componentElement as any)[domKeyProperty]||"")
     if (component && instanceOfInternalComponent(component)) {
         return component.c as T
     } else {

@@ -121,8 +121,31 @@ function instanceOfBasicTypes(something: any): something is BasicTypes {
     return false
 }
 
+/** Cache of hasSetterInPrototypeChain() results per prototype */
+const prototypeSetterCache = new Map<object, Map<string, boolean>>()
+
 /** Determines if an `object` has a setter for `fieldName` in its prototype chain */
 function hasSetterInPrototypeChain(object: any, fieldName: string): boolean {
+    // Own properties are not cached
+    if (Object.prototype.hasOwnProperty.call(object, fieldName)) {
+        return hasSetterFrom(object, fieldName)
+    }
+    const prototype = Object.getPrototypeOf(object)
+    let setters = prototypeSetterCache.get(prototype)
+    if (!setters) {
+        setters = new Map<string, boolean>()
+        prototypeSetterCache.set(prototype, setters)
+    }
+    let hasSetter = setters.get(fieldName)
+    if (hasSetter === undefined) {
+        hasSetter = hasSetterFrom(prototype, fieldName)
+        setters.set(fieldName, hasSetter)
+    }
+    return hasSetter
+}
+
+/** Walks the prototype chain from `object` looking for a setter for `fieldName` */
+function hasSetterFrom(object: any, fieldName: string): boolean {
     let currentObject = object
     while (currentObject) {
         const descriptor = Object.getOwnPropertyDescriptor(currentObject, fieldName)
@@ -197,7 +220,7 @@ function lowerCamelToHypenCase(text: string): string {
 const domReferences: Map<string, InternalComponent | MultiRenderable | WithComponent> = new Map<string, InternalComponent | MultiRenderable | WithComponent>()
 
 /** The next key to use for DOM bindings */
-let domNextKey: bigint = 1n
+let domNextKey: number = 1
 
 /** Attribute name to use for DOM -> Component bindings */
 let domKeyName = "vk"
@@ -388,10 +411,9 @@ function getDOMreference(key: string): InternalComponent | MultiRenderable | Wit
  * Acquire a new componentKey to reference component and if (element) then set the domKey attribute
  */
 function registerNewVtKey(component: InternalComponent | MultiRenderable | WithComponent, element?: AnchorElement): string {
-    const componentKey = String(domNextKey)
-    domNextKey++
+    const componentKey = String(domNextKey++)
     if (element) {
-        setAttributeHelper(element, domKeyName, componentKey)
+        element.setAttribute(domKeyName, componentKey)
     }
     domReferences.set(componentKey, component)
     return componentKey
@@ -775,21 +797,17 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
      */
     rerenderElements(newData: DataType): void {
         // Rerender Elements
-        Array.from(this.#elements.entries()).forEach(([key, element]) => {
+        this.#elements.forEach((element, key) => {
             if (element.hU && element.uR) {
                 element.hU(element.e, element.uR, this.#data, newData)
             } else {
                 const render = element.rF(newData, this)
                 const isLink = render instanceof UpdateHandlerLink
                 const newElement = wrapElementIfNeeded(childToElement(isLink ? render.result : render))
-                setAttributeHelper(newElement, domKeyName, key)
+                newElement.setAttribute(domKeyName, key)
                 replaceElement(element.e, newElement)
-                this.#elements.set(key, {
-                    e: newElement,
-                    rF: element.rF,
-                    hU: element.hU,
-                    uR: isLink ? render.updateRefs : undefined
-                })
+                element.e = newElement
+                element.uR = isLink ? render.updateRefs : undefined
             }
         })
         // Set data
@@ -1030,7 +1048,7 @@ export abstract class Component<AttrsType> implements HasVtKey, Mountable {
  * @param includeRoot also unmount element and mount newElement, not only their children
  */
 function replaceElement(element: AnchorElement, newElement: AnchorElement, includeRoot?: boolean): AnchorElement {
-    const isFocused = document.hasFocus() && document.activeElement == element
+    const isFocused = document.activeElement == element && document.hasFocus()
     if (includeRoot) {
         unmountComponentElement(element)
     } else if (instanceOfHTMLElement(element)) {
@@ -1335,7 +1353,7 @@ function unmountComponentElement(element: AnchorElement): void {
  */
 function componentRender(classComponent: InternalComponent, attrs: Readonly<any>, children: RenderableElements[]): AnchorElement {
     const render: AnchorElement = wrapElementIfNeeded(classComponent.c.render(attrs, children))
-    setAttributeHelper(render, domKeyName, classComponent.k)
+    render.setAttribute(domKeyName, classComponent.k)
     return render
 }
 
@@ -1433,7 +1451,8 @@ function setAttrOnElement(element: AnchorElement, name: string, value: any): voi
                 // Important requires setProperty() call
                 style.setProperty(lowerCamelToHypenCase(key), stringKeyValue.slice(0, -10), 'important')
             } else {
-                if (hasSetterInPrototypeChain(style,key)) {
+                // Uncached: style's own-property check is slow and its setters are found within two steps
+                if (hasSetterFrom(style,key)) {
                     // Note: any is used here because "keyof typeof element.style" clashes with "length" and "parentRule" being readonly
                     style[key as any] = stringKeyValue
                 } else {
@@ -1451,7 +1470,7 @@ function setAttrOnElement(element: AnchorElement, name: string, value: any): voi
             consoleError("vtwith attr set on element that already has a key", key)
         } else {
             const withComponent = new WithComponent(value)
-            setAttributeHelper(element, domKeyName, withComponent.k)
+            element.setAttribute(domKeyName, withComponent.k)
         }
     } else if (value || value == "") {
         // Regular attribute
@@ -1510,16 +1529,17 @@ export function createElement(tag: FunctionComponent<any>, attrs: Readonly<any> 
  * ```
  */
 export function createElement(tag: Type<Component<any>> | FunctionComponent<any> | string, attrs: Readonly<any> | null, ...children: RenderableElements[]): RenderableElements[] | AnchorElement | BasicTypes {
-    const notNullAttrs = attrs || {}
     if (typeof tag === 'string') {
         // Base HTML Element
         const element = document.createElement(tag)
         // Template elements' children get attached to the DocumentFragment content
         appendChild(tag == 'template' ? (element as HTMLTemplateElement).content : element, children)
         // Set after children so that attributes like <select value> apply to the appended children
-        setAttrsOnElement(element, notNullAttrs)
+        setAttrsOnElement(element, attrs)
         return element
-    } else if (instanceOfComponent(tag.prototype)) {
+    }
+    const notNullAttrs = attrs || {}
+    if (instanceOfComponent(tag.prototype)) {
         // Create and register Component
         const internalComponent = new InternalComponent(
             new (tag as Type<Component<any>>)(notNullAttrs, children),
@@ -1906,7 +1926,7 @@ function removeComponentListeners(hasVtKey: HasVtKey): void {
 function removeListenerMap(map: Map<string,Map<string,VelotypeEventListener[]>>, firstKey: string, secondKey: string, listener?: VelotypeEventListener): void {
     const keyListeners = map.get(firstKey)
     if (keyListeners) {
-        const listeners = keyListeners.get(secondKey)
+        let listeners = keyListeners.get(secondKey)
         if (listeners) {
             if (listener) {
                 const index = listeners.indexOf(listener)
@@ -1914,7 +1934,10 @@ function removeListenerMap(map: Map<string,Map<string,VelotypeEventListener[]>>,
                     consoleLog("WARN removing event listener, listener is not present", firstKey, secondKey)
                     return
                 }
+                // Replaced, not spliced, so that an in-progress emitEvent() keeps its array
+                listeners = listeners.slice()
                 listeners.splice(index, 1)
+                keyListeners.set(secondKey, listeners)
             }
             if (!listener || listeners.length <= 0) {
                 keyListeners.delete(secondKey)
@@ -1946,9 +1969,10 @@ export function emitEvent(listeningKey: string, event: VelotypeEvent, hasVtKey?:
         keyListeners.forEach((listeners, vtKey) => {
             // The Component that emitted the Event does not also receive it
             if (!hasVtKey || hasVtKey.vtKey != vtKey) {
-                // Skip listeners removed by an earlier listener
-                listeners.slice().forEach(listener => {
-                    if (isListenerRegistered(listeningKey, vtKey, listener)) {
+                listeners.forEach(listener => {
+                    // Skip listeners removed by an earlier listener
+                    const current = keyListeners.get(vtKey)
+                    if (current === listeners || (current && current.includes(listener))) {
                         listener(event)
                     }
                 })

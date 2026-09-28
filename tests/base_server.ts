@@ -53,7 +53,7 @@ export async function startAppServer(server_port: number): Promise<Server<Server
     const extraHeadHtml: Record<string, string> = {
         'devtools-hook': `<script>
 window.__VELOTYPE_DEVTOOLS_HOOK__ = {
-    instances: new Map([[1, {domKeyName: "vk"}]]),
+    instances: new Map([[1, {}]]),
     register(metadata) { this.instances.set(2, metadata); return 2 },
     unregister(instanceId) { this.instances.delete(instanceId) }
 }

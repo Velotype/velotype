@@ -140,9 +140,11 @@ export {
  * ```
  */
 export function jsx(tag: any, attrs: any, key?: string | undefined): RenderableElements[] | AnchorElement | BasicTypes {
-    // Pull children out of attrs
-    const {children, ...otherAttrs} = attrs
-    attrs = otherAttrs
+    // Pull children out of attrs, copying attrs only when it has children
+    let children
+    if ('children' in attrs) {
+        ({children, ...attrs} = attrs)
+    }
 
     // Reattach key into attrs if defined
     if (key !== undefined) {

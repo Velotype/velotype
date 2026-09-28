@@ -71,11 +71,18 @@ const consoleLog = console.log
 /** Regular console.error() - used for JS minification */
 const consoleError = console.error
 
-/** Style display:contents; */
-const displayContents = {style: 'display:contents;'}
-
-/** Style display:none; */
-const displayNone = {style: 'display:none;'}
+/** An element with a style attribute, used as a template for cloneNode() */
+function styledTemplate(tag: string, style: string): HTMLElement {
+    const element = document.createElement(tag)
+    element.style.cssText = style
+    return element
+}
+/** Template for RenderBasic's <span style="display:contents;"> */
+const displayContentsSpan = styledTemplate('span', 'display:contents;')
+/** Template for wrapper <div style="display:contents;"> elements */
+const displayContentsDiv = styledTemplate('div', 'display:contents;')
+/** Template for hidden <div style="display:none;"> elements */
+const displayNoneDiv = styledTemplate('div', 'display:none;')
 
 /** String "div" */
 const divTag = 'div'
@@ -509,7 +516,7 @@ function appendChild(parent: HTMLElement | DocumentFragment, child: RenderableEl
  * @returns `<div style="display:none;"/>`
  */
 function hiddenElement(): HTMLElement {
-    return createElement(divTag,displayNone) as HTMLDivElement
+    return displayNoneDiv.cloneNode() as HTMLDivElement
 }
 
 /**
@@ -551,7 +558,9 @@ function wrapElementIfNeeded(element: RenderableElements | null | undefined): An
     // If a Component returns a Component or RenderObject as a result of render
     // then it needs to be wrapped in another HTMLElement for rendering to work properly
     if (instanceOfBasicTypes(element) || instanceOfComponent(element) || instanceOfRenderObject(element) || instanceOfText(element) || Array.isArray(element) || element.hasAttribute(domKeyName)) {
-        return createElement(divTag,displayContents,element) as HTMLDivElement
+        const wrapper = displayContentsDiv.cloneNode() as HTMLDivElement
+        appendChild(wrapper, element)
+        return wrapper
     }
     return element
 }
@@ -899,7 +908,9 @@ export class RenderBasic<DataType extends BasicTypes> extends RenderObject<DataT
     constructor(initialData: DataType) {
         super(initialData, (data: DataType) => {
             const text = document.createTextNode(data.toString())
-            return new UpdateHandlerLink(createElement('span', displayContents, text), text)
+            const span = displayContentsSpan.cloneNode() as HTMLSpanElement
+            span.appendChild(text)
+            return new UpdateHandlerLink(span, text)
         }, (_element: AnchorElement, text: Text, _oldData: DataType, newData: DataType) => {
             text.data = newData.toString()
         })
@@ -1667,7 +1678,7 @@ export class RenderObjectArray<DataType> extends RenderObject<RenderObject<DataT
     constructor(options: RenderObjectArrayOptions<DataType>) {
         super([], (data: RenderObject<DataType>[]) => {
             const tag = options.wrapperElementTag
-            const mainElement: HTMLElement = createElement(tag || divTag, (tag === undefined) ? displayContents : null) as HTMLElement
+            const mainElement: HTMLElement = (tag === undefined) ? displayContentsDiv.cloneNode() as HTMLDivElement : createElement(tag, null) as HTMLElement
             setAttrsOnElement(mainElement, options.wrapperAttrs)
             data.forEach(d => {
                 mainElement.appendChild(renderableElementToElement(d))

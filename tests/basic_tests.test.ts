@@ -594,9 +594,6 @@ describe('basic component rendering', () => {
     itWrap("set of devtools-hook tests", "devtools-hook", "#devtools-hook-tests", async (_pageLoadSelection: ElementHandle) => {
         const innerTextOf = async (selector: string) => (await (await page.waitForSelector(selector)).innerText()).replace(/\s+/g, " ").trim()
 
-        // The test page pre-seeds a fake hook instance claiming domKeyName "vk" before this bundle loads,
-        // so installDevtoolsHook() must detect the collision and pick a non-colliding name instead
-        assertEquals(await innerTextOf("#dom-key-name"), "vk-2")
         // Both the fake pre-seeded instance and this page's real Velotype instance must be registered
         assertEquals(await innerTextOf("#hook-instances-size"), "2")
 

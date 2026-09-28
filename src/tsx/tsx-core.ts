@@ -239,15 +239,11 @@ const domReferences: Map<string, InternalComponent | MultiRenderable | WithCompo
 /** The next key to use for DOM bindings */
 let domNextKey: number = 1
 
-/** Attribute name to use for DOM -> Component bindings */
-let domKeyName = "vk"
-
-/** The domKey is also stored on the element under this property, which is faster to read than the attribute */
+/** Property that stores an element's domKey (DOM -> Component binding) */
 const domKeyProperty = Symbol()
 
-/** Set the domKey attribute and property on element */
+/** Set the domKey property on element */
 function setDomKeyOn(element: Element, key: string): void {
-    element.setAttribute(domKeyName, key)
     ;(element as any)[domKeyProperty] = key
 }
 
@@ -273,8 +269,8 @@ const styleSectionMounted: Map<string, StyleSection> = new Map<string, StyleSect
  * Public, type-safe shape of `__vtAppMetadata`
  */
 export type VtAppMetadata = {
-    /** Key name for DOM bindings, only changeable prior to mounting any Components using `setDomKey()` */
-    readonly domKeyName: string
+    /** Property on each bound element that holds its DOM key */
+    readonly domKeyProperty: symbol
     /** Map of DOM keys to Velotype Component references */
     readonly domReferences: ReadonlyMap<string, unknown>
     /** Forward map listeningKey -> vtKey -> listeners */
@@ -293,8 +289,8 @@ export type VtAppMetadata = {
  */
 export const __vtAppMetadata: VtAppMetadata = {
     // ------- For Velotype Core -------
-    /** Key name for DOM bindings, only changeable prior to mounting any Components using `setDomKey()` */
-    get domKeyName(): string { return domKeyName },
+    /** Property on each bound element that holds its DOM key */
+    domKeyProperty: domKeyProperty,
     /** Map of DOM keys to Velotype Component references */
     domReferences: domReferences,
 
@@ -308,20 +304,6 @@ export const __vtAppMetadata: VtAppMetadata = {
     /** Map of style keys to ensure each style key is only mounted once */
     styleSectionMounted: styleSectionMounted,
 
-}
-
-/**
- * Change the attribute name used for DOM -> Component bindings
- *
- * ADVANCED - Usage of this should be rare and must be done prior to construction of any Components
- */
-export function setDomKey(newKeyName: string) {
-    // Only accept new names when domReferences is empty
-    if (domReferences.size == 0) {
-        domKeyName = newKeyName
-    } else {
-        consoleError("Name not accepted", newKeyName, domReferences.size)
-    }
 }
 
 // ----------------------------------------------------------------------
@@ -373,13 +355,6 @@ export function getDevtoolsHook(): VelotypeDevtoolsHook | undefined {
  *
  * Velotype only ever runs in a browser (see `@velotype/velossr` for server-side rendering), so
  * `globalThis` is always the `window` here - no environment check is needed.
- *
- * By default every Velotype instance uses the same `domKeyName` ("vk") and restarts its vtKey
- * counter at 1, so two independently-bundled instances on one page would otherwise tag elements
- * with colliding DOM attributes (both writing `vk="1"`, `vk="2"`, ...). Since this runs before any
- * Component has mounted (`domReferences` is still empty), it's safe to call `setDomKey()` here to
- * pick a unique `domKeyName` for this instance whenever another registered instance is already
- * using the one this instance started with.
  */
 function installDevtoolsHook(): void {
     const g = globalThis as GlobalThisWithDevtoolsHook
@@ -397,16 +372,7 @@ function installDevtoolsHook(): void {
             }
         }
     }
-    const hook = g.__VELOTYPE_DEVTOOLS_HOOK__
-    const namesInUse = new Set(Array.from(hook.instances.values(), metadata => metadata.domKeyName))
-    if (namesInUse.has(domKeyName)) {
-        let suffix = 2
-        while (namesInUse.has(`${domKeyName}-${suffix}`)) {
-            suffix++
-        }
-        setDomKey(`${domKeyName}-${suffix}`)
-    }
-    hook.register(__vtAppMetadata)
+    g.__VELOTYPE_DEVTOOLS_HOOK__.register(__vtAppMetadata)
 }
 installDevtoolsHook()
 

@@ -128,6 +128,9 @@ function instanceOfBasicTypes(something: any): something is BasicTypes {
     return false
 }
 
+/** Cache of style setter checks by key, all style objects share one prototype */
+const styleSetterCache = new Map<string, boolean>()
+
 /** Cache of hasSetterInPrototypeChain() results per prototype */
 const prototypeSetterCache = new Map<object, Map<string, boolean>>()
 /** The most recent prototype looked up in prototypeSetterCache, and its cache */
@@ -1468,8 +1471,12 @@ function setAttrOnElement(element: AnchorElement, name: string, value: any): voi
                 // Important requires setProperty() call
                 style.setProperty(lowerCamelToHypenCase(key), stringKeyValue.slice(0, -10), 'important')
             } else {
-                // Uncached: style's own-property check is slow and its setters are found within two steps
-                if (hasSetterFrom(style,key)) {
+                let hasSetter = styleSetterCache.get(key)
+                if (hasSetter === undefined) {
+                    hasSetter = hasSetterFrom(style, key)
+                    styleSetterCache.set(key, hasSetter)
+                }
+                if (hasSetter) {
                     // Note: any is used here because "keyof typeof element.style" clashes with "length" and "parentRule" being readonly
                     style[key as any] = stringKeyValue
                 } else {

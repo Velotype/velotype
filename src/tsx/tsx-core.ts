@@ -447,6 +447,8 @@ function childToElement(child: RenderableElements): AnchorElement | undefined {
 function childToNode(child: RenderableElements): AnchorElement | Text | undefined {
     if (instanceOfBasicTypes(child) && child !== false) {
         return document.createTextNode(child.toString())
+    } else if (instanceOfHTMLElement(child)) {
+        return child
     } else if (instanceOfText(child)) {
         return child
     } else if (child) {

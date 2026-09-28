@@ -130,6 +130,9 @@ function instanceOfBasicTypes(something: any): something is BasicTypes {
 
 /** Cache of hasSetterInPrototypeChain() results per prototype */
 const prototypeSetterCache = new Map<object, Map<string, boolean>>()
+/** The most recent prototype looked up in prototypeSetterCache, and its cache */
+let lastSetterPrototype: object | undefined
+let lastSetters: Map<string, boolean> | undefined
 
 /** Determines if an `object` has a setter for `fieldName` in its prototype chain */
 function hasSetterInPrototypeChain(object: any, fieldName: string): boolean {
@@ -138,11 +141,14 @@ function hasSetterInPrototypeChain(object: any, fieldName: string): boolean {
         return hasSetterFrom(object, fieldName)
     }
     const prototype = Object.getPrototypeOf(object)
-    let setters = prototypeSetterCache.get(prototype)
+    // Consecutive calls are usually for the same element, so the last prototype's cache is kept at hand
+    let setters = prototype === lastSetterPrototype ? lastSetters : prototypeSetterCache.get(prototype)
     if (!setters) {
         setters = new Map<string, boolean>()
         prototypeSetterCache.set(prototype, setters)
     }
+    lastSetterPrototype = prototype
+    lastSetters = setters
     let hasSetter = setters.get(fieldName)
     if (hasSetter === undefined) {
         hasSetter = hasSetterFrom(prototype, fieldName)
@@ -207,12 +213,16 @@ function getAttributeHelper(element: Element, qualifiedName: string): string | n
 
 /** Call Object.defineProperty() to lock a property so that it cannot be modified later - used for JS minification */
 function defineLockedProperty(object: any, key: string, value: any): void {
-    Object.defineProperty(object, key, {
-        value: value,
-        writable: false,
-        configurable: false,
-        enumerable: false
-    })
+    lockedDescriptor.value = value
+    Object.defineProperty(object, key, lockedDescriptor)
+    lockedDescriptor.value = undefined
+}
+/** Reused by defineLockedProperty() instead of allocating a descriptor per call */
+const lockedDescriptor: PropertyDescriptor = {
+    value: undefined,
+    writable: false,
+    configurable: false,
+    enumerable: false
 }
 
 /** Matches uppercase letters, shared so the RegExp is not re-created per call */
@@ -231,6 +241,15 @@ let domNextKey: number = 1
 
 /** Attribute name to use for DOM -> Component bindings */
 let domKeyName = "vk"
+
+/** The domKey is also stored on the element under this property, which is faster to read than the attribute */
+const domKeyProperty = Symbol()
+
+/** Set the domKey attribute and property on element */
+function setDomKeyOn(element: Element, key: string): void {
+    element.setAttribute(domKeyName, key)
+    ;(element as any)[domKeyProperty] = key
+}
 
 /** Velotype Event bus - Forward map listeningKey -> vtKey -> listeners */
 const listenersF: Map<string, Map<string, VelotypeEventListener[]>> = new Map<string,Map<string,VelotypeEventListener[]>>()
@@ -420,7 +439,7 @@ function getDOMreference(key: string): InternalComponent | MultiRenderable | Wit
 function registerNewVtKey(component: InternalComponent | MultiRenderable | WithComponent, element?: AnchorElement): string {
     const componentKey = String(domNextKey++)
     if (element) {
-        element.setAttribute(domKeyName, componentKey)
+        setDomKeyOn(element, componentKey)
     }
     domReferences.set(componentKey, component)
     return componentKey
@@ -813,7 +832,7 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
                 const render = element.rF(newData, this)
                 const isLink = render instanceof UpdateHandlerLink
                 const newElement = wrapElementIfNeeded(childToElement(isLink ? render.result : render))
-                newElement.setAttribute(domKeyName, key)
+                setDomKeyOn(newElement, key)
                 replaceElement(element.e, newElement)
                 element.e = newElement
                 element.uR = isLink ? render.updateRefs : undefined
@@ -1247,7 +1266,7 @@ function traverseElementChildren(element: Element, callback: (component: Interna
         let child = element.firstElementChild
         while (child) {
             traverseElementChildren(child, callback)
-            const key = getAttributeHelper(child,domKeyName)
+            const key: string | undefined = (child as any)[domKeyProperty]
             if (key) {
                 const component = getDOMreference(key)
                 if (component) {
@@ -1295,7 +1314,7 @@ function mountComponentElement(element: AnchorElement): void {
     if (instanceOfHTMLElement(element)) {
         mountComponentElementChildren(element)
     }
-    const key = getAttributeHelper(element,domKeyName)
+    const key: string | undefined = (element as any)[domKeyProperty]
     if (key) {
         const component = getDOMreference(key)
         if (component) {
@@ -1357,7 +1376,7 @@ function unmountComponentElement(element: AnchorElement): void {
     if (instanceOfHTMLElement(element)) {
         unmountComponentElementChildren(element)
     }
-    const key = getAttributeHelper(element,domKeyName)
+    const key: string | undefined = (element as any)[domKeyProperty]
     if (key) {
         const component = getDOMreference(key)
         if (component) {
@@ -1370,7 +1389,7 @@ function unmountComponentElement(element: AnchorElement): void {
  */
 function componentRender(classComponent: InternalComponent, attrs: Readonly<any>, children: RenderableElements[]): AnchorElement {
     const render: AnchorElement = wrapElementIfNeeded(classComponent.c.render(attrs, children))
-    render.setAttribute(domKeyName, classComponent.k)
+    setDomKeyOn(render, classComponent.k)
     return render
 }
 
@@ -1489,7 +1508,7 @@ function setAttrOnElement(element: AnchorElement, name: string, value: any): voi
             consoleError("vtwith attr set on element that already has a key", key)
         } else {
             const withComponent = new WithComponent(value)
-            element.setAttribute(domKeyName, withComponent.k)
+            setDomKeyOn(element, withComponent.k)
         }
     } else if (value || value == "") {
         // Regular attribute

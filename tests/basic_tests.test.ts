@@ -134,7 +134,7 @@ describe('basic component rendering', () => {
             {selector: "#component-return-string div", attributes: [{name: "style", value: "display: contents;"}], html: "test string"},
             {selector: "#component-return-bigint div", attributes: [{name: "style", value: "display: contents;"}], html: "1"},
 
-            {selector: "#component-return-array div", attributes: [{name: "style", value: "display: contents;"}], html: "<div>1</div><span>2</span>3456false"},
+            {selector: "#component-return-array div", attributes: [{name: "style", value: "display: contents;"}], html: "<div>1</div><span>2</span>3456"},
 
             {selector: "#component-return-component div", attributes: [{name: "style", value: "display: contents;"}], text: "test string"},
             {selector: "#component-return-render-object div", attributes: [{name: "style", value: "display: contents;"}], text: "2"},
@@ -459,6 +459,29 @@ describe('basic component rendering', () => {
 
         await (await page.waitForSelector("#get-string-btn")).click()
         assertEquals(await innerTextOf("#string-result"), "42")
+
+        // replaceChild() mounts the inserted Component and unmounts the replaced one
+        await (await page.waitForSelector("#probe-in")).click()
+        assertEquals(await innerTextOf("#probe-result"), "1/0")
+        await (await page.waitForSelector("#probe-out")).click()
+        assertEquals(await innerTextOf("#probe-result"), "1/1")
+
+        // Attributes are set after children, so <select value> selects an appended <option>
+        assertEquals(await page.evaluate(() => (document.getElementById("select-value") as HTMLSelectElement).value), "b")
+
+        // A range input's value is set after max, so it is not clamped to the default max of 100
+        assertEquals(await page.evaluate(() => (document.getElementById("range-value") as HTMLInputElement).value), "150")
+
+        // An event attr of {handler} without options calls the handler
+        await (await page.waitForSelector("#handler-only-button")).click()
+        assertEquals(await innerTextOf("#handler-only-button span"), "1")
+
+        // A Component whose render() returns 0 renders "0"
+        assertEquals(await innerTextOf("#renders-zero"), "0")
+
+        // A false child renders nothing, a true child renders as text
+        assertEquals(await page.evaluate(() => document.getElementById("false-child")!.childNodes.length), 0)
+        assertEquals(await innerTextOf("#true-child"), "true")
 
         // RenderBasic<boolean>.setString() round-trips "false"
         await (await page.waitForSelector("#set-bool-string-btn")).click()

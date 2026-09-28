@@ -185,9 +185,12 @@ function defineLockedProperty(object: any, key: string, value: any): void {
     })
 }
 
+/** Matches uppercase letters, shared so the RegExp is not re-created per call */
+const upperCaseRegExp = /[A-Z]/g
+
 /** Convert from lowerCamelCase to hypen-case */
 function lowerCamelToHypenCase(text: string): string {
-    return text.replace(/[A-Z]/g, function(char) {return '-'+char.toLowerCase()})
+    return text.replace(upperCaseRegExp, char => '-' + char.toLowerCase())
 }
 
 /** Map of DOM keys to Velotype Component references */
@@ -418,7 +421,7 @@ function releaseVtKeyObject(hasVtKey: HasVtKey): void {
  * Convert any valid ChildType into an AnchorElement (or undefined)
  */
 function childToElement(child: RenderableElements): AnchorElement | undefined {
-    if (instanceOfBasicTypes(child) || instanceOfText(child)) {
+    if ((instanceOfBasicTypes(child) && child !== false) || instanceOfText(child)) {
         return createElement("span",null,child)
     } else if (child) {
         return renderableElementToElement(child)
@@ -428,7 +431,7 @@ function childToElement(child: RenderableElements): AnchorElement | undefined {
  * Convert any valid ChildType into a Node (or undefined)
  */
 function childToNode(child: RenderableElements): AnchorElement | Text | undefined {
-    if (instanceOfBasicTypes(child)) {
+    if (instanceOfBasicTypes(child) && child !== false) {
         return document.createTextNode(child.toString())
     } else if (instanceOfText(child)) {
         return child
@@ -443,7 +446,7 @@ function renderableElementToElement(child: RenderableElements): AnchorElement {
     if (instanceOfHTMLElement(child) || instanceOfSVGSVGElement(child) || instanceOfMathMLElement(child)) {
         return child
     } else if (instanceOfRenderObject(child)) {
-        return child.renderDefault()
+        return child.rD()
     } else if (instanceOfComponent(child)) {
         // Get InternalComponent reference from Component's vtKey
         const component = getDOMreference(child.vtKey)
@@ -520,8 +523,7 @@ function wrapElementIfNeeded(element: Component<any> | RenderObject<any>): HTMLE
 function wrapElementIfNeeded(element: HTMLElement | Component<any> | RenderObject<any> | null | undefined): HTMLElement
 function wrapElementIfNeeded(element: RenderableElements | null | undefined): AnchorElement
 function wrapElementIfNeeded(element: RenderableElements | null | undefined): AnchorElement {
-    // Check for falsey
-    if (!element) {
+    if (element == null || element === false || element === "") {
         return hiddenElement()
     }
     // If a Component returns a Component or RenderObject as a result of render
@@ -547,7 +549,7 @@ export interface MultiRenderable {
      * 
      * Used to unmount an instance element of a MultiRenderable object
      */
-    unmountKey: (key: string) => void
+    uK: (key: string) => void
     /**
      * Velotype internal function
      * 
@@ -563,7 +565,7 @@ export interface MultiRenderable {
      * 
      * Used to generate new instance elements of a MultiRenderable object
      */
-    renderDefault: () => void
+    rD: () => void
 }
 /**
  * Represents a Component that is mountable / unmountable
@@ -632,15 +634,13 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
     readonly #elements = new Map<string, RenderObjectElementsType<DataType>>()
     /** This RenderObject's vtKey */
     readonly vtKey: string = registerNewVtKey(this)
+    /** VeloType - Render Object - {key} */
+    readonly #listeningKey: string = `vt-ro-${this.vtKey}`
     readonly #onMounts: Array<()=>void> = []
     readonly #onUnmounts: Array<()=>void> = []
     #mounted: boolean = false
-    #eventListeningKey() {
-        // VeloType - Render Object - {key}
-        return `vt-ro-${this.vtKey}`
-    }
     #emitOnChangeEvent() {
-        emitEvent(this.#eventListeningKey(), new VelotypeEvent(this,'onChange'))
+        emitEvent(this.#listeningKey, new VelotypeEvent(this,'onChange'))
     }
     /**
      * Create a new RenderObject
@@ -675,9 +675,9 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
         triggerOnRegistration?: boolean,
         /** delay (in ms) before this listener receives onChange, at most one per eventDispatchDelay (default: 0) */
         eventDispatchDelay?: number
-    }): RenderObject<DataType> {
+    }): this {
         const owner: HasVtKey = (options && options.hasVtKey) || this
-        const listeningKey: string = this.#eventListeningKey()
+        const listeningKey: string = this.#listeningKey
         const delay: number = (options && options.eventDispatchDelay) || 0
         let timer: number = 0
         const listenerToRegister: VelotypeEventListener = delay > 0 ? (event) => {
@@ -704,7 +704,7 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
      * @param onUnmount callback to be triggered when the Component that this RenderObject is created within gets unmounted
      * @returns this
      */
-    registerOnMount(onMount?: () => void | undefined, onUnmount?: () => void): RenderObject<DataType> {
+    registerOnMount(onMount?: () => void | undefined, onUnmount?: () => void): this {
         if (onMount) {
             this.#onMounts.push(onMount)
         }
@@ -795,7 +795,7 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
         // Set data
         this.#data = newData
         // Trigger EventListeners (if set)
-        if (listenersF.has(this.#eventListeningKey())) {
+        if (listenersF.has(this.#listeningKey)) {
             this.#emitOnChangeEvent()
         }
     }
@@ -806,7 +806,7 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
      * 
      * Used to unmount an instance element of this RenderObject
      */
-    unmountKey(key: string): boolean {
+    uK(key: string): boolean {
         const element = this.#elements.get(key)
         if (element) {
             const componentKey = getAttributeHelper(element.e, domKeyName)
@@ -824,12 +824,14 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
         }
     }
     /**
+     * Velotype internal function
+     * 
+     * DO NOT CALL directly (will be called by Velotype core)
+     * 
      * Used to generate new instance elements of this RenderObject using the
      * default renderFunction and default handleUpdate function
-     * 
-     * No need to call directly (will be called by Velotype core when needed)
      */
-    renderDefault(): AnchorElement {
+    rD(): AnchorElement {
         return this.render(this.#defaultRenderFunction, this.#defaultHandleUpdate)
     }
     /**
@@ -855,7 +857,7 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
      * THIS IS ADVANCED FUNCTIONALITY - use carefully
      */
     getElements(): AnchorElement[] {
-        return Array.from(this.#elements.values()).map((e)=>e.e)
+        return Array.from(this.#elements.values(), e => e.e)
     }
     /**
      * Removes all instance elements that this RenderObject has generated
@@ -877,42 +879,7 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
 export class RenderBasic<DataType extends BasicTypes> extends RenderObject<DataType> implements MultiRenderable, HasVtKey, Mountable {
     /** Create a new BasicComponent */
     constructor(initialData: DataType) {
-        super(initialData, function(data: DataType) {
-            return createElement('span', displayContents, data.toString()) as HTMLSpanElement
-        })
-    }
-    /**
-     * Register an EventListener to receive an onChange event when the value of
-     * this RenderBasic changes.
-     * 
-     * A RenderBasic in a public field of a Component is released, with the listeners it owns, when that
-     * Component unmounts. To share a RenderBasic, pass it in attrs or keep it in a #private field.
-     * 
-     * @param listener the EventListener to register
-     * @param options optional set of options
-     * @returns this
-     */
-    override registerOnChangeListener(listener: VelotypeEventListener, options?: {
-        /** If specified then this eventListener will get removed on the lifecycle of the HasVtKey */
-        hasVtKey?: HasVtKey,
-        /** should an onChange event be emitted immediately upon registration? (default: false) */
-        triggerOnRegistration?: boolean,
-        /** delay (in ms) before this listener receives onChange, at most one per eventDispatchDelay (default: 0) */
-        eventDispatchDelay?: number
-    }): RenderBasic<DataType> {
-        super.registerOnChangeListener(listener, options)
-        return this
-    }
-    /**
-     * Register a mount/unmount pair to be triggered when the Component that this RenderBasic is created within gets mounted / unmounted
-     * 
-     * @param onMount callback to be triggered when the Component that this RenderBasic is created within gets mounted
-     * @param onUnmount callback to be triggered when the Component that this RenderBasic is created within gets unmounted
-     * @returns this
-     */
-    override registerOnMount(onMount: () => void, onUnmount: () => void): RenderBasic<DataType> {
-        super.registerOnMount(onMount, onUnmount)
-        return this
+        super(initialData, (data: DataType) => createElement('span', displayContents, data.toString()) as HTMLSpanElement)
     }
     /**
      * Get the value of this BasicComponent as a String
@@ -1059,14 +1026,20 @@ export abstract class Component<AttrsType> implements HasVtKey, Mountable {
  * Replace an element with a newElement
  * 
  * Note: this will detect if the element hasFocus and will set newElement.focus() if needed
+ * 
+ * @param includeRoot also unmount element and mount newElement, not only their children
  */
-function replaceElement(element: AnchorElement, newElement: AnchorElement): AnchorElement {
+function replaceElement(element: AnchorElement, newElement: AnchorElement, includeRoot?: boolean): AnchorElement {
     const isFocused = document.hasFocus() && document.activeElement == element
-    if (instanceOfHTMLElement(element)) {
+    if (includeRoot) {
+        unmountComponentElement(element)
+    } else if (instanceOfHTMLElement(element)) {
         unmountComponentElementChildren(element)
     }
     element.replaceWith(newElement)
-    if (instanceOfHTMLElement(newElement)) {
+    if (includeRoot) {
+        mountComponentElement(newElement)
+    } else if (instanceOfHTMLElement(newElement)) {
         mountComponentElementChildren(newElement)
     }
     if (isFocused) {
@@ -1175,7 +1148,7 @@ class InternalComponent {
      */
     q: (child: AnchorElement, newChild: RenderableElements) => AnchorElement = (child: AnchorElement, newChild: RenderableElements): AnchorElement => {
         if (this.e.contains(child)) {
-            return replaceElement(child, renderableElementToElement(newChild))
+            return replaceElement(child, renderableElementToElement(newChild), true)
         } else {
             return child
         }
@@ -1264,8 +1237,7 @@ function mountComponentElementHelper(component: InternalComponent | MultiRendera
         // Mount the main Component
         component.c.mount()
         // Iterate component fields and trigger their mounts
-        Object.entries(component.c).forEach(array => {
-            const enumberableValue = array[1]
+        Object.values(component.c).forEach(enumberableValue => {
             if (instanceOfRenderObject(enumberableValue)) {
                 enumberableValue.mount()
             }
@@ -1318,8 +1290,7 @@ function unmountComponentElementHelper(component: InternalComponent | MultiRende
             component.c.unmount()
         }
         // Iterate component fields and trigger their unmounts
-        Object.entries(component.c).forEach(array => {
-            const enumberableValue = array[1]
+        Object.values(component.c).forEach(enumberableValue => {
             if (instanceOfRenderObject(enumberableValue)) {
                 enumberableValue.unmount()
                 releaseVtKeyObject(enumberableValue)
@@ -1335,7 +1306,7 @@ function unmountComponentElementHelper(component: InternalComponent | MultiRende
         releaseVtKey(component.k)
     } else {
         // component: MultiRenderable
-        component.unmountKey(key)
+        component.uK(key)
     }
 }
 /**
@@ -1377,24 +1348,22 @@ class WithComponent {
     /**
      * Array of RenderObjects to manage
      */
-    w: RenderObject<any>[]
+    declare w: RenderObject<any>[]
 
     /**
      * Stashes the Component vtKey for this Component
      */
-    readonly k: string
+    declare readonly k: string
 
     constructor(withObjects: RenderObject<any>[]) {
         this.w = withObjects
         this.k = registerNewVtKey(this)
     }
     mount(): void {
-        this.w.forEach(function(obj) {
-            obj.mount()
-        })
+        this.w.forEach(obj => obj.mount())
     }
     unmount(): void {
-        this.w.forEach(function(obj) {
+        this.w.forEach(obj => {
             obj.unmount()
             releaseVtKeyObject(obj)
         })
@@ -1416,65 +1385,77 @@ export function setAttrsOnElement(element: AnchorElement, attrs?: Readonly<any> 
     if (!attrs) {
         return
     }
-    for (const [name, value] of Object.entries(attrs || {})) {
-        if (name.startsWith('on') && name.length > 4) {
-            // Special handling for event listener attributes
-            //
-            // Example attrs:
-            //   <div onClick={()=>{}} >
-            //   <div onClick={{handler: ()=>{}, options: {once: true}}} >
-            //
-            // The length check of 4 is to allow the name[2] test below and to guarantee that
-            // eventName will be at least one char in length. Works because all standard browser
-            // events have at least 2 chars in their name.
-
-            if (value) { // Check for <div onClick={null}>
-                let options: boolean | AddEventListenerOptions | undefined = undefined
-                let handler: (this: HTMLElement, ev: Event | UIEvent | WheelEvent) => any = value
-                if (typeof value !== 'function' && value.handler && value.options !== undefined) {
-                    handler = value.handler
-                    options = value.options
-                }
-                // Extract the event name:
-                // If the name has a dash after "on" like: <div on-custom-eventNAME={()=>{}} > then the name is extracted exactly as-is
-                // If the name does not have a dash after "on" then the name is lower cased
-                const eventName = (name[2] == '-') ? name.slice(3) : name.slice(2).toLowerCase()
-                element.addEventListener(eventName, handler, options)
-            }
-        } else if (name == 'style' && value instanceof Object) {
-            // Special handling for style object
-            for (const key of Object.keys(value)) {
-                const keyValue: string | number = value[key] == null ? '' : value[key]
-                const stringKeyValue = (typeof keyValue == 'number') ? keyValue.toString() : keyValue
-                const style = element.style
-                if (stringKeyValue.endsWith('!important')) {
-                    // Important requires setProperty() call
-                    style.setProperty(lowerCamelToHypenCase(key), stringKeyValue.slice(0, -10), 'important')
-                } else {
-                    if (hasSetterInPrototypeChain(style,key)) {
-                        // Note: any is used here because "keyof typeof element.style" clashes with "length" and "parentRule" being readonly
-                        style[key as any] = stringKeyValue
-                    } else {
-                        style.setProperty(key, stringKeyValue)
-                    }
-                }
-            }
-        } else if (typeof value == 'boolean') {
-            setBooleanAttributeHelper(element, name, value)
-        } else if (typeof value == 'function') {
-            // Avoid setting the attribute if the value is a function
-        } else if (name == "vtwith") {
-            const key = getAttributeHelper(element, domKeyName)
-            if (key) {
-                consoleError("vtwith attr set on element that already has a key", key)
-            } else {
-                const withComponent = new WithComponent(value)
-                setAttributeHelper(element, domKeyName, withComponent.k)
-            }
-        } else if (value || value == "") {
-            // Regular attribute
-            setAttributeHelper(element, name, value)
+    // A range input clamps value to min/max when set, so its value is set last
+    const valueLast = attrs.type == 'range'
+    for (const [name, value] of Object.entries(attrs)) {
+        if (!valueLast || name != 'value') {
+            setAttrOnElement(element, name, value)
         }
+    }
+    if (valueLast) {
+        setAttrOnElement(element, 'value', attrs.value)
+    }
+}
+
+/** Set a single attribute on an element, see setAttrsOnElement() */
+function setAttrOnElement(element: AnchorElement, name: string, value: any): void {
+    if (name.startsWith('on') && name.length > 4) {
+        // Special handling for event listener attributes
+        //
+        // Example attrs:
+        //   <div onClick={()=>{}} >
+        //   <div onClick={{handler: ()=>{}, options: {once: true}}} >
+        //
+        // The length check of 4 is to allow the name[2] test below and to guarantee that
+        // eventName will be at least one char in length. Works because all standard browser
+        // events have at least 2 chars in their name.
+
+        if (value) { // Check for <div onClick={null}>
+            let options: boolean | AddEventListenerOptions | undefined = undefined
+            let handler: (this: HTMLElement, ev: Event | UIEvent | WheelEvent) => any = value
+            if (typeof value !== 'function' && value.handler) {
+                handler = value.handler
+                options = value.options
+            }
+            // Extract the event name:
+            // If the name has a dash after "on" like: <div on-custom-eventNAME={()=>{}} > then the name is extracted exactly as-is
+            // If the name does not have a dash after "on" then the name is lower cased
+            const eventName = (name[2] == '-') ? name.slice(3) : name.slice(2).toLowerCase()
+            element.addEventListener(eventName, handler, options)
+        }
+    } else if (name == 'style' && value instanceof Object) {
+        // Special handling for style object
+        for (const key of Object.keys(value)) {
+            const keyValue: string | number = value[key] == null ? '' : value[key]
+            const stringKeyValue = (typeof keyValue == 'number') ? keyValue.toString() : keyValue
+            const style = element.style
+            if (stringKeyValue.endsWith('!important')) {
+                // Important requires setProperty() call
+                style.setProperty(lowerCamelToHypenCase(key), stringKeyValue.slice(0, -10), 'important')
+            } else {
+                if (hasSetterInPrototypeChain(style,key)) {
+                    // Note: any is used here because "keyof typeof element.style" clashes with "length" and "parentRule" being readonly
+                    style[key as any] = stringKeyValue
+                } else {
+                    style.setProperty(key, stringKeyValue)
+                }
+            }
+        }
+    } else if (typeof value == 'boolean') {
+        setBooleanAttributeHelper(element, name, value)
+    } else if (typeof value == 'function') {
+        // Avoid setting the attribute if the value is a function
+    } else if (name == "vtwith") {
+        const key = getAttributeHelper(element, domKeyName)
+        if (key) {
+            consoleError("vtwith attr set on element that already has a key", key)
+        } else {
+            const withComponent = new WithComponent(value)
+            setAttributeHelper(element, domKeyName, withComponent.k)
+        }
+    } else if (value || value == "") {
+        // Regular attribute
+        setAttributeHelper(element, name, value)
     }
 }
 
@@ -1533,14 +1514,10 @@ export function createElement(tag: Type<Component<any>> | FunctionComponent<any>
     if (typeof tag === 'string') {
         // Base HTML Element
         const element = document.createElement(tag)
+        // Template elements' children get attached to the DocumentFragment content
+        appendChild(tag == 'template' ? (element as HTMLTemplateElement).content : element, children)
+        // Set after children so that attributes like <select value> apply to the appended children
         setAttrsOnElement(element, notNullAttrs)
-        if (tag == 'template') {
-            // Template elements' children get attached to the DocumentFragment content
-            appendChild((element as HTMLTemplateElement).content, children)
-        } else {
-            // Append children to the element
-            appendChild(element, children)
-        }
         return element
     } else if (instanceOfComponent(tag.prototype)) {
         // Create and register Component
@@ -1693,7 +1670,7 @@ export class RenderObjectArray<DataType> extends RenderObject<RenderObject<DataT
      * Delete one or more data points from the Array
      */
     deleteAt(startIndex: number, deleteCount?: number): void {
-        const oldData = this.value.splice(startIndex, (deleteCount!==undefined&&deleteCount>0)?deleteCount:1)
+        const oldData = this.value.splice(startIndex, deleteCount! > 0 ? deleteCount! : 1)
         oldData.forEach(RenderObjectArray.#releaseOne)
     }
     /**
@@ -1718,14 +1695,6 @@ export class RenderObjectArray<DataType> extends RenderObject<RenderObject<DataT
      */
     setAt(index: number, newData: DataType): void {
         this.value[index].value = newData
-    }
-    /** Set the current value of this RenderObjectArray */
-    override get value(): RenderObject<DataType>[] {
-        return super.get()
-    }
-    /** Set the current value of this RenderObjectArray */
-    override set value(newData: RenderObject<DataType>[]) {
-        this.set(newData)
     }
     /** Set the current value of this RenderObjectArray */
     override set(newData: RenderObject<DataType>[]): void {

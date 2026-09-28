@@ -169,9 +169,6 @@ class EventBusTest extends Component<EmptyAttrs> {
         // Uses replaceChild() (not refresh()) to remove only subscriber a in place, so subscribers b/c and the
         // emitter keep their accumulated state and listener registrations undisturbed - see event-triggers.tsx
         // for the same in-place-swap idiom.
-        //
-        // replaceChild()'s cleanup only unmounts the *children* of the node passed in, not the node itself, so
-        // the Subscriber must sit inside a plain wrapper div (no vtKey of its own) rather than being passed directly.
         let subscriberAWrapper = <div id="subscriber-a-wrapper"><Subscriber label="a"/></div>
         const placeholderWrapper = <div id="subscriber-a-wrapper"/>
         let ownedHostWrapper = <div id="owned-host-wrapper"><OwnedListenerHost/></div>

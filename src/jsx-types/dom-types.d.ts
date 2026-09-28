@@ -88,7 +88,7 @@ export type EventHandlerOptions<E extends TargetedEvent> = {
      * 
      * Reference: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
      */
-    options: AddEventListenerOptions | boolean
+    options?: AddEventListenerOptions | boolean
 }
 /** An event handler */
 export type EventHandler<E extends TargetedEvent> = ((event: E) => void) | EventHandlerOptions<E>

@@ -348,6 +348,38 @@ describe('basic component rendering', () => {
         assertEquals(await tally(), "2/2")
     })
 
+    itWrap("RenderObjectArray.swap() moves rendered elements in every instance", "render-object-array", "#swap-tests", async (_pageLoadSelection: ElementHandle) => {
+        const innerTextOf = async (selector: string) => (await (await page.waitForSelector(selector)).innerText()).replace(/\s+/g, " ").trim()
+        const tally = async () => (await (await page.waitForSelector("#swap-tally")).innerText()).trim()
+        const tables = async () => await page.evaluate(`Array.from(document.querySelectorAll(".swap-table tbody"), b => Array.from(b.children, tr => tr.textContent).join(",")).join("|")`)
+        const order = async () => {
+            await (await page.waitForSelector("#swap-order-read")).click()
+            return await innerTextOf("#swap-order")
+        }
+
+        await (await page.waitForSelector("#swap-fill")).click()
+        assertEquals(await tables(), "a,b,c,d|a,b,c,d")
+        assertEquals(await tally(), "8/0")
+        // Tag each row element so that moved elements can be told apart from re-rendered ones
+        await page.evaluate(`document.querySelectorAll(".swap-table tr").forEach(tr => { tr.dataset.id = tr.textContent })`)
+
+        await (await page.waitForSelector("#swap-apart")).click()
+        assertEquals(await tables(), "c,b,a,d|c,b,a,d")
+        assertEquals(await order(), "c,b,a,d")
+
+        await (await page.waitForSelector("#swap-adjacent")).click()
+        assertEquals(await tables(), "c,b,d,a|c,b,d,a")
+        assertEquals(await order(), "c,b,d,a")
+
+        await (await page.waitForSelector("#swap-same")).click()
+        assertEquals(await tables(), "c,b,d,a|c,b,d,a")
+
+        const sameElements = await page.evaluate(`Array.from(document.querySelectorAll(".swap-table tr")).every(tr => tr.dataset.id === tr.textContent)`)
+        assertEquals(sameElements, true)
+        // Moving is not a remount
+        assertEquals(await tally(), "8/0")
+    })
+
     itWrap("a RenderObjectArray wrapper can be a real table section", "render-object-array", "#probe-table", async (_pageLoadSelection: ElementHandle) => {
         // The wrapper element is the <tbody>, so the <tr>s are its direct children with nothing
         // between them

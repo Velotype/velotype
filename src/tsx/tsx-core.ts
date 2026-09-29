@@ -1740,6 +1740,33 @@ export class RenderObjectArray<DataType> extends RenderObject<RenderObject<DataT
     setAt(index: number, newData: DataType): void {
         this.value[index].value = newData
     }
+    /**
+     * Swap the data points at indexA and indexB, moving their rendered elements
+     */
+    swap(indexA: number, indexB: number): void {
+        const value = this.value
+        const a = value[indexA]
+        const b = value[indexB]
+        if (!a || !b || a === b) {
+            return
+        }
+        value[indexA] = b
+        value[indexB] = a
+        const bElements = b.getElements()
+        a.getElements().forEach(aElement => {
+            const parent = aElement.parentNode
+            const bElement = bElements.find(e => e.parentNode === parent)
+            if (parent && bElement) {
+                const aNext = aElement.nextSibling
+                if (aNext === bElement) {
+                    parent.insertBefore(bElement, aElement)
+                } else {
+                    parent.insertBefore(aElement, bElement)
+                    parent.insertBefore(bElement, aNext)
+                }
+            }
+        })
+    }
     /** Set the current value of this RenderObjectArray */
     override set(newData: RenderObject<DataType>[]): void {
         this.#releaseAll()

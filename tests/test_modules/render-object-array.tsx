@@ -293,6 +293,59 @@ class MultiPlaceTest extends Component<EmptyAttrs> {
     }
 }
 
+
+/*
+ * swap() moves the rendered elements, keeping each item's element and Component
+ */
+
+const swapCounts = {mounts: 0, unmounts: 0}
+const swapTally = new RenderBasic<string>("0/0")
+
+class SwapProbe extends Component<{label: string}> {
+    override mount() {
+        swapCounts.mounts += 1
+        swapTally.value = `${swapCounts.mounts}/${swapCounts.unmounts}`
+    }
+    override unmount() {
+        swapCounts.unmounts += 1
+        swapTally.value = `${swapCounts.mounts}/${swapCounts.unmounts}`
+    }
+    override render(attrs: {label: string}) {
+        return <span class="swap-probe">{attrs.label}</span>
+    }
+}
+
+class SwapTest extends Component<EmptyAttrs> {
+    rows: RenderObjectArray<Row> = new RenderObjectArray<Row>({
+        wrapperElementTag: "tbody",
+        renderFunction: (row: Row) => <tr><td><SwapProbe label={row.label}/></td></tr>
+    })
+
+    override render() {
+        return <div id="swap-tests">
+            <div id="swap-tally">{swapTally}</div>
+            <table class="swap-table">{this.rows}</table>
+            <table class="swap-table">{this.rows}</table>
+            <div id="swap-order"></div>
+            <button id="swap-fill" type="button" onClick={() => {
+                this.rows.pushAll([{label: "a"}, {label: "b"}, {label: "c"}, {label: "d"}])
+            }}>fill</button>
+            <button id="swap-apart" type="button" onClick={() => {
+                this.rows.swap(0, 2)
+            }}>swap apart</button>
+            <button id="swap-adjacent" type="button" onClick={() => {
+                this.rows.swap(3, 2)
+            }}>swap adjacent</button>
+            <button id="swap-same" type="button" onClick={() => {
+                this.rows.swap(1, 1)
+            }}>swap same</button>
+            <button id="swap-order-read" type="button" onClick={() => {
+                (document.getElementById("swap-order") as HTMLElement).textContent = this.rows.value.map(r => r.value.label).join(",")
+            }}>read order</button>
+        </div>
+    }
+}
+
 // Place on the page
 replaceElementWithRoot(<div>
     <RenderObjectArrayTest/>
@@ -301,4 +354,5 @@ replaceElementWithRoot(<div>
     {seededElement}
     {itemElement}
     <MultiPlaceTest/>
+    <SwapTest/>
 </div>, document.getElementById("main-page"))

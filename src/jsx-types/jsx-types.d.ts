@@ -262,9 +262,9 @@ export namespace JSXInternal {
         track: TrackHTMLAttributes<HTMLTrackElement> // void element (no children allowed)
         // tt is deprecated
         /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/u */
-        u: UlHTMLAttributes<HTMLElement> & ChildrenAttr
+        u: HTMLAttributes<HTMLElement> & ChildrenAttr
         /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/ul */
-        ul: HTMLAttributes<HTMLUListElement> & ChildrenAttr
+        ul: UlHTMLAttributes<HTMLUListElement> & ChildrenAttr
         /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/var */
         var: HTMLAttributes<HTMLElement> & ChildrenAttr
         /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video */

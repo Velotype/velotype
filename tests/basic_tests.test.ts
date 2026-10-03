@@ -695,6 +695,13 @@ describe('basic component rendering', () => {
         // Both the fake pre-seeded instance and this page's real Velotype instance must be registered
         assertEquals(await innerTextOf("#hook-instances-size"), "2")
 
+        // vtKeys are numbers
+        assertEquals(await innerTextOf("#vtkey-type"), "number")
+
+        // The registered version matches the published package version
+        const denoJson = JSON.parse(await Deno.readTextFile(new URL("../deno.json", import.meta.url)))
+        assertEquals(await innerTextOf("#velotype-version"), denoJson.version)
+
         // unregister() removes this instance from the hook's registry
         await (await page.waitForSelector("#unregister-self")).click()
         assertEquals(await innerTextOf("#unregister-result"), "removed")

@@ -56,7 +56,7 @@ export function passthroughAttrsToElement<T extends HTMLElement>(element: T, att
         setAttributeHelper(element, "id", attrs.id)
     }
     if (attrs.class) {
-        const elementClass = getAttributeHelper(element, "class")
+        const elementClass = element.getAttribute("class")
         setAttributeHelper(element, "class", elementClass ? elementClass + " " + attrs.class : attrs.class)
     }
     if (attrs.style) {
@@ -65,11 +65,11 @@ export function passthroughAttrsToElement<T extends HTMLElement>(element: T, att
     return element
 }
 
-/** Regular console.log() - used for JS minification */
-const consoleLog = console.log
+/** console.warn() with a "vt:" prefix - used for JS minification */
+const consoleWarn = console.warn.bind(console, "vt:")
 
-/** Regular console.error() - used for JS minification */
-const consoleError = console.error
+/** console.error() with a "vt:" prefix - used for JS minification */
+const consoleError = console.error.bind(console, "vt:")
 
 /** An element with a style attribute, used as a template for cloneNode() */
 function styledTemplate(tag: string, style: string): HTMLElement {
@@ -209,10 +209,6 @@ function setBooleanAttributeHelper(element: Element, name: string, value: boolea
     }
 }
 
-/** Call getAttribute() - used for JS minification */
-function getAttributeHelper(element: Element, qualifiedName: string): string | null {
-    return element.getAttribute(qualifiedName)
-}
 
 /** Call Object.defineProperty() to lock a property so that it cannot be modified later - used for JS minification */
 function defineLockedProperty(object: any, key: string, value: any): void {
@@ -237,7 +233,7 @@ function lowerCamelToHypenCase(text: string): string {
 }
 
 /** Map of DOM keys to Velotype Component references */
-const domReferences: Map<string, InternalComponent | MultiRenderable | WithComponent> = new Map<string, InternalComponent | MultiRenderable | WithComponent>()
+const domReferences: Map<number, InternalComponent | MultiRenderable | WithComponent> = new Map<number, InternalComponent | MultiRenderable | WithComponent>()
 
 /** The next key to use for DOM bindings */
 let domNextKey: number = 1
@@ -246,14 +242,14 @@ let domNextKey: number = 1
 const domKeyProperty = Symbol()
 
 /** Set the domKey property on element */
-function setDomKeyOn(element: Element, key: string): void {
+function setDomKeyOn(element: Element, key: number): void {
     ;(element as any)[domKeyProperty] = key
 }
 
 /** Velotype Event bus - Forward map listeningKey -> vtKey -> listeners */
-const listenersF: Map<string, Map<string, VelotypeEventListener[]>> = new Map<string,Map<string,VelotypeEventListener[]>>()
+const listenersF: Map<string, Map<number, VelotypeEventListener[]>> = new Map<string,Map<number,VelotypeEventListener[]>>()
 /** Velotype Event bus - Reverse map vtKey -> listeningKey -> listeners */
-const listenersR: Map<string, Map<string, VelotypeEventListener[]>> = new Map<string,Map<string,VelotypeEventListener[]>>()
+const listenersR: Map<number, Map<string, VelotypeEventListener[]>> = new Map<number,Map<string,VelotypeEventListener[]>>()
 
 /** Represents a mounted CSS StyleSheet object */
 export type StyleSection = {
@@ -272,14 +268,16 @@ const styleSectionMounted: Map<string, StyleSection> = new Map<string, StyleSect
  * Public, type-safe shape of `__vtAppMetadata`
  */
 export type VtAppMetadata = {
+    /** The version of this Velotype instance */
+    readonly version: string
     /** Property on each bound element that holds its DOM key */
     readonly domKeyProperty: symbol
     /** Map of DOM keys to Velotype Component references */
-    readonly domReferences: ReadonlyMap<string, unknown>
+    readonly domReferences: ReadonlyMap<number, unknown>
     /** Forward map listeningKey -> vtKey -> listeners */
-    readonly listenersF: ReadonlyMap<string, ReadonlyMap<string, readonly VelotypeEventListener[]>>
+    readonly listenersF: ReadonlyMap<string, ReadonlyMap<number, readonly VelotypeEventListener[]>>
     /** Reverse map vtKey -> listeningKey -> listeners */
-    readonly listenersR: ReadonlyMap<string, ReadonlyMap<string, readonly VelotypeEventListener[]>>
+    readonly listenersR: ReadonlyMap<number, ReadonlyMap<string, readonly VelotypeEventListener[]>>
     /** Map of style keys to ensure each style key is only mounted once */
     readonly styleSectionMounted: ReadonlyMap<string, StyleSection>
 }
@@ -292,6 +290,9 @@ export type VtAppMetadata = {
  * Exported from `@velotype/velotype/devtools`, for debugging only
  */
 export const __vtAppMetadata: VtAppMetadata = {
+    /** The version of this Velotype instance */
+    version: "0.2.0",
+
     // ------- For Velotype Core -------
     /** Property on each bound element that holds its DOM key */
     domKeyProperty: domKeyProperty,
@@ -395,19 +396,19 @@ export interface HasVtKey {
      * 
      * These keys are read-only and set by Velotype Core on object construction and are not overridable
      */
-    readonly vtKey: string
+    readonly vtKey: number
 }
 /**
  * `domReferences.get(key)` - used for JS minification
  */
-function getDOMreference(key: string): InternalComponent | MultiRenderable | WithComponent | undefined {
+function getDOMreference(key: number): InternalComponent | MultiRenderable | WithComponent | undefined {
     return domReferences.get(key)
 }
 /**
  * Acquire a new componentKey to reference component and if (element) then set the domKey attribute
  */
-function registerNewVtKey(component: InternalComponent | MultiRenderable | WithComponent, element?: AnchorElement): string {
-    const componentKey = String(domNextKey++)
+function registerNewVtKey(component: InternalComponent | MultiRenderable | WithComponent, element?: AnchorElement): number {
+    const componentKey = domNextKey++
     if (element) {
         setDomKeyOn(element, componentKey)
     }
@@ -417,7 +418,7 @@ function registerNewVtKey(component: InternalComponent | MultiRenderable | WithC
 /**
  * Release the reference to this componentKey
  */
-function releaseVtKey(vtKey: string): void {
+function releaseVtKey(vtKey: number): void {
     domReferences.delete(vtKey)
 }
 /**
@@ -478,7 +479,7 @@ function renderableElementToElement(child: RenderableElements): AnchorElement {
     }
     // If TypeScript is working properly this case should never be hit since
     // we checked all of the case types above
-    consoleError('Internal typescript error')
+    consoleError('Invalid child')
     return hiddenElement()
 }
 /**
@@ -561,7 +562,7 @@ function wrapElementIfNeeded(element: RenderableElements | null | undefined): An
  */
 interface MultiRenderable {
     /** Unmount an instance element of this object */
-    uK: (key: string) => void
+    uK: (key: number) => void
     /** Mount this object */
     mount: () => void
     /** Render a new instance element of this object */
@@ -636,9 +637,9 @@ export class RenderObject<DataType, UpdateRefsType = any> implements HasVtKey {
     readonly #defaultRenderFunction: RenderObjectRenderFunctionType<DataType, UpdateRefsType>
     readonly #defaultHandleUpdate?: RenderObjectHandleUpdateType<DataType, UpdateRefsType>
     /** The instance elements of this RenderObject, mapped by their vtKey */
-    protected readonly es: Map<string, RenderObjectElementsType<DataType, UpdateRefsType>> = new Map<string, RenderObjectElementsType<DataType, UpdateRefsType>>()
+    protected readonly es: Map<number, RenderObjectElementsType<DataType, UpdateRefsType>> = new Map<number, RenderObjectElementsType<DataType, UpdateRefsType>>()
     /** This RenderObject's vtKey */
-    readonly vtKey: string = registerNewVtKey(this as unknown as RenderObjectInternals)
+    readonly vtKey: number = registerNewVtKey(this as unknown as RenderObjectInternals)
     /** VeloType - Render Object - {key} */
     readonly #listeningKey: string = `vt-ro-${this.vtKey}`
     // Created on first registerOnMount(), most RenderObjects never register any
@@ -812,13 +813,13 @@ export class RenderObject<DataType, UpdateRefsType = any> implements HasVtKey {
      * 
      * Unmounts the instance element of this RenderObject with key
      */
-    protected uK(key: string): boolean {
+    protected uK(key: number): boolean {
         const element = this.es.get(key)
         if (element) {
-            const componentKey: string | undefined = (element.e as any)[domKeyProperty]
-            if (key == componentKey) {
-                this.es.delete(componentKey)
-                releaseVtKey(componentKey||'')
+            const componentKey: number | undefined = (element.e as any)[domKeyProperty]
+            if (key === componentKey) {
+                this.es.delete(key)
+                releaseVtKey(key)
                 return true
             } else {
                 consoleError('Invalid state', key, componentKey, element)
@@ -943,6 +944,20 @@ export type FunctionComponent<AttrsType> = (attrs: Readonly<AttrsType>, children
  * A Velotype Class Component that can be used in .tsx files to render HTML Components.
  * Supports unmount, render, mount lifecycle events.
  */
+/** The InternalComponent of each Component */
+const internalComponentProperty = Symbol()
+/** Get the InternalComponent of component */
+function internalComponentOf(component: Component<any>): InternalComponent {
+    return (component as any)[internalComponentProperty]
+}
+/** The InternalComponent methods that back a Component's refresh() and child helper functions */
+type ComponentHelperName = "f" | "q" | "w" | "t" | "y" | "u"
+/** Get a Component's helper function, bound to its InternalComponent on first use */
+function componentHelper(component: Component<any>, name: ComponentHelperName): any {
+    const internal = internalComponentOf(component)
+    const helpers = internal.b || (internal.b = {})
+    return helpers[name] || (helpers[name] = internal[name].bind(internal))
+}
 export abstract class Component<AttrsType> implements HasVtKey {
 
     /** The attributes this Component was created with */
@@ -985,70 +1000,82 @@ export abstract class Component<AttrsType> implements HasVtKey {
      * This will unmount and delete all child Components, then call
      * this.render() and consequently new and mount a fresh set of child Components.
      * 
-     * This is set by Velotype Core on Component construction and is not overridable
+     * Velotype Core creates this on first use, it is not overridable
      */
-    refresh(): void {}
+    get refresh(): () => void {
+        return componentHelper(this, "f")
+    }
 
     /**
      * A unique key per instance of each Component.
      * 
-     * This is read-only and set by Velotype Core on Component construction and is not overridable
+     * This is read-only and set by Velotype Core on Component construction
      */
-    readonly vtKey: string = ""
+    declare readonly vtKey: number
 
     /**
      * Replace a Child element with a newly constructed element
      * 
-     * This is set by Velotype Core on Component construction and is not overridable
+     * Velotype Core creates this on first use, it is not overridable
      * 
      * @param child a child element of this Component
      * @param newChild the element to replace with
      * @returns newElement when replacement is successful, otherwise returns child
      */
-    replaceChild(child: AnchorElement, newChild: RenderableElements): AnchorElement {return child}
+    get replaceChild(): (child: AnchorElement, newChild: RenderableElements) => AnchorElement {
+        return componentHelper(this, "q")
+    }
 
     /**
      * Append a newly constructed element to a child element
      * 
-     * This is set by Velotype Core on Component construction and is not overridable
+     * Velotype Core creates this on first use, it is not overridable
      * 
      * @param child a child element of this Component
      * @param toAppendChild the element to append
      * @returns boolean for if replacement was accepted (will reject if the input child element is not a child of this Component)
      */
-    appendToChild(child: HTMLElement, toAppendChild: RenderableElements): boolean {return false}
+    get appendToChild(): (child: HTMLElement, toAppendChild: RenderableElements) => boolean {
+        return componentHelper(this, "w")
+    }
 
     /**
      * Prepend a newly constructed element to a child element
      * 
-     * This is set by Velotype Core on Component construction and is not overridable
+     * Velotype Core creates this on first use, it is not overridable
      * 
      * @param child a child element of this Component
      * @param toPrependChild the element to prepend
      * @returns boolean for if replacement was accepted (will reject if the input child element is not a child of this Component)
      */
-    prependToChild(child: HTMLElement, toPrependChild: RenderableElements): boolean {return false}
+    get prependToChild(): (child: HTMLElement, toPrependChild: RenderableElements) => boolean {
+        return componentHelper(this, "t")
+    }
 
     /**
      * Replace the children of a child element
      * 
-     * This is set by Velotype Core on Component construction and is not overridable
+     * Velotype Core creates this on first use, it is not overridable
      * 
      * @param child a child element of this Component
      * @param toPrependElement the element to prepend
      * @returns boolean for if replacement was accepted (will reject if the input child element is not a child of this Component)
      */
-    replaceChildrenOfChild(child: HTMLElement, newChildren: RenderableElements[]): boolean {return false}
+    get replaceChildrenOfChild(): (child: HTMLElement, newChildren: RenderableElements[]) => boolean {
+        return componentHelper(this, "y")
+    }
 
     /**
      * Remove a child element
      * 
-     * This is set by Velotype Core on Component construction and is not overridable
+     * Velotype Core creates this on first use, it is not overridable
      * 
      * @param child a child element of this Component
      * @returns boolean for if removal was accepted (will reject if the input child element is not a child of this Component)
      */
-    removeChild(child: HTMLElement): boolean {return false}
+    get removeChild(): (child: HTMLElement) => boolean {
+        return componentHelper(this, "u")
+    }
 }
 
 /**
@@ -1123,12 +1150,7 @@ class InternalComponent {
 
         // Set locked Component properties so that they cannot be modified later
         defineLockedProperty(component, "vtKey", this.k)
-        defineLockedProperty(component, "refresh", this.f)
-        defineLockedProperty(component, "replaceChild", this.q)
-        defineLockedProperty(component, "appendToChild", this.w)
-        defineLockedProperty(component, "prependToChild", this.t)
-        defineLockedProperty(component, "replaceChildrenOfChild", this.y)
-        defineLockedProperty(component, "removeChild", this.u)
+        ;(component as any)[internalComponentProperty] = this
 
         // Initial render of this component
         this.e = componentRender(this, this.a, this.h)
@@ -1147,7 +1169,10 @@ class InternalComponent {
     /**
      * Stashes the Component vtKey for this Component
      */
-    declare readonly k: string
+    declare readonly k: number
+
+    /** The Component's refresh() and child helper functions, created on first use */
+    declare b?: {[name: string]: any}
 
     /**
      * If this Component is currently mounted
@@ -1168,14 +1193,14 @@ class InternalComponent {
      * Trigger unmount for this Component's children, then re-render
      * this Component and then mount new children.
      */
-    f: () => void = (): void => {
+    f(): void {
         this.e = replaceElement(this.e, componentRender(this, this.a, this.h))
     }
 
     /**
      * replaceChild()
      */
-    q: (child: AnchorElement, newChild: RenderableElements) => AnchorElement = (child: AnchorElement, newChild: RenderableElements): AnchorElement => {
+    q(child: AnchorElement, newChild: RenderableElements): AnchorElement {
         if (this.e.contains(child)) {
             return replaceElement(child, renderableElementToElement(newChild), true)
         } else {
@@ -1186,7 +1211,7 @@ class InternalComponent {
     /**
      * appendToChild()
      */
-    w: (child: HTMLElement, toAppend: RenderableElements) => boolean = (child: HTMLElement, toAppend: RenderableElements): boolean => {
+    w(child: HTMLElement, toAppend: RenderableElements): boolean {
         if (this.e.contains(child)) {
             appendElement(child, renderableElementToElement(toAppend))
             return true
@@ -1197,7 +1222,7 @@ class InternalComponent {
     /**
      * prependToChild()
      */
-    t: (child: HTMLElement, toPreppend: RenderableElements) => boolean = (child: HTMLElement, toPreppend: RenderableElements): boolean => {
+    t(child: HTMLElement, toPreppend: RenderableElements): boolean {
         if (this.e.contains(child)) {
             prependElement(child, renderableElementToElement(toPreppend))
             return true
@@ -1208,7 +1233,7 @@ class InternalComponent {
     /**
      * replaceChildrenOfChild()
      */
-    y: (child: HTMLElement, newChildren: RenderableElements[]) => boolean = (child: HTMLElement, newChildren: RenderableElements[]): boolean => {
+    y(child: HTMLElement, newChildren: RenderableElements[]): boolean {
         if (this.e.contains(child)) {
             replaceChildren(child, newChildren.map(c=>renderableElementToElement(c)))
             return true
@@ -1219,7 +1244,7 @@ class InternalComponent {
     /**
      * removeChild()
      */
-    u: (child: AnchorElement) => boolean = (child: AnchorElement): boolean => {
+    u(child: AnchorElement): boolean {
         if (this.e.contains(child)) {
             removeElement(child)
             return true
@@ -1237,12 +1262,12 @@ class InternalComponent {
  * @param element the element to search through
  * @param callback the callback to trigger
  */
-function traverseElementChildren(element: Element, callback: (component: InternalComponent | MultiRenderable | WithComponent, key: string) => void): void {
+function traverseElementChildren(element: Element, callback: (component: InternalComponent | MultiRenderable | WithComponent, key: number) => void): void {
     if (instanceOfHTMLElement(element) || instanceOfSVGSVGElement(element) || instanceOfMathMLElement(element)) {
         let child = element.firstElementChild
         while (child) {
             traverseElementChildren(child, callback)
-            const key: string | undefined = (child as any)[domKeyProperty]
+            const key: number | undefined = (child as any)[domKeyProperty]
             if (key) {
                 const component = getDOMreference(key)
                 if (component) {
@@ -1257,7 +1282,7 @@ function traverseElementChildren(element: Element, callback: (component: Interna
 /**
  * Call `.mount()` on linked Components
  */
-function mountComponentElementHelper(component: InternalComponent | MultiRenderable | WithComponent, _key: string): void {
+function mountComponentElementHelper(component: InternalComponent | MultiRenderable | WithComponent, _key: number): void {
     if (instanceOfInternalComponent(component)) {
         // component: InternalComponent
         if (component.m) {
@@ -1290,7 +1315,7 @@ function mountComponentElement(element: AnchorElement): void {
     if (instanceOfHTMLElement(element)) {
         mountComponentElementChildren(element)
     }
-    const key: string | undefined = (element as any)[domKeyProperty]
+    const key: number | undefined = (element as any)[domKeyProperty]
     if (key) {
         const component = getDOMreference(key)
         if (component) {
@@ -1310,7 +1335,7 @@ function mountComponentElementChildren(element: HTMLElement): void {
 /**
  * Call `.unmount()` on linked Components (if mounted) and release vtKeys
  */
-function unmountComponentElementHelper(component: InternalComponent | MultiRenderable | WithComponent, key: string): void {
+function unmountComponentElementHelper(component: InternalComponent | MultiRenderable | WithComponent, key: number): void {
     if (instanceOfInternalComponent(component)) {
         // component: InternalComponent
         removeComponentListeners(component.c)
@@ -1352,7 +1377,7 @@ function unmountComponentElement(element: AnchorElement): void {
     if (instanceOfHTMLElement(element)) {
         unmountComponentElementChildren(element)
     }
-    const key: string | undefined = (element as any)[domKeyProperty]
+    const key: number | undefined = (element as any)[domKeyProperty]
     if (key) {
         const component = getDOMreference(key)
         if (component) {
@@ -1383,7 +1408,7 @@ class WithComponent {
     /**
      * Stashes the Component vtKey for this Component
      */
-    declare readonly k: string
+    declare readonly k: number
 
     constructor(withObjects: RenderObject<any,any>[]) {
         this.w = withObjects
@@ -1483,9 +1508,9 @@ function setAttrOnElement(element: AnchorElement, name: string, value: any): voi
     } else if (typeof value == 'function') {
         // Avoid setting the attribute if the value is a function
     } else if (name == "vtwith") {
-        const key: string | undefined = (element as any)[domKeyProperty]
+        const key: number | undefined = (element as any)[domKeyProperty]
         if (key) {
-            consoleError("vtwith attr set on element that already has a key", key)
+            consoleError("vtwith on a keyed element", key)
         } else {
             const withComponent = new WithComponent(value)
             setDomKeyOn(element, withComponent.k)
@@ -1619,7 +1644,7 @@ export function getComponent<T>(componentElement: RenderableElements[] | AnchorE
         consoleError("Invalid element", componentElement)
         return null as T
     }
-    const component = getDOMreference((componentElement as any)[domKeyProperty]||"")
+    const component = getDOMreference((componentElement as any)[domKeyProperty])
     if (component && instanceOfInternalComponent(component)) {
         return component.c as T
     } else {
@@ -2130,10 +2155,10 @@ export function registerEventListener(hasVtKey: HasVtKey, listeningKey: string, 
 /**
  * Optimization function to register listeners to double maps
  */
-function registerListenerMap(map: Map<string,Map<string,VelotypeEventListener[]>>, firstKey: string, secondKey: string, listener: VelotypeEventListener): void {
+function registerListenerMap<FirstKeyType, SecondKeyType>(map: Map<FirstKeyType, Map<SecondKeyType, VelotypeEventListener[]>>, firstKey: FirstKeyType, secondKey: SecondKeyType, listener: VelotypeEventListener): void {
     let keyListeners = map.get(firstKey)
     if (!keyListeners) {
-        keyListeners = new Map<string,VelotypeEventListener[]>()
+        keyListeners = new Map<SecondKeyType, VelotypeEventListener[]>()
         map.set(firstKey, keyListeners)
     }
     const listeners = keyListeners.get(secondKey)
@@ -2168,15 +2193,18 @@ function removeComponentListeners(hasVtKey: HasVtKey): void {
 /**
  * Optimization function to remove listeners from double maps
  */
-function removeListenerMap(map: Map<string,Map<string,VelotypeEventListener[]>>, firstKey: string, secondKey: string, listener?: VelotypeEventListener): void {
+/** Counts listener removals, so that emitEvent() only checks for removed listeners after one */
+let listenerRemovals = 0
+function removeListenerMap<FirstKeyType, SecondKeyType>(map: Map<FirstKeyType, Map<SecondKeyType, VelotypeEventListener[]>>, firstKey: FirstKeyType, secondKey: SecondKeyType, listener?: VelotypeEventListener): void {
     const keyListeners = map.get(firstKey)
     if (keyListeners) {
         let listeners = keyListeners.get(secondKey)
         if (listeners) {
+            listenerRemovals++
             if (listener) {
                 const index = listeners.indexOf(listener)
                 if (index < 0) {
-                    consoleLog("WARN removing event listener, listener is not present", firstKey, secondKey)
+                    consoleWarn("Listener not registered", firstKey, secondKey)
                     return
                 }
                 // Replaced, not spliced, so that an in-progress emitEvent() keeps its array
@@ -2191,16 +2219,16 @@ function removeListenerMap(map: Map<string,Map<string,VelotypeEventListener[]>>,
                 }
             }
         } else {
-            consoleLog("WARN removing event listener, secondKey is not present", firstKey, secondKey)
+            consoleWarn("No listeners to remove", firstKey, secondKey)
         }
     } else {
-        consoleLog("WARN removing event listener, firstKey is not present", firstKey, secondKey)
+        consoleWarn("No listeners to remove", firstKey, secondKey)
     }
 }
 /**
  * Is this EventListener still registered
  */
-function isListenerRegistered(listeningKey: string, vtKey: string, listener: VelotypeEventListener): boolean {
+function isListenerRegistered(listeningKey: string, vtKey: number, listener: VelotypeEventListener): boolean {
     const keyListeners = listenersF.get(listeningKey)
     const listeners = keyListeners && keyListeners.get(vtKey)
     return !!listeners && listeners.includes(listener)
@@ -2214,17 +2242,21 @@ export function emitEvent(listeningKey: string, event: VelotypeEvent, hasVtKey?:
         keyListeners.forEach((listeners, vtKey) => {
             // The Component that emitted the Event does not also receive it
             if (!hasVtKey || hasVtKey.vtKey != vtKey) {
+                const removals = listenerRemovals
                 listeners.forEach(listener => {
                     // Skip listeners removed by an earlier listener
-                    const current = keyListeners.get(vtKey)
-                    if (current === listeners || (current && current.includes(listener))) {
-                        listener(event)
+                    if (removals !== listenerRemovals) {
+                        const current = keyListeners.get(vtKey)
+                        if (current !== listeners && !(current && current.includes(listener))) {
+                            return
+                        }
                     }
+                    listener(event)
                 })
             }
         })
     } else {
-        consoleLog("WARN, event emitted with no listeners", listeningKey, event)
+        consoleWarn("No listeners for event", listeningKey, event)
     }
 }
 // ----------------------------------------------------------------------

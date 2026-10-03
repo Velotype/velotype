@@ -1,4 +1,4 @@
-// deno-lint-ignore-file no-unused-vars no-explicit-any
+// deno-lint-ignore-file no-explicit-any
 
 import type { BubblingEventName, HTMLAttributes, StyleAttrType } from "../jsx-types/dom-types.d.ts"
 
@@ -291,7 +291,7 @@ export type VtAppMetadata = {
  */
 export const __vtAppMetadata: VtAppMetadata = {
     /** The version of this Velotype instance */
-    version: "0.2.0",
+    version: "0.2.1",
 
     // ------- For Velotype Core -------
     /** Property on each bound element that holds its DOM key */

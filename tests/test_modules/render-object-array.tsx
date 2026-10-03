@@ -1,4 +1,4 @@
-import {replaceElementWithRoot, Component, getComponent, RenderBasic, RenderObject, RenderObjectArray, RenderTemplateArray} from "@velotype/velotype"
+import {replaceElementWithRoot, Component, getComponent, RenderBasic, type RenderObject, RenderObjectArray, RenderTemplateArray} from "@velotype/velotype"
 import type {EmptyAttrs, RenderableElements} from "@velotype/velotype"
 
 type Todo = {

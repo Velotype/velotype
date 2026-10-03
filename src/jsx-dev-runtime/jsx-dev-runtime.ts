@@ -1,16 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
 
 import {
-    // Debugging access
-    __vtAppMetadata,
-    type VtAppMetadata,
-    getDevtoolsHook,
-    type VelotypeDevtoolsHook,
-    type VelotypeDevtoolsInstanceMetadata,
-
     // Interfaces
-    type MultiRenderable,
-    type Mountable,
     type HasVtKey,
     type TypeConstructor,
     type Type,
@@ -36,6 +27,8 @@ import {
     RenderBasic,
     RenderObjectArray,
     type RenderObjectArrayOptions,
+    RenderTemplateArray,
+    type RenderTemplateArrayOptions,
 
     // TSX integration
     setAttrsOnElement,
@@ -66,16 +59,7 @@ import {
 } from "../tsx/tsx-core.ts"
 
 export {
-    // Debugging access
-    __vtAppMetadata,
-    type VtAppMetadata,
-    getDevtoolsHook,
-    type VelotypeDevtoolsHook,
-    type VelotypeDevtoolsInstanceMetadata,
-
     // Interfaces
-    type MultiRenderable,
-    type Mountable,
     type HasVtKey,
     type TypeConstructor,
     type Type,
@@ -101,6 +85,8 @@ export {
     RenderBasic,
     RenderObjectArray,
     type RenderObjectArrayOptions,
+    RenderTemplateArray,
+    type RenderTemplateArrayOptions,
 
     // TSX integration
     setAttrsOnElement,

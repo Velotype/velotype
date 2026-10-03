@@ -1,4 +1,4 @@
-import {replaceElementWithRoot, Component, getComponent, RenderBasic, RenderObject, RenderObjectArray} from "@velotype/velotype"
+import {replaceElementWithRoot, Component, getComponent, RenderBasic, RenderObject, RenderObjectArray, RenderTemplateArray} from "@velotype/velotype"
 import type {EmptyAttrs, RenderableElements} from "@velotype/velotype"
 
 type Todo = {
@@ -289,6 +289,9 @@ class MultiPlaceTest extends Component<EmptyAttrs> {
             <button id="multi-delete" type="button" onClick={() => {
                 this.rows.deleteAt(0)
             }}>delete from both</button>
+            <button id="multi-clear" type="button" onClick={() => {
+                this.rows.clear()
+            }}>clear both</button>
         </div>
     }
 }
@@ -346,6 +349,90 @@ class SwapTest extends Component<EmptyAttrs> {
     }
 }
 
+
+/*
+ * RenderTemplateArray clones a template per row, rendered here into two tables
+ */
+
+type Item = {
+    name: string
+}
+
+const templateClicked = new RenderBasic<string>("")
+
+class TemplateTest extends Component<EmptyAttrs> {
+    items: RenderTemplateArray<Item, HTMLElement> = new RenderTemplateArray<Item, HTMLElement>({
+        wrapperElementTag: "tbody",
+        template: <tr class="template-row"><td class="name"></td><td><button type="button" class="remove">x</button></td></tr>,
+        renderFunction: (row: HTMLElement, item: Item) => {
+            const name = row.firstChild as HTMLElement
+            name.textContent = item.name
+            return name
+        },
+        handleUpdate: (_row: HTMLElement, name: HTMLElement, _oldItem: Item, newItem: Item) => {
+            name.textContent = newItem.name
+        },
+        on: {
+            click: (event, _row, item, index) => {
+                if ((event.target as HTMLElement).className == "remove") {
+                    this.items.deleteAt(index)
+                } else {
+                    templateClicked.value = `${item.name}@${index}`
+                }
+            }
+        }
+    })
+    // No handleUpdate, so setAt() replaces the row with a new clone
+    replaced: RenderTemplateArray<Item, void> = new RenderTemplateArray<Item, void>({
+        template: <span class="replaced"></span>,
+        renderFunction: (row: HTMLElement, item: Item) => {
+            row.textContent = item.name
+        }
+    })
+    b: Item = {name: "b"}
+
+    override render() {
+        return <div id="template-tests">
+            <div id="template-clicked">{templateClicked}</div>
+            <table class="template-table">{this.items}</table>
+            <table class="template-table">{this.items}</table>
+            <div id="template-replaced">{this.replaced}</div>
+            <button id="template-fill" type="button" onClick={() => {
+                this.items.pushAll([{name: "a"}, this.b, {name: "c"}])
+                this.items.push({name: "d"})
+                this.replaced.pushAll([{name: "x"}, {name: "y"}])
+            }}>fill</button>
+            <button id="template-set" type="button" onClick={() => {
+                this.items.setAt(1, {name: "b2"})
+                this.replaced.setAt(1, {name: "y2"})
+            }}>set</button>
+            <button id="template-swap" type="button" onClick={() => {
+                this.items.swap(0, 2)
+                this.items.swap(3, 2)
+                this.items.swap(1, 1)
+            }}>swap</button>
+            <button id="template-delete" type="button" onClick={() => {
+                this.items.deleteAt(0)
+                this.items.delete(this.b)
+            }}>delete</button>
+            <button id="template-delete-value" type="button" onClick={() => {
+                const item = this.items.getAt(0)
+                this.items.delete(item)
+            }}>delete value</button>
+            <button id="template-replace" type="button" onClick={() => {
+                this.items.value = [{name: "p"}, {name: "q"}]
+            }}>replace</button>
+            <button id="template-clear" type="button" onClick={() => {
+                this.items.clear()
+                this.replaced.clear()
+            }}>clear</button>
+            <button id="template-length" type="button" onClick={() => {
+                templateClicked.value = `length ${this.items.length} ${this.replaced.length}`
+            }}>length</button>
+        </div>
+    }
+}
+
 // Place on the page
 replaceElementWithRoot(<div>
     <RenderObjectArrayTest/>
@@ -355,4 +442,5 @@ replaceElementWithRoot(<div>
     {itemElement}
     <MultiPlaceTest/>
     <SwapTest/>
+    <TemplateTest/>
 </div>, document.getElementById("main-page"))

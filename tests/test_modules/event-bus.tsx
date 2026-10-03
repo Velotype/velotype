@@ -1,4 +1,5 @@
-import {replaceElementWithRoot, Component, RenderBasic, getComponent, __vtAppMetadata, registerEventListener, removeEventListeners, emitEvent, VelotypeEvent} from "@velotype/velotype"
+import {replaceElementWithRoot, Component, RenderBasic, getComponent, registerEventListener, removeEventListeners, emitEvent, VelotypeEvent} from "@velotype/velotype"
+import {__vtAppMetadata} from "@velotype/velotype/devtools"
 import type {EmptyAttrs, RenderableElements, VelotypeEventListener} from "@velotype/velotype"
 
 const EVENT_KEY = "vt-test-event-bus-key"

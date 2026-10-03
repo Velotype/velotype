@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-unused-vars no-explicit-any
 
-import type { HTMLAttributes, StyleAttrType } from "../jsx-types/dom-types.d.ts"
+import type { BubblingEventName, HTMLAttributes, StyleAttrType } from "../jsx-types/dom-types.d.ts"
 
 /**
  * These are the types that can be used as a Component's anchor, they can
@@ -12,7 +12,7 @@ export type AnchorElement = HTMLElement | SVGSVGElement | MathMLElement
 export type BasicTypes = string | bigint | number | boolean
 
 /** Types that can be returned from Component.render() and FunctionComponent() */
-export type RenderableElements = AnchorElement | Component<any> | RenderObject<any> | RenderableElements[] | BasicTypes | Text | null | undefined | void
+export type RenderableElements = AnchorElement | Component<any> | RenderObject<any,any> | RenderableElements[] | BasicTypes | Text | null | undefined | void
 
 /** Type used to represent a constructor function for a Class */
 export type TypeConstructor<T> = new (...args: any[]) => T
@@ -104,7 +104,7 @@ function instanceOfInternalComponent(something: any): something is InternalCompo
     return something instanceof InternalComponent
 }
 /** Checks if something is an instanceof RenderObject */
-function instanceOfRenderObject(something: any): something is RenderObject<any>  {
+function instanceOfRenderObject(something: any): something is RenderObject<any,any>  {
     return something instanceof RenderObject
 }
 /** Checks if something is an instanceof Component */
@@ -287,8 +287,9 @@ export type VtAppMetadata = {
 /**
  * App Metadata
  *
- * Stateful storage of various stuffs, this is a Velotype internal object
- * DO NOT USE OR MANPULATE, for debugging only
+ * Read-only views of this Velotype instance's internal state, registered with the devtools hook
+ *
+ * Exported from `@velotype/velotype/devtools`, for debugging only
  */
 export const __vtAppMetadata: VtAppMetadata = {
     // ------- For Velotype Core -------
@@ -465,7 +466,7 @@ function renderableElementToElement(child: RenderableElements): AnchorElement {
     if (instanceOfHTMLElement(child) || instanceOfSVGSVGElement(child) || instanceOfMathMLElement(child)) {
         return child
     } else if (instanceOfRenderObject(child)) {
-        return child.rD()
+        return (child as RenderObjectInternals).rD()
     } else if (instanceOfComponent(child)) {
         // Get InternalComponent reference from Component's vtKey
         const component = getDOMreference(child.vtKey)
@@ -537,9 +538,9 @@ function wrapElementIfNeeded(element: MathMLElement): AnchorElement
 function wrapElementIfNeeded(element: HTMLElement): HTMLElement
 function wrapElementIfNeeded(element: AnchorElement): AnchorElement
 function wrapElementIfNeeded(element: Component<any>): HTMLElement
-function wrapElementIfNeeded(element: RenderObject<any>): HTMLElement
-function wrapElementIfNeeded(element: Component<any> | RenderObject<any>): HTMLElement
-function wrapElementIfNeeded(element: HTMLElement | Component<any> | RenderObject<any> | null | undefined): HTMLElement
+function wrapElementIfNeeded(element: RenderObject<any,any>): HTMLElement
+function wrapElementIfNeeded(element: Component<any> | RenderObject<any,any>): HTMLElement
+function wrapElementIfNeeded(element: HTMLElement | Component<any> | RenderObject<any,any> | null | undefined): HTMLElement
 function wrapElementIfNeeded(element: RenderableElements | null | undefined): AnchorElement
 function wrapElementIfNeeded(element: RenderableElements | null | undefined): AnchorElement {
     if (element == null || element === false || element === "") {
@@ -556,42 +557,24 @@ function wrapElementIfNeeded(element: RenderableElements | null | undefined): An
 }
 
 /**
- * Represents an object that can render into multiple instance elements
- * 
- * These are Velotype internal functions
- * 
- * DO NOT CALL these methods directly (will be called by Velotype core)
+ * The Velotype core view of an object that can render into multiple instance elements
  */
-export interface MultiRenderable {
-    /**
-     * Velotype internal function
-     * 
-     * DO NOT CALL directly (will be called by Velotype core)
-     * 
-     * Used to unmount an instance element of a MultiRenderable object
-     */
+interface MultiRenderable {
+    /** Unmount an instance element of this object */
     uK: (key: string) => void
-    /**
-     * Velotype internal function
-     * 
-     * DO NOT CALL directly (will be called by Velotype core)
-     * 
-     * Used to mount a MultiRenderable object
-     */
+    /** Mount this object */
     mount: () => void
-    /**
-     * Velotype internal function
-     * 
-     * DO NOT CALL directly (will be called by Velotype core)
-     * 
-     * Used to generate new instance elements of a MultiRenderable object
-     */
-    rD: () => void
+    /** Render a new instance element of this object */
+    rD: () => AnchorElement
 }
+/** The Velotype core view of a Component, including its protected members */
+type ComponentInternals = Component<any> & Mountable & {render: (attrs: Readonly<any>, children: RenderableElements[]) => RenderableElements}
+/** The Velotype core view of a RenderObject, including its protected members */
+type RenderObjectInternals = RenderObject<any, any> & MultiRenderable & {unmount: () => void, sw: (other: RenderObject<any, any>) => void}
 /**
- * Represents a Component that is mountable / unmountable
+ * The lifecycle methods that Velotype core calls on Components
  */
-export interface Mountable {
+interface Mountable {
     /**
      * Mount is called just after a Component is attached to the DOM
      */
@@ -606,13 +589,13 @@ export interface Mountable {
 /**
  * Generic object to stash metadata when using a handleUpdate method in RenderObject
  */
-export class UpdateHandlerLink {
+export class UpdateHandlerLink<UpdateRefsType = any> {
     /** Reference to the rendered object */
-    declare result: RenderableElements
+    declare readonly result: RenderableElements
     /** Stashed references to make selected updates more performant */
-    declare updateRefs: any
+    declare readonly updateRefs: UpdateRefsType
     /** Create a new UpdateHandlerLink */
-    constructor(result: RenderableElements, updateRefs: any) {
+    constructor(result: RenderableElements, updateRefs: UpdateRefsType) {
         this.result = result
         this.updateRefs = updateRefs
     }
@@ -621,24 +604,24 @@ export class UpdateHandlerLink {
 /**
  * Advanced functionality used to more efficiently rerender instance elements in RenderObjects
  */
-export type RenderObjectHandleUpdateType<DataType> = (element: AnchorElement, updateRefs: any, oldData: DataType, newData: DataType) => void
+export type RenderObjectHandleUpdateType<DataType, UpdateRefsType = any> = (element: AnchorElement, updateRefs: UpdateRefsType, oldData: DataType, newData: DataType) => void
 
 /**
  * Type for a renderFunction in a RenderObject
  * 
  * (currently only supports rendering to HTMLElements for RenderObjectArray)
  */
-export type RenderObjectRenderFunctionType<DataType> = (data: DataType, thisArg: RenderObject<DataType>) => RenderableElements | UpdateHandlerLink
+export type RenderObjectRenderFunctionType<DataType, UpdateRefsType = any> = (data: DataType, thisArg: RenderObject<DataType, UpdateRefsType>) => RenderableElements | UpdateHandlerLink<UpdateRefsType>
 
-type RenderObjectElementsType<DataType> = {
+type RenderObjectElementsType<DataType, UpdateRefsType> = {
     /** element */
     e: AnchorElement
     /** renderFunction */
-    rF: RenderObjectRenderFunctionType<DataType>
+    rF: RenderObjectRenderFunctionType<DataType, UpdateRefsType>
     /** handleUpdate */
-    hU?: RenderObjectHandleUpdateType<DataType>
+    hU?: RenderObjectHandleUpdateType<DataType, UpdateRefsType>
     /** updateRefs */
-    uR?: any
+    uR?: UpdateRefsType
 }
 
 /**
@@ -648,13 +631,14 @@ type RenderObjectElementsType<DataType> = {
  * @template DataType The type of the underlying Data Object
  * @template UpdateRefsType An advanced capability of RenderObject to more efficiently re-render instance elements
  */
-export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mountable {
+export class RenderObject<DataType, UpdateRefsType = any> implements HasVtKey {
     #data: DataType
-    #defaultRenderFunction: RenderObjectRenderFunctionType<DataType>
-    #defaultHandleUpdate?: RenderObjectHandleUpdateType<DataType>
-    readonly #elements = new Map<string, RenderObjectElementsType<DataType>>()
+    readonly #defaultRenderFunction: RenderObjectRenderFunctionType<DataType, UpdateRefsType>
+    readonly #defaultHandleUpdate?: RenderObjectHandleUpdateType<DataType, UpdateRefsType>
+    /** The instance elements of this RenderObject, mapped by their vtKey */
+    protected readonly es: Map<string, RenderObjectElementsType<DataType, UpdateRefsType>> = new Map<string, RenderObjectElementsType<DataType, UpdateRefsType>>()
     /** This RenderObject's vtKey */
-    readonly vtKey: string = registerNewVtKey(this)
+    readonly vtKey: string = registerNewVtKey(this as unknown as RenderObjectInternals)
     /** VeloType - Render Object - {key} */
     readonly #listeningKey: string = `vt-ro-${this.vtKey}`
     // Created on first registerOnMount(), most RenderObjects never register any
@@ -668,12 +652,12 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
      * Create a new RenderObject
      * 
      * @param initialData the initial data to use to render this RenderObject with
-     * @param renderFunction a function that renders a data value into an AnchorElement
-     * @param handleUpdate advanced functionality used to highly optimize rendering on value updates
+     * @param defaultRenderFunction a function that renders a data value into an AnchorElement
+     * @param defaultHandleUpdate advanced functionality used to highly optimize rendering on value updates
      */
     constructor(initialData: DataType,
-        defaultRenderFunction?: RenderObjectRenderFunctionType<DataType>,
-        defaultHandleUpdate?: RenderObjectHandleUpdateType<DataType>
+        defaultRenderFunction?: RenderObjectRenderFunctionType<DataType, UpdateRefsType>,
+        defaultHandleUpdate?: RenderObjectHandleUpdateType<DataType, UpdateRefsType>
     ) {
         this.#data = initialData
         this.#defaultRenderFunction = defaultRenderFunction || hiddenElement
@@ -742,13 +726,11 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
         return this
     }
     /**
-     * Velotype internal function
+     * Velotype internal function, called by Velotype core
      * 
-     * DO NOT CALL directly (will be called by Velotype core)
-     * 
-     * Used to trigger set of registered onMounts
+     * Calls the registered onMounts
      */
-    mount(): void {
+    protected mount(): void {
         if (this.#mounted) {
             return
         }
@@ -758,13 +740,11 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
         }
     }
     /**
-     * Velotype internal function
+     * Velotype internal function, called by Velotype core
      * 
-     * DO NOT CALL directly (will be called by Velotype core)
-     * 
-     * Used to trigger set of registered onUnmounts
+     * Calls the registered onUnmounts
      */
-    unmount(): void {
+    protected unmount(): void {
         if (!this.#mounted) {
             return
         }
@@ -807,7 +787,7 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
      */
     rerenderElements(newData: DataType): void {
         // Rerender Elements
-        this.#elements.forEach((element, key) => {
+        this.es.forEach((element, key) => {
             if (element.hU && element.uR) {
                 element.hU(element.e, element.uR, this.#data, newData)
             } else {
@@ -828,18 +808,16 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
         }
     }
     /**
-     * Velotype internal function
+     * Velotype internal function, called by Velotype core
      * 
-     * DO NOT CALL directly (will be called by Velotype core)
-     * 
-     * Used to unmount an instance element of this RenderObject
+     * Unmounts the instance element of this RenderObject with key
      */
-    uK(key: string): boolean {
-        const element = this.#elements.get(key)
+    protected uK(key: string): boolean {
+        const element = this.es.get(key)
         if (element) {
             const componentKey: string | undefined = (element.e as any)[domKeyProperty]
             if (key == componentKey) {
-                this.#elements.delete(componentKey)
+                this.es.delete(componentKey)
                 releaseVtKey(componentKey||'')
                 return true
             } else {
@@ -852,30 +830,28 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
         }
     }
     /**
-     * Velotype internal function
+     * Velotype internal function, called by Velotype core
      * 
-     * DO NOT CALL directly (will be called by Velotype core)
-     * 
-     * Used to generate new instance elements of this RenderObject using the
+     * Renders a new instance element of this RenderObject using the
      * default renderFunction and default handleUpdate function
      */
-    rD(): AnchorElement {
+    protected rD(): AnchorElement {
         return this.render(this.#defaultRenderFunction, this.#defaultHandleUpdate)
     }
     /**
      * Trigger rendering of this RenderObject and bind the created element to
      * the passed renderFunction and handleUpdate function
      */
-    render(renderFunction: RenderObjectRenderFunctionType<DataType>, handleUpdate?: RenderObjectHandleUpdateType<DataType>): AnchorElement {
+    render(renderFunction: RenderObjectRenderFunctionType<DataType, UpdateRefsType>, handleUpdate?: RenderObjectHandleUpdateType<DataType, UpdateRefsType>): AnchorElement {
         const render = renderFunction(this.#data, this)
         const isLink = render instanceof UpdateHandlerLink
         const newElement = wrapElementIfNeeded(childToElement(isLink ? render.result : render))
-        const componentKey = registerNewVtKey(this, newElement)
-        this.#elements.set(componentKey, {
+        const componentKey = registerNewVtKey(this as unknown as RenderObjectInternals, newElement)
+        this.es.set(componentKey, {
             e: newElement,
             rF: renderFunction,
             hU: handleUpdate,
-            uR: isLink ? render.updateRefs : render
+            uR: isLink ? render.updateRefs : render as UpdateRefsType
         })
         return newElement
     }
@@ -885,17 +861,35 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
      * THIS IS ADVANCED FUNCTIONALITY - use carefully
      */
     getElements(): AnchorElement[] {
-        return Array.from(this.#elements.values(), e => e.e)
+        return Array.from(this.es.values(), e => e.e)
+    }
+    /**
+     * Velotype internal function, called by RenderObjectArray
+     * 
+     * Swaps the positions of the instance elements of this RenderObject and other that share a parent
+     */
+    protected sw(other: RenderObject<any, any>): void {
+        this.es.forEach(aInstance => {
+            const aElement = aInstance.e
+            const parent = aElement.parentNode
+            if (parent) {
+                other.es.forEach(bInstance => {
+                    if (bInstance.e.parentNode === parent) {
+                        swapSiblings(parent, aElement, bInstance.e)
+                    }
+                })
+            }
+        })
     }
     /**
      * Removes all instance elements that this RenderObject has generated
      */
     removeAll(): void {
-        this.#elements.forEach((element, key) => {
+        this.es.forEach((element, key) => {
             removeElement(element.e)
             releaseVtKey(key)
         })
-        this.#elements.clear()
+        this.es.clear()
     }
 }
 
@@ -904,8 +898,8 @@ export class RenderObject<DataType> implements MultiRenderable, HasVtKey, Mounta
  * 
  * The BasicTypes are string | number | bigint | boolean
  */
-export class RenderBasic<DataType extends BasicTypes> extends RenderObject<DataType> implements MultiRenderable, HasVtKey, Mountable {
-    /** Create a new BasicComponent */
+export class RenderBasic<DataType extends BasicTypes> extends RenderObject<DataType, Text> implements HasVtKey {
+    /** Create a new RenderBasic */
     constructor(initialData: DataType) {
         super(initialData, (data: DataType) => {
             const text = document.createTextNode(data.toString())
@@ -917,13 +911,13 @@ export class RenderBasic<DataType extends BasicTypes> extends RenderObject<DataT
         })
     }
     /**
-     * Get the value of this BasicComponent as a String
+     * Get the value of this RenderBasic as a String
      */
     getString(): string {
         return String(super.get())
     }
     /**
-     * Set the value of this BasicComponent from a String
+     * Set the value of this RenderBasic from a String
      */
     setString(newDataString: string): void {
         const data: DataType = super.get()
@@ -949,13 +943,13 @@ export type FunctionComponent<AttrsType> = (attrs: Readonly<AttrsType>, children
  * A Velotype Class Component that can be used in .tsx files to render HTML Components.
  * Supports unmount, render, mount lifecycle events.
  */
-export abstract class Component<AttrsType> implements HasVtKey, Mountable {
+export abstract class Component<AttrsType> implements HasVtKey {
 
     /** The attributes this Component was created with */
-    declare attrs: AttrsType
+    declare readonly attrs: AttrsType
 
     /** The children this Component was created with */
-    declare children: RenderableElements[]
+    declare readonly children: RenderableElements[]
 
     /** constructor gets attrs and children */
     constructor(attrs: Readonly<AttrsType>, children: RenderableElements[]){
@@ -968,14 +962,14 @@ export abstract class Component<AttrsType> implements HasVtKey, Mountable {
      * 
      * May be overriden by a specific Component that extends Component
      */
-    mount(): void {}
+    protected mount(): void {}
 
     /**
      * Unmount is called just before this Component is removed from the DOM.
      * 
      * May be overriden by a specific Component that extends Component
      */
-    unmount(): void {}
+    protected unmount(): void {}
 
     /**
      * Render is called when this Component needs to be materialized into Elements.
@@ -984,7 +978,7 @@ export abstract class Component<AttrsType> implements HasVtKey, Mountable {
      * @param {Readonly<AttrsType>} attrs The attrs for this Component
      * @param {RenderableElements[]} children Any children of this Component
      */
-    abstract render(attrs: Readonly<AttrsType>, children: RenderableElements[]): RenderableElements
+    protected abstract render(attrs: Readonly<AttrsType>, children: RenderableElements[]): RenderableElements
 
     /**
      * Trigger re-rendering of this Component and all child Components.
@@ -1143,7 +1137,7 @@ class InternalComponent {
     /**
      * Stashes the Velotype Component defined by the user
      */
-    declare c: Component<any>
+    declare readonly c: Component<any>
 
     /**
      * Stashes a reference to the root AnchorElement of this Component.
@@ -1163,12 +1157,12 @@ class InternalComponent {
     /**
      * Stashes the attrs for this Component
      */
-    declare a: Readonly<any>
+    declare readonly a: Readonly<any>
 
     /**
      * Stashes the children for this Component
      */
-    declare h: RenderableElements[]
+    declare readonly h: RenderableElements[]
 
     /**
      * Trigger unmount for this Component's children, then re-render
@@ -1271,11 +1265,11 @@ function mountComponentElementHelper(component: InternalComponent | MultiRendera
         }
         component.m = true
         // Mount the main Component
-        component.c.mount()
+        ;(component.c as ComponentInternals).mount()
         // Iterate component fields and trigger their mounts
         Object.values(component.c).forEach(enumberableValue => {
             if (instanceOfRenderObject(enumberableValue)) {
-                enumberableValue.mount()
+                (enumberableValue as RenderObjectInternals).mount()
             }
         })
     } else if (instanceOfWithComponent(component)) {
@@ -1323,12 +1317,12 @@ function unmountComponentElementHelper(component: InternalComponent | MultiRende
         // Unmount the main Component, only if it was mounted
         if (component.m) {
             component.m = false
-            component.c.unmount()
+            ;(component.c as ComponentInternals).unmount()
         }
         // Iterate component fields and trigger their unmounts
         Object.values(component.c).forEach(enumberableValue => {
             if (instanceOfRenderObject(enumberableValue)) {
-                enumberableValue.unmount()
+                (enumberableValue as RenderObjectInternals).unmount()
                 releaseVtKeyObject(enumberableValue)
             } else if (instanceOfComponent(enumberableValue)) {
                 releaseVtKeyObject(enumberableValue)
@@ -1370,7 +1364,7 @@ function unmountComponentElement(element: AnchorElement): void {
  * Render a Component into an AnchorElement
  */
 function componentRender(classComponent: InternalComponent, attrs: Readonly<any>, children: RenderableElements[]): AnchorElement {
-    const render: AnchorElement = wrapElementIfNeeded(classComponent.c.render(attrs, children))
+    const render: AnchorElement = wrapElementIfNeeded((classComponent.c as ComponentInternals).render(attrs, children))
     setDomKeyOn(render, classComponent.k)
     return render
 }
@@ -1384,23 +1378,23 @@ class WithComponent {
     /**
      * Array of RenderObjects to manage
      */
-    declare w: RenderObject<any>[]
+    declare readonly w: RenderObject<any,any>[]
 
     /**
      * Stashes the Component vtKey for this Component
      */
     declare readonly k: string
 
-    constructor(withObjects: RenderObject<any>[]) {
+    constructor(withObjects: RenderObject<any,any>[]) {
         this.w = withObjects
         this.k = registerNewVtKey(this)
     }
     mount(): void {
-        this.w.forEach(obj => obj.mount())
+        this.w.forEach(obj => (obj as RenderObjectInternals).mount())
     }
     unmount(): void {
         this.w.forEach(obj => {
-            obj.unmount()
+            (obj as RenderObjectInternals).unmount()
             releaseVtKeyObject(obj)
         })
     }
@@ -1647,6 +1641,23 @@ export function replaceElementWithRoot(rootComponent: AnchorElement, element: HT
     return rootComponent
 }
 
+/** Create the wrapper element of a RenderObjectArray or RenderTemplateArray */
+function createArrayWrapper(options: {wrapperElementTag?: string, wrapperAttrs?: any}): HTMLElement {
+    const tag = options.wrapperElementTag
+    const wrapper: HTMLElement = (tag === undefined) ? displayContentsDiv.cloneNode() as HTMLDivElement : createElement(tag, null) as HTMLElement
+    setAttrsOnElement(wrapper, options.wrapperAttrs)
+    return wrapper
+}
+/** Swap the positions of two sibling elements */
+function swapSiblings(parent: Node, a: Element, b: Element): void {
+    const aNext = a.nextSibling
+    if (aNext === b) {
+        parent.insertBefore(b, a)
+    } else {
+        parent.insertBefore(a, b)
+        parent.insertBefore(b, aNext)
+    }
+}
 /**
  * Parameters used on RenderObjectArray construction
  * 
@@ -1655,11 +1666,11 @@ export function replaceElementWithRoot(rootComponent: AnchorElement, element: HT
  * @renderFunction the renderFunction to pass to the underlying RenderObject instances on each data point
  * @handleUpdate advanced functionality used to more efficiently rerender instance elements
  */
-export type RenderObjectArrayOptions<DataType> = {
+export type RenderObjectArrayOptions<DataType, UpdateRefsType = any> = {
     wrapperElementTag?: string,
     wrapperAttrs?: any,
-    renderFunction: RenderObjectRenderFunctionType<DataType>,
-    handleUpdate?: RenderObjectHandleUpdateType<DataType>
+    renderFunction: RenderObjectRenderFunctionType<DataType, UpdateRefsType>,
+    handleUpdate?: RenderObjectHandleUpdateType<DataType, UpdateRefsType>
 }
 /**
  * An optimized RenderObject that represents an Array of data points rendered into
@@ -1668,9 +1679,9 @@ export type RenderObjectArrayOptions<DataType> = {
  * @template DataType The type of the underlying Data Object
  * @template UpdateRefsType An advanced capability of RenderObjectArray to more efficiently rerender instance elements
  */
-export class RenderObjectArray<DataType> extends RenderObject<RenderObject<DataType>[]> {
-    #renderFunction: RenderObjectRenderFunctionType<DataType>
-    #handleUpdate?: RenderObjectHandleUpdateType<DataType>
+export class RenderObjectArray<DataType, UpdateRefsType = any> extends RenderObject<RenderObject<DataType, UpdateRefsType>[]> {
+    readonly #renderFunction: RenderObjectRenderFunctionType<DataType, UpdateRefsType>
+    readonly #handleUpdate?: RenderObjectHandleUpdateType<DataType, UpdateRefsType>
     /**
      * Create a new RenderObjectArray
      * 
@@ -1681,11 +1692,9 @@ export class RenderObjectArray<DataType> extends RenderObject<RenderObject<DataT
      * @renderFunction the renderFunction to pass to the underlying RenderObject instances on each data point
      * @handleUpdate advanced functionality used to more efficiently rerender instance elements
      */
-    constructor(options: RenderObjectArrayOptions<DataType>) {
-        super([], (data: RenderObject<DataType>[]) => {
-            const tag = options.wrapperElementTag
-            const mainElement: HTMLElement = (tag === undefined) ? displayContentsDiv.cloneNode() as HTMLDivElement : createElement(tag, null) as HTMLElement
-            setAttrsOnElement(mainElement, options.wrapperAttrs)
+    constructor(options: RenderObjectArrayOptions<DataType, UpdateRefsType>) {
+        super([], (data: RenderObject<DataType, UpdateRefsType>[]) => {
+            const mainElement = createArrayWrapper(options)
             data.forEach(d => {
                 mainElement.appendChild(renderableElementToElement(d))
             })
@@ -1698,10 +1707,10 @@ export class RenderObjectArray<DataType> extends RenderObject<RenderObject<DataT
      * Push one data point into the Array
      */
     push(newData: DataType): void {
-        const obj = new RenderObject<DataType>(newData, this.#renderFunction, this.#handleUpdate)
+        const obj = new RenderObject<DataType, UpdateRefsType>(newData, this.#renderFunction, this.#handleUpdate)
         this.value.push(obj)
-        this.getElements().forEach(element => {
-            appendElement(element, renderableElementToElement(obj))
+        this.es.forEach(element => {
+            appendElement(element.e, renderableElementToElement(obj))
         })
     }
     /**
@@ -1752,28 +1761,15 @@ export class RenderObjectArray<DataType> extends RenderObject<RenderObject<DataT
         }
         value[indexA] = b
         value[indexB] = a
-        const bElements = b.getElements()
-        a.getElements().forEach(aElement => {
-            const parent = aElement.parentNode
-            const bElement = bElements.find(e => e.parentNode === parent)
-            if (parent && bElement) {
-                const aNext = aElement.nextSibling
-                if (aNext === bElement) {
-                    parent.insertBefore(bElement, aElement)
-                } else {
-                    parent.insertBefore(aElement, bElement)
-                    parent.insertBefore(bElement, aNext)
-                }
-            }
-        })
+        ;(a as RenderObjectInternals).sw(b)
     }
     /** Set the current value of this RenderObjectArray */
-    override set(newData: RenderObject<DataType>[]): void {
+    override set(newData: RenderObject<DataType, UpdateRefsType>[]): void {
         this.#releaseAll()
         super.set(newData)
     }
     /** Will unmount and release all rendered instances of this RenderObjectArray */
-    override unmount(): void {
+    protected override unmount(): void {
         super.unmount()
         this.value = []
     }
@@ -1782,10 +1778,208 @@ export class RenderObjectArray<DataType> extends RenderObject<RenderObject<DataT
         this.value.forEach(RenderObjectArray.#releaseOne)
     }
     /** Unmount, remove all rendered instances of, and release the vtKey of a single underlying RenderObject */
-    static #releaseOne(d: RenderObject<any>): void {
-        d.unmount()
+    static #releaseOne(d: RenderObject<any,any>): void {
+        (d as RenderObjectInternals).unmount()
         d.removeAll()
         releaseVtKeyObject(d)
+    }
+    /**
+     * Gets the length of the Array
+     */
+    get length(): number {
+        return this.value.length
+    }
+    /**
+     * Clears the Array of all data
+     */
+    clear(): void {
+        this.value = []
+    }
+}
+
+/**
+ * Parameters used on RenderTemplateArray construction
+ *
+ * @wrapperElementTag the HTML tag to use for the wrapper element (defaults to a \<div style="display:contents;"/> tag, a named tag is created unstyled)
+ * @wrapperAttrs attributes to set on the wrapper element
+ * @template the element cloned for each row, it must not contain Components, RenderObjects, or event listeners
+ * @renderFunction renders a data point into a new row clone, returns the updateRefs passed to handleUpdate
+ * @handleUpdate updates a row in place, when not set the row is replaced with a new clone
+ * @on event listeners on the wrapper element, called with the row, data, and index that the event occurred in (only events that bubble)
+ */
+export type RenderTemplateArrayOptions<DataType, UpdateRefsType = any, RowElementType extends Element = HTMLElement> = {
+    wrapperElementTag?: string,
+    wrapperAttrs?: any,
+    template: RowElementType,
+    renderFunction: (row: RowElementType, data: DataType) => UpdateRefsType,
+    handleUpdate?: (row: RowElementType, updateRefs: UpdateRefsType, oldData: DataType, newData: DataType) => void,
+    on?: {[EventName in BubblingEventName]?: (event: HTMLElementEventMap[EventName], row: RowElementType, data: DataType, index: number) => void}
+}
+/** A rendered row of a RenderTemplateArray */
+type TemplateRowType<UpdateRefsType, RowElementType extends Element> = {
+    /** element */
+    e: RowElementType,
+    /** updateRefs */
+    r: UpdateRefsType
+}
+/** Clone the template and render data into it */
+function newTemplateRow<DataType, UpdateRefsType, RowElementType extends Element>(options: RenderTemplateArrayOptions<DataType, UpdateRefsType, RowElementType>, data: DataType): TemplateRowType<UpdateRefsType, RowElementType> {
+    const row = options.template.cloneNode(true) as RowElementType
+    return {e: row, r: options.renderFunction(row, data)}
+}
+/** Render a row for each of data and append them to wrapper and rows */
+function appendTemplateRows<DataType, UpdateRefsType, RowElementType extends Element>(options: RenderTemplateArrayOptions<DataType, UpdateRefsType, RowElementType>, wrapper: AnchorElement, rows: TemplateRowType<UpdateRefsType, RowElementType>[], data: DataType[]): void {
+    for (let i = 0; i < data.length; i++) {
+        const row = newTemplateRow(options, data[i])
+        rows.push(row)
+        wrapper.appendChild(row.e)
+    }
+}
+
+/**
+ * An Array of data points rendered by cloning a template element for each row
+ *
+ * Rows cannot contain Components or RenderObjects, which lets rows be created, updated,
+ * and removed without Component bookkeeping (use RenderObjectArray for those cases)
+ *
+ * @template DataType The type of the underlying Data Object
+ * @template UpdateRefsType The type of the updateRefs returned by renderFunction and passed to handleUpdate
+ * @template RowElementType The element type of the template
+ */
+export class RenderTemplateArray<DataType, UpdateRefsType = any, RowElementType extends Element = HTMLElement> extends RenderObject<DataType[], TemplateRowType<UpdateRefsType, RowElementType>[]> {
+    readonly #options: RenderTemplateArrayOptions<DataType, UpdateRefsType, RowElementType>
+    /**
+     * Create a new RenderTemplateArray
+     */
+    constructor(options: RenderTemplateArrayOptions<DataType, UpdateRefsType, RowElementType>) {
+        super([], (data: DataType[], thisArg: RenderObject<DataType[], TemplateRowType<UpdateRefsType, RowElementType>[]>) => {
+            const wrapper = createArrayWrapper(options)
+            // The rows of this wrapper, kept as its updateRefs
+            const rows: TemplateRowType<UpdateRefsType, RowElementType>[] = []
+            appendTemplateRows(options, wrapper, rows, data)
+            const on = options.on
+            if (on) {
+                Object.keys(on).forEach(eventName => {
+                    const listener = on[eventName as BubblingEventName] as ((event: Event, row: RowElementType, data: DataType, index: number) => void) | undefined
+                    if (listener) {
+                        wrapper.addEventListener(eventName, event => {
+                            // Find the row that contains the event target
+                            let target = event.target as Node | null
+                            while (target && target.parentNode !== wrapper) {
+                                target = target.parentNode
+                            }
+                            for (let i = 0; i < rows.length; i++) {
+                                if (rows[i].e === target) {
+                                    listener(event, rows[i].e, thisArg.value[i], i)
+                                    return
+                                }
+                            }
+                        })
+                    }
+                })
+            }
+            return new UpdateHandlerLink(wrapper, rows)
+        }, (wrapper: AnchorElement, rows: TemplateRowType<UpdateRefsType, RowElementType>[], _oldData: DataType[], newData: DataType[]) => {
+            // Rows have no Components to unmount, so they are removed all at once
+            wrapper.textContent = ""
+            rows.length = 0
+            appendTemplateRows(options, wrapper, rows, newData)
+        })
+        this.#options = options
+    }
+    /**
+     * Push one data point into the Array
+     */
+    push(newData: DataType): void {
+        this.value.push(newData)
+        this.es.forEach(instance => {
+            const row = newTemplateRow(this.#options, newData)
+            instance.uR!.push(row)
+            instance.e.appendChild(row.e)
+        })
+    }
+    /**
+     * Push all of the data points of newData[] into the Array
+     */
+    pushAll(newData: DataType[]): void {
+        const value = this.value
+        for (let i = 0; i < newData.length; i++) {
+            value.push(newData[i])
+        }
+        const options = this.#options
+        this.es.forEach(instance => {
+            appendTemplateRows(options, instance.e, instance.uR!, newData)
+        })
+    }
+    /**
+     * Delete one or more data points from the Array
+     */
+    deleteAt(startIndex: number, deleteCount?: number): void {
+        const count = deleteCount! > 0 ? deleteCount! : 1
+        this.value.splice(startIndex, count)
+        this.es.forEach(instance => {
+            instance.uR!.splice(startIndex, count).forEach(row => {
+                row.e.remove()
+            })
+        })
+    }
+    /**
+     * Delete a data point from the Array by value
+     *
+     * (note: uses Array.indexOf() so runs in linear time)
+     */
+    delete(data: DataType): void {
+        const found = this.value.indexOf(data)
+        if (found >= 0) {
+            this.deleteAt(found, 1)
+        }
+    }
+    /**
+     * Get the Data value at index
+     */
+    getAt(index: number): DataType {
+        return this.value[index]
+    }
+    /**
+     * Set the value at index to newData
+     */
+    setAt(index: number, newData: DataType): void {
+        const value = this.value
+        const oldData = value[index]
+        value[index] = newData
+        const options = this.#options
+        const handleUpdate = options.handleUpdate
+        this.es.forEach(instance => {
+            const rows = instance.uR!
+            const row = rows[index]
+            if (handleUpdate) {
+                handleUpdate(row.e, row.r, oldData, newData)
+            } else {
+                const newRow = newTemplateRow(options, newData)
+                row.e.replaceWith(newRow.e)
+                rows[index] = newRow
+            }
+        })
+    }
+    /**
+     * Swap the data points at indexA and indexB, moving their rendered rows
+     */
+    swap(indexA: number, indexB: number): void {
+        const value = this.value
+        if (indexA === indexB || !(indexA in value && indexB in value)) {
+            return
+        }
+        const data = value[indexA]
+        value[indexA] = value[indexB]
+        value[indexB] = data
+        this.es.forEach(instance => {
+            const rows = instance.uR!
+            const a = rows[indexA]
+            const b = rows[indexB]
+            rows[indexA] = b
+            rows[indexB] = a
+            swapSiblings(instance.e, a.e, b.e)
+        })
     }
     /**
      * Gets the length of the Array
@@ -1898,19 +2092,19 @@ export class VelotypeEvent {
     /**
      * Link to the emitting object
      */
-    declare emittingObject: Component<any> | RenderObject<any>
+    declare readonly emittingObject: Component<any> | RenderObject<any,any>
     /**
      * A simple string representing the type of event
      */
-    declare event: string
+    declare readonly event: string
     /**
      * Generic metadata about the event
      */
-    declare data: any | undefined
+    declare readonly data: any | undefined
     /**
      * Create a new VelotypeEvent
      */
-    constructor(emittingObject: Component<any> | RenderObject<any>, event: string, data?: any) {
+    constructor(emittingObject: Component<any> | RenderObject<any,any>, event: string, data?: any) {
         this.emittingObject = emittingObject
         this.event = event
         this.data = data

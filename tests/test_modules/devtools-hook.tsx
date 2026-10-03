@@ -1,4 +1,5 @@
-import {replaceElementWithRoot, Component, RenderBasic, __vtAppMetadata, getDevtoolsHook} from "@velotype/velotype"
+import {replaceElementWithRoot, Component, RenderBasic} from "@velotype/velotype"
+import {__vtAppMetadata, getDevtoolsHook} from "@velotype/velotype/devtools"
 import type {EmptyAttrs} from "@velotype/velotype"
 
 class DevtoolsHookTest extends Component<EmptyAttrs> {

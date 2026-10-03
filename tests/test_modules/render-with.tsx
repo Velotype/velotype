@@ -1,6 +1,7 @@
 /// <reference lib="dom" />
 
-import {replaceElementWithRoot, Component, RenderBasic, __vtAppMetadata} from "@velotype/velotype"
+import {replaceElementWithRoot, Component, RenderBasic} from "@velotype/velotype"
+import {__vtAppMetadata} from "@velotype/velotype/devtools"
 import type {EmptyAttrs} from "@velotype/velotype"
 
 class RenderWithTest extends Component<EmptyAttrs> {

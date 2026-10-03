@@ -8,6 +8,8 @@ class DevtoolsHookTest extends Component<EmptyAttrs> {
     override render() {
         return <div id="devtools-hook-tests">
             <div id="hook-instances-size">{getDevtoolsHook()?.instances.size}</div>
+            <div id="vtkey-type">{typeof this.vtKey}</div>
+            <div id="velotype-version">{__vtAppMetadata.version}</div>
             <button id="unregister-self" type="button" onClick={() => {
                 const hook = getDevtoolsHook()
                 const ownEntry = hook && Array.from(hook.instances.entries()).find(([, metadata]) => metadata === __vtAppMetadata)

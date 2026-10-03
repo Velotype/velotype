@@ -21,6 +21,7 @@
         "@std/testing": "jsr:@std/testing@^1.0.16",
         "@velotype/veloserver": "jsr:@velotype/veloserver@^0.2.0",
         "@velotype/velotype/jsx-runtime": "../src/jsx-runtime/jsx-runtime.ts",
+        "@velotype/velotype/devtools": "../src/devtools/devtools.ts",
         "@velotype/velotype": "../src/jsx-runtime/jsx-runtime.ts"
     },
     "lint": {

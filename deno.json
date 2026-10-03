@@ -5,7 +5,8 @@
   "exports": {
     ".": "./src/jsx-runtime/jsx-runtime.ts",
     "./jsx-runtime": "./src/jsx-runtime/jsx-runtime.ts",
-    "./jsx-dev-runtime": "./src/jsx-dev-runtime/jsx-dev-runtime.ts"
+    "./jsx-dev-runtime": "./src/jsx-dev-runtime/jsx-dev-runtime.ts",
+    "./devtools": "./src/devtools/devtools.ts"
   },
   "publish": {
     "exclude": [

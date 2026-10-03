@@ -93,6 +93,19 @@ export type EventHandlerOptions<E extends TargetedEvent> = {
 /** An event handler */
 export type EventHandler<E extends TargetedEvent> = ((event: E) => void) | EventHandlerOptions<E>
 
+/**
+ * Names of events that do not bubble, so cannot be listened for on an ancestor element
+ *
+ * Reference: https://developer.mozilla.org/en-US/docs/Web/API/Event/bubbles
+ */
+export type NonBubblingEventName = 'abort' | 'beforetoggle' | 'blur' | 'canplay' | 'canplaythrough' | 'close' | 'contextlost' | 'contextrestored' | 'cuechange' | 'durationchange' | 'emptied' | 'ended' | 'error' | 'focus' | 'invalid' | 'load' | 'loadeddata' | 'loadedmetadata' | 'loadstart' | 'mouseenter' | 'mouseleave' | 'pause' | 'play' | 'playing' | 'pointerenter' | 'pointerleave' | 'progress' | 'ratechange' | 'resize' | 'scroll' | 'scrollend' | 'seeked' | 'seeking' | 'stalled' | 'suspend' | 'timeupdate' | 'toggle' | 'volumechange' | 'waiting'
+/**
+ * Names of events that bubble, so can be listened for on an ancestor element
+ *
+ * Reference: https://developer.mozilla.org/en-US/docs/Web/API/Event/bubbles
+ */
+export type BubblingEventName = Exclude<keyof HTMLElementEventMap, NonBubblingEventName>
+
 /** An event handler for an AnimationEvent */
 export type AnimationEventHandler<Target extends EventTarget> = EventHandler<TargetedAnimationEvent<Target>>
 /** An event handler for an ClipboardEvent */

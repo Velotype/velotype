@@ -346,6 +346,15 @@ describe('basic component rendering', () => {
         await (await page.waitForSelector("#multi-delete")).click()
         assertEquals(await probes(), 0)
         assertEquals(await tally(), "2/2")
+
+        // clear() replaces both wrappers, which unmounts every instance
+        await (await page.waitForSelector("#multi-push")).click()
+        await (await page.waitForSelector("#multi-push")).click()
+        assertEquals(await probes(), 4)
+        assertEquals(await tally(), "6/2")
+        await (await page.waitForSelector("#multi-clear")).click()
+        assertEquals(await probes(), 0)
+        assertEquals(await tally(), "6/6")
     })
 
     itWrap("RenderObjectArray.swap() moves rendered elements in every instance", "render-object-array", "#swap-tests", async (_pageLoadSelection: ElementHandle) => {
@@ -378,6 +387,63 @@ describe('basic component rendering', () => {
         assertEquals(sameElements, true)
         // Moving is not a remount
         assertEquals(await tally(), "8/0")
+    })
+
+    itWrap("RenderTemplateArray renders, updates, moves, and removes cloned rows", "render-object-array", "#template-tests", async (_pageLoadSelection: ElementHandle) => {
+        const innerTextOf = async (selector: string) => (await (await page.waitForSelector(selector)).innerText()).replace(/\s+/g, " ").trim()
+        const click = async (selector: string) => await (await page.waitForSelector(selector)).click()
+        const tables = async () => await page.evaluate(`Array.from(document.querySelectorAll(".template-table tbody"), b => Array.from(b.children, tr => tr.firstChild.textContent).join(",")).join("|")`)
+        const replaced = async () => await page.evaluate(`Array.from(document.querySelectorAll("#template-replaced .replaced"), e => e.textContent).join(",")`)
+        const tagRows = async () => await page.evaluate(`document.querySelectorAll(".template-row").forEach(tr => { tr.dataset.id = tr.firstChild.textContent })`)
+        const sameRows = async () => await page.evaluate(`Array.from(document.querySelectorAll(".template-row")).every(tr => tr.dataset.id !== undefined)`)
+        const clickRow = async (table: number, row: number, selector: string) => await page.evaluate(`document.querySelectorAll(".template-table")[${table}].querySelectorAll(".template-row")[${row}].querySelector("${selector}").click()`)
+
+        await click("#template-fill")
+        assertEquals(await tables(), "a,b,c,d|a,b,c,d")
+        assertEquals(await replaced(), "x,y")
+        await click("#template-length")
+        assertEquals(await innerTextOf("#template-clicked"), "length 4 2")
+        await tagRows()
+
+        // handleUpdate changes rows in place, without handleUpdate the row is replaced
+        await click("#template-set")
+        assertEquals(await tables(), "a,b2,c,d|a,b2,c,d")
+        assertEquals(await sameRows(), true)
+        assertEquals(await replaced(), "x,y2")
+        // An updated row's events see its current data
+        await clickRow(0, 1, ".name")
+        assertEquals(await innerTextOf("#template-clicked"), "b2@1")
+
+        await click("#template-swap")
+        assertEquals(await tables(), "c,b2,d,a|c,b2,d,a")
+        assertEquals(await sameRows(), true)
+
+        // Events are delegated from the wrapper with the row's current data and index, in both tables
+        await clickRow(1, 2, ".name")
+        assertEquals(await innerTextOf("#template-clicked"), "d@2")
+        await clickRow(0, 0, ".remove")
+        assertEquals(await tables(), "b2,d,a|b2,d,a")
+
+        // delete(this.b) finds nothing since setAt() replaced it
+        await click("#template-delete")
+        assertEquals(await tables(), "d,a|d,a")
+        await click("#template-delete-value")
+        assertEquals(await tables(), "a|a")
+
+        await click("#template-replace")
+        assertEquals(await tables(), "p,q|p,q")
+        await click("#template-length")
+        assertEquals(await innerTextOf("#template-clicked"), "length 2 2")
+
+        await click("#template-clear")
+        assertEquals(await tables(), "|")
+        assertEquals(await replaced(), "")
+        await click("#template-length")
+        assertEquals(await innerTextOf("#template-clicked"), "length 0 0")
+
+        // Rows can be added again after a clear
+        await click("#template-fill")
+        assertEquals(await tables(), "a,b,c,d|a,b,c,d")
     })
 
     itWrap("a RenderObjectArray wrapper can be a real table section", "render-object-array", "#probe-table", async (_pageLoadSelection: ElementHandle) => {

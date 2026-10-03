@@ -12,8 +12,8 @@ if (!version || !/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/.test(version)) {
 
 /** Each file that records the version, and the pattern that finds it */
 const locations: Array<{file: URL, pattern: RegExp}> = [
-    {file: new URL("../deno.json", import.meta.url), pattern: /^(  "version": ")([^"]*)(",)$/m},
-    {file: new URL("../src/tsx/tsx-core.ts", import.meta.url), pattern: /^(    version: ")([^"]*)(",)$/m},
+    {file: new URL("../deno.json", import.meta.url), pattern: /^( {2}"version": ")([^"]*)(",)$/m},
+    {file: new URL("../src/tsx/globals.ts", import.meta.url), pattern: /^( {4}version: ")([^"]*)(",)$/m},
 ]
 
 // Check every location before writing any, so that a failure leaves no file updated

@@ -4,7 +4,7 @@ Changes in each version of `@velotype/velotype` published to [JSR](https://jsr.i
 
 **Breaking** marks a change that can require updates to code that uses Velotype.
 
-## Unreleased
+## 0.2.4 — 2026-10-03
 
 - New hot update support in the jsx-dev-runtime entry point, for development servers such as the one in `@velotype/veloserver/dev`. When changed code runs again, live components are updated in place: class components get the new methods and render again keeping their fields, and function component outputs render again in place. The jsx-runtime entry point is unchanged.
 - In the jsx-dev-runtime entry point, `setStylesheet()` replaces a sheet whose text has changed, and `replaceElementWithRoot()` does not mount a second app while an update runs the app's entry code again.

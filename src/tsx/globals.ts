@@ -116,7 +116,7 @@ export type VtAppMetadata = {
  */
 export const __vtAppMetadata: VtAppMetadata = {
     /** The version of this Velotype instance */
-    version: "0.2.3",
+    version: "0.2.4",
 
     // ------- For Velotype Core -------
     /** Property on each bound element that holds its DOM key */

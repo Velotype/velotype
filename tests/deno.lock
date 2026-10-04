@@ -159,7 +159,7 @@
       "jsr:@velotype/veloserver@0.2"
     ],
     "links": {
-      "jsr:@velotype/velotype@0.2.2": {
+      "jsr:@velotype/velotype@0.2.3": {
         "dependencies": [
           "jsr:@astral/astral@~0.5.4",
           "jsr:@std/assert@^1.0.16",

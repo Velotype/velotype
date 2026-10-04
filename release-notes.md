@@ -7,7 +7,8 @@ Changes in each version of `@velotype/velotype` published to [JSR](https://jsr.i
 ## Unreleased
 
 - **Breaking:** `StyleAttrType` (the type of the `style` attribute and of `StylePassthroughAttrs.style`) only accepts known CSS properties, taken from the DOM lib's `CSSStyleDeclaration`. Properties can be written in lowerCamelCase (`marginTop`) or hyphen-case (`"margin-top"`), and custom properties (`"--name"`) are accepted. Numbers are only accepted for custom properties and for properties that take no unit, such as `opacity`, `zIndex`, and `flexGrow`.
-- New `CSSPropertyName` and `UnitlessCSSPropertyName` types.
+- **Breaking:** the values of 135 commonly used CSS properties are checked, such as `display`, `position`, `width`, `margin`, `color`, `opacity`, and `transitionDuration`. Keywords must be ones the property accepts, lengths and times need a unit, and colors must be a named color, `#hex`, or a color function. Values using `var()`, `env()`, `attr()`, math functions such as `calc()`, and the CSS-wide keywords (`inherit`, `initial`, ...) are always accepted. Other properties accept any string.
+- New `CSSPropertyName`, `UnitlessCSSPropertyName`, `CSSPropertyValues`, `CSSValue`, `CSSLength`, `CSSPercentage`, `CSSLengthPercentage`, `CSSNumber`, `CSSTime`, `CSSColor`, `CSSNamedColor`, and related types.
 - Fix: a custom property with an `!important` value had its name converted to hyphen-case (`--brandColor` set `--brand-color`), and a `webkit` property with an `!important` value was set without its leading `-`.
 
 ## 0.2.2 — 2026-10-03

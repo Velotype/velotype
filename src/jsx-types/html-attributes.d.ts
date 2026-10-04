@@ -30,15 +30,277 @@ type HyphenCase<Name extends string> = Name extends `${infer First}${infer Rest}
 /** The hyphen-case name of a CSS property, with `webkit` names becoming `-webkit-` */
 type HyphenCSSPropertyName<Name extends string> = Name extends `webkit${infer Rest}` ? `-webkit${HyphenCase<Rest>}` : HyphenCase<Name>
 
+/** The CSS-wide keywords, accepted by every property */
+export type CSSWideKeyword = 'inherit' | 'initial' | 'unset' | 'revert' | 'revert-layer'
+
+/** Values that use var(), env(), or attr(), accepted by every property since their value is only known when applied */
+export type CSSSubstitutionValue = `${string}var(--${string})${string}` | `${string}env(${string})${string}` | `${string}attr(${string})${string}`
+
+/** Math functions, accepted wherever a numeric value is, reference: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Values_and_Units/CSS_Value_Functions#math_functions */
+export type CSSMathFunction = 'calc' | 'min' | 'max' | 'clamp' | 'round' | 'mod' | 'rem' | 'sin' | 'cos' | 'tan' | 'asin'
+    | 'acos' | 'atan' | 'atan2' | 'pow' | 'sqrt' | 'hypot' | 'log' | 'exp' | 'abs' | 'sign' | 'progress' | 'random'
+    | 'sibling-count' | 'sibling-index'
+
+/** A math function call, such as `calc(100% - 4px)` */
+type CSSMath = `${CSSMathFunction}(${string})`
+
+/** Reference: https://developer.mozilla.org/en-US/docs/Web/CSS/length */
+export type CSSLengthUnit = 'px' | 'em' | 'rem' | 'ex' | 'rex' | 'cap' | 'rcap' | 'ch' | 'rch' | 'ic' | 'ric' | 'lh' | 'rlh'
+    | 'vw' | 'vh' | 'vi' | 'vb' | 'vmin' | 'vmax' | 'svw' | 'svh' | 'svi' | 'svb' | 'svmin' | 'svmax' | 'lvw' | 'lvh'
+    | 'lvi' | 'lvb' | 'lvmin' | 'lvmax' | 'dvw' | 'dvh' | 'dvi' | 'dvb' | 'dvmin' | 'dvmax' | 'cqw' | 'cqh' | 'cqi'
+    | 'cqb' | 'cqmin' | 'cqmax' | 'cm' | 'mm' | 'q' | 'in' | 'pt' | 'pc'
+
+/** Reference: https://developer.mozilla.org/en-US/docs/Web/CSS/length */
+export type CSSLength = `${number}${CSSLengthUnit}` | '0' | CSSMath
+/** Reference: https://developer.mozilla.org/en-US/docs/Web/CSS/percentage */
+export type CSSPercentage = `${number}%` | CSSMath
+/** Reference: https://developer.mozilla.org/en-US/docs/Web/CSS/length-percentage */
+export type CSSLengthPercentage = CSSLength | CSSPercentage
+/** A number written as a string, reference: https://developer.mozilla.org/en-US/docs/Web/CSS/number */
+export type CSSNumber = `${number}` | CSSMath
+/** Reference: https://developer.mozilla.org/en-US/docs/Web/CSS/time */
+export type CSSTime = `${number}${'s' | 'ms'}` | CSSMath
+
+/** Reference: https://developer.mozilla.org/en-US/docs/Web/CSS/named-color */
+export type CSSNamedColor = 'aliceblue' | 'antiquewhite' | 'aqua' | 'aquamarine' | 'azure' | 'beige' | 'bisque' | 'black'
+    | 'blanchedalmond' | 'blue' | 'blueviolet' | 'brown' | 'burlywood' | 'cadetblue' | 'chartreuse' | 'chocolate' | 'coral'
+    | 'cornflowerblue' | 'cornsilk' | 'crimson' | 'cyan' | 'darkblue' | 'darkcyan' | 'darkgoldenrod' | 'darkgray'
+    | 'darkgreen' | 'darkgrey' | 'darkkhaki' | 'darkmagenta' | 'darkolivegreen' | 'darkorange' | 'darkorchid' | 'darkred'
+    | 'darksalmon' | 'darkseagreen' | 'darkslateblue' | 'darkslategray' | 'darkslategrey' | 'darkturquoise' | 'darkviolet'
+    | 'deeppink' | 'deepskyblue' | 'dimgray' | 'dimgrey' | 'dodgerblue' | 'firebrick' | 'floralwhite' | 'forestgreen'
+    | 'fuchsia' | 'gainsboro' | 'ghostwhite' | 'gold' | 'goldenrod' | 'gray' | 'green' | 'greenyellow' | 'grey' | 'honeydew'
+    | 'hotpink' | 'indianred' | 'indigo' | 'ivory' | 'khaki' | 'lavender' | 'lavenderblush' | 'lawngreen' | 'lemonchiffon'
+    | 'lightblue' | 'lightcoral' | 'lightcyan' | 'lightgoldenrodyellow' | 'lightgray' | 'lightgreen' | 'lightgrey'
+    | 'lightpink' | 'lightsalmon' | 'lightseagreen' | 'lightskyblue' | 'lightslategray' | 'lightslategrey'
+    | 'lightsteelblue' | 'lightyellow' | 'lime' | 'limegreen' | 'linen' | 'magenta' | 'maroon' | 'mediumaquamarine'
+    | 'mediumblue' | 'mediumorchid' | 'mediumpurple' | 'mediumseagreen' | 'mediumslateblue' | 'mediumspringgreen'
+    | 'mediumturquoise' | 'mediumvioletred' | 'midnightblue' | 'mintcream' | 'mistyrose' | 'moccasin' | 'navajowhite'
+    | 'navy' | 'oldlace' | 'olive' | 'olivedrab' | 'orange' | 'orangered' | 'orchid' | 'palegoldenrod' | 'palegreen'
+    | 'paleturquoise' | 'palevioletred' | 'papayawhip' | 'peachpuff' | 'peru' | 'pink' | 'plum' | 'powderblue' | 'purple'
+    | 'rebeccapurple' | 'red' | 'rosybrown' | 'royalblue' | 'saddlebrown' | 'salmon' | 'sandybrown' | 'seagreen'
+    | 'seashell' | 'sienna' | 'silver' | 'skyblue' | 'slateblue' | 'slategray' | 'slategrey' | 'snow' | 'springgreen'
+    | 'steelblue' | 'tan' | 'teal' | 'thistle' | 'tomato' | 'turquoise' | 'violet' | 'wheat' | 'white' | 'whitesmoke'
+    | 'yellow' | 'yellowgreen'
+
+/** Reference: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value */
+export type CSSColor = CSSNamedColor | 'transparent' | 'currentcolor' | 'currentColor' | `#${string}`
+    | `${'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hwb' | 'lab' | 'lch' | 'oklab' | 'oklch' | 'color' | 'color-mix' | 'light-dark' | 'contrast-color'}(${string})`
+
+/** A space-separated list of up to four values, such as `margin: 0 auto`, the first value is checked */
+type CSSSides<Value extends string> = Value | `${Value} ${string}`
+/** A comma-separated list, such as `transition-duration: 1s, 2s`, the first item is checked */
+type CSSList<Value extends string> = Value | `${Value}, ${string}`
+
+/** Reference: https://developer.mozilla.org/en-US/docs/Web/CSS/line-style */
+type CSSLineStyle = 'none' | 'hidden' | 'dotted' | 'dashed' | 'solid' | 'double' | 'groove' | 'ridge' | 'inset' | 'outset'
+/** Reference: https://developer.mozilla.org/en-US/docs/Web/CSS/line-width */
+type CSSLineWidth = CSSLength | 'hairline' | 'thin' | 'medium' | 'thick'
+/** Sizes of a box, such as `width` */
+type CSSBoxSize = CSSLengthPercentage | 'stretch' | 'contain' | 'min-content' | 'max-content' | 'fit-content'
+    | `${'fit-content' | 'calc-size' | 'anchor-size'}(${string})`
+/** Inset values, such as `top` */
+type CSSInset = 'auto' | CSSLengthPercentage | `${'anchor' | 'anchor-size'}(${string})`
+/** Margin values, such as `margin-top` */
+type CSSMargin = 'auto' | CSSLengthPercentage | `anchor-size(${string})`
+/** Reference: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_box_alignment */
+type CSSContentPosition = 'center' | 'start' | 'end' | 'flex-start' | 'flex-end'
+type CSSSelfPosition = CSSContentPosition | 'self-start' | 'self-end'
+type CSSBaselinePosition = 'baseline' | 'first baseline' | 'last baseline'
+type CSSContentDistribution = 'space-between' | 'space-around' | 'space-evenly' | 'stretch'
+type CSSOverflowPosition<Position extends string> = Position | `${'safe' | 'unsafe'} ${Position}`
+/** Reference: https://developer.mozilla.org/en-US/docs/Web/CSS/display */
+type CSSDisplayOutside = 'block' | 'inline' | 'run-in'
+type CSSDisplayInside = 'flow' | 'flow-root' | 'table' | 'flex' | 'grid' | 'ruby'
+/** Reference: https://developer.mozilla.org/en-US/docs/Web/CSS/overflow */
+type CSSOverflow = 'visible' | 'hidden' | 'clip' | 'scroll' | 'auto'
+
+/**
+ * The value types of CSS properties, by their lowerCamelCase names
+ *
+ * Properties not listed here accept any string.
+ */
+export interface CSSPropertyValues {
+    // ------- Layout -------
+    display: CSSDisplayOutside | CSSDisplayInside | `${CSSDisplayOutside} ${CSSDisplayInside}` | `${CSSDisplayInside} ${CSSDisplayOutside}`
+        | 'list-item' | `${CSSDisplayOutside | 'flow' | 'flow-root'} list-item` | `${CSSDisplayOutside} ${'flow' | 'flow-root'} list-item`
+        | 'table-row-group' | 'table-header-group' | 'table-footer-group' | 'table-row' | 'table-cell' | 'table-column-group'
+        | 'table-column' | 'table-caption' | 'ruby-base' | 'ruby-text' | 'ruby-base-container' | 'ruby-text-container'
+        | 'contents' | 'none' | 'inline-block' | 'inline-table' | 'inline-flex' | 'inline-grid' | 'grid-lanes' | 'inline-grid-lanes'
+    position: 'static' | 'relative' | 'absolute' | 'sticky' | 'fixed'
+    visibility: 'visible' | 'hidden' | 'collapse'
+    boxSizing: 'content-box' | 'border-box'
+    overflow: CSSOverflow | `${CSSOverflow} ${CSSOverflow}`
+    overflowX: CSSOverflow
+    overflowY: CSSOverflow
+    overflowBlock: CSSOverflow
+    overflowInline: CSSOverflow
+    float: 'left' | 'right' | 'none' | 'inline-start' | 'inline-end' | 'block-start' | 'block-end' | 'top' | 'bottom' | 'footnote'
+    clear: 'none' | 'left' | 'right' | 'both' | 'inline-start' | 'inline-end' | 'block-start' | 'block-end' | 'top' | 'bottom' | 'both-inline' | 'both-block'
+    isolation: 'auto' | 'isolate'
+    contentVisibility: 'visible' | 'auto' | 'hidden'
+    tableLayout: 'auto' | 'fixed'
+    borderCollapse: 'separate' | 'collapse'
+    direction: 'ltr' | 'rtl'
+    zIndex: 'auto' | CSSNumber
+    order: CSSNumber
+
+    // ------- Flex and grid -------
+    flexDirection: 'row' | 'row-reverse' | 'column' | 'column-reverse'
+    flexWrap: 'nowrap' | 'wrap' | 'wrap-reverse' | 'balance' | `${'wrap' | 'wrap-reverse'} balance` | `balance ${'wrap' | 'wrap-reverse'}`
+    flexGrow: CSSNumber
+    flexShrink: CSSNumber
+    flexBasis: 'auto' | 'content' | CSSBoxSize
+    justifyContent: 'normal' | CSSContentDistribution | CSSOverflowPosition<CSSContentPosition | 'left' | 'right'>
+    alignContent: 'normal' | CSSBaselinePosition | CSSContentDistribution | CSSOverflowPosition<CSSContentPosition>
+    alignItems: 'normal' | 'stretch' | 'anchor-center' | CSSBaselinePosition | CSSOverflowPosition<CSSSelfPosition>
+    alignSelf: 'auto' | 'stretch' | 'anchor-center' | CSSBaselinePosition | CSSOverflowPosition<'normal' | CSSSelfPosition>
+    justifyItems: 'normal' | 'stretch' | 'anchor-center' | CSSBaselinePosition | CSSOverflowPosition<CSSSelfPosition | 'left' | 'right'>
+        | 'legacy' | `legacy ${'left' | 'right' | 'center'}` | `${'left' | 'right' | 'center'} legacy`
+    justifySelf: 'auto' | 'stretch' | 'anchor-center' | CSSBaselinePosition | CSSOverflowPosition<'normal' | CSSSelfPosition | 'left' | 'right'>
+    gap: CSSSides<'normal' | CSSLengthPercentage>
+    rowGap: 'normal' | CSSLengthPercentage
+    columnGap: 'normal' | CSSLengthPercentage
+
+    // ------- Sizing -------
+    width: 'auto' | CSSBoxSize
+    height: 'auto' | CSSBoxSize
+    minWidth: 'auto' | CSSBoxSize
+    minHeight: 'auto' | CSSBoxSize
+    maxWidth: 'none' | CSSBoxSize
+    maxHeight: 'none' | CSSBoxSize
+    inlineSize: 'auto' | CSSBoxSize
+    blockSize: 'auto' | CSSBoxSize
+    minInlineSize: 'auto' | CSSBoxSize
+    minBlockSize: 'auto' | CSSBoxSize
+    maxInlineSize: 'none' | CSSBoxSize
+    maxBlockSize: 'none' | CSSBoxSize
+    aspectRatio: 'auto' | CSSNumber | `${number} / ${number}` | `auto ${string}` | `${number}${string} auto`
+
+    // ------- Insets, margins, and padding -------
+    top: CSSInset
+    right: CSSInset
+    bottom: CSSInset
+    left: CSSInset
+    inset: CSSSides<CSSInset>
+    insetBlock: CSSSides<CSSInset>
+    insetInline: CSSSides<CSSInset>
+    insetBlockStart: CSSInset
+    insetBlockEnd: CSSInset
+    insetInlineStart: CSSInset
+    insetInlineEnd: CSSInset
+    margin: CSSSides<CSSMargin>
+    marginTop: CSSMargin
+    marginRight: CSSMargin
+    marginBottom: CSSMargin
+    marginLeft: CSSMargin
+    marginBlock: CSSSides<CSSMargin>
+    marginInline: CSSSides<CSSMargin>
+    marginBlockStart: CSSMargin
+    marginBlockEnd: CSSMargin
+    marginInlineStart: CSSMargin
+    marginInlineEnd: CSSMargin
+    padding: CSSSides<CSSLengthPercentage>
+    paddingTop: CSSLengthPercentage
+    paddingRight: CSSLengthPercentage
+    paddingBottom: CSSLengthPercentage
+    paddingLeft: CSSLengthPercentage
+    paddingBlock: CSSSides<CSSLengthPercentage>
+    paddingInline: CSSSides<CSSLengthPercentage>
+    paddingBlockStart: CSSLengthPercentage
+    paddingBlockEnd: CSSLengthPercentage
+    paddingInlineStart: CSSLengthPercentage
+    paddingInlineEnd: CSSLengthPercentage
+
+    // ------- Borders and outlines -------
+    borderStyle: CSSSides<CSSLineStyle>
+    borderTopStyle: CSSLineStyle
+    borderRightStyle: CSSLineStyle
+    borderBottomStyle: CSSLineStyle
+    borderLeftStyle: CSSLineStyle
+    borderWidth: CSSSides<CSSLineWidth>
+    borderTopWidth: CSSLineWidth
+    borderRightWidth: CSSLineWidth
+    borderBottomWidth: CSSLineWidth
+    borderLeftWidth: CSSLineWidth
+    borderColor: CSSSides<CSSColor>
+    borderTopColor: CSSColor
+    borderRightColor: CSSColor
+    borderBottomColor: CSSColor
+    borderLeftColor: CSSColor
+    borderRadius: CSSSides<CSSLengthPercentage>
+    borderTopLeftRadius: CSSSides<CSSLengthPercentage>
+    borderTopRightRadius: CSSSides<CSSLengthPercentage>
+    borderBottomRightRadius: CSSSides<CSSLengthPercentage>
+    borderBottomLeftRadius: CSSSides<CSSLengthPercentage>
+    outlineStyle: 'auto' | CSSLineStyle
+    outlineWidth: CSSLineWidth
+    outlineColor: 'auto' | CSSColor
+    outlineOffset: CSSLength
+
+    // ------- Colors -------
+    color: CSSColor
+    backgroundColor: CSSColor
+    accentColor: 'auto' | CSSColor
+    caretColor: 'auto' | CSSColor | `${'auto' | CSSColor} ${string}`
+    textDecorationColor: CSSColor
+    columnRuleColor: CSSColor
+    fill: 'none' | 'context-fill' | 'context-stroke' | CSSColor | `url(${string}`
+    stroke: 'none' | 'context-fill' | 'context-stroke' | CSSColor | `url(${string}`
+    opacity: CSSNumber | CSSPercentage
+    mixBlendMode: 'normal' | 'darken' | 'multiply' | 'color-burn' | 'lighten' | 'screen' | 'color-dodge' | 'overlay'
+        | 'soft-light' | 'hard-light' | 'difference' | 'exclusion' | 'hue' | 'saturation' | 'color' | 'luminosity' | 'plus-lighter'
+
+    // ------- Text -------
+    fontSize: 'xx-small' | 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'xx-large' | 'xxx-large' | 'larger' | 'smaller' | 'math' | CSSLengthPercentage
+    fontStyle: 'normal' | 'italic' | 'left' | 'right' | 'oblique' | `oblique ${string}`
+    fontWeight: 'normal' | 'bold' | 'bolder' | 'lighter' | CSSNumber
+    lineHeight: 'normal' | CSSNumber | CSSLengthPercentage
+    letterSpacing: 'normal' | CSSLengthPercentage
+    wordSpacing: 'normal' | CSSLengthPercentage
+    textAlign: 'start' | 'end' | 'left' | 'right' | 'center' | 'justify' | 'match-parent' | 'justify-all' | `"${string}"` | `'${string}'`
+    textIndent: CSSLengthPercentage | `${CSSLengthPercentage} ${string}`
+    textTransform: 'none' | 'math-auto' | 'capitalize' | 'uppercase' | 'lowercase' | 'full-width' | 'full-size-kana'
+        | `${'capitalize' | 'uppercase' | 'lowercase' | 'full-width' | 'full-size-kana'} ${string}`
+    textOverflow: 'clip' | 'ellipsis' | 'fade' | `"${string}"` | `'${string}'` | `fade(${string})` | `${'clip' | 'ellipsis' | 'fade'} ${string}`
+    wordBreak: 'normal' | 'break-all' | 'keep-all' | 'manual' | 'auto-phrase' | 'break-word'
+    overflowWrap: 'normal' | 'break-word' | 'anywhere'
+
+    // ------- Interaction -------
+    cursor: 'auto' | 'default' | 'none' | 'context-menu' | 'help' | 'pointer' | 'progress' | 'wait' | 'cell' | 'crosshair'
+        | 'text' | 'vertical-text' | 'alias' | 'copy' | 'move' | 'no-drop' | 'not-allowed' | 'grab' | 'grabbing' | 'e-resize'
+        | 'n-resize' | 'ne-resize' | 'nw-resize' | 's-resize' | 'se-resize' | 'sw-resize' | 'w-resize' | 'ew-resize' | 'ns-resize'
+        | 'nesw-resize' | 'nwse-resize' | 'col-resize' | 'row-resize' | 'all-scroll' | 'zoom-in' | 'zoom-out'
+        | `${'url' | 'image-set'}(${string}`
+    pointerEvents: 'auto' | 'bounding-box' | 'visiblePainted' | 'visibleFill' | 'visibleStroke' | 'visible' | 'painted' | 'fill' | 'stroke' | 'all' | 'none'
+    userSelect: 'auto' | 'text' | 'none' | 'contain' | 'all'
+    resize: 'none' | 'both' | 'horizontal' | 'vertical' | 'block' | 'inline'
+    objectFit: 'fill' | 'none' | 'contain' | 'cover' | 'scale-down' | `${'contain' | 'cover'} scale-down` | `scale-down ${'contain' | 'cover'}`
+    backfaceVisibility: 'visible' | 'hidden'
+
+    // ------- Animation -------
+    transitionDuration: CSSList<CSSTime>
+    transitionDelay: CSSList<CSSTime>
+    animationDuration: CSSList<'auto' | CSSTime>
+    animationDelay: CSSList<CSSTime>
+    animationIterationCount: CSSList<'infinite' | CSSNumber>
+}
+
+/** The value type of a CSS property, by its lowerCamelCase name */
+export type CSSValue<Name extends string> = (Name extends keyof CSSPropertyValues ? CSSPropertyValues[Name] : string) | CSSWideKeyword | CSSSubstitutionValue
+
+/** A value in a style object: the property's value, optionally with `!important`, or a number for properties that take no unit */
+type StyleValue<Name extends string> = CSSValue<Name> | `${CSSValue<Name>} !important` | (Name extends UnitlessCSSPropertyName ? number : never) | null | undefined
+
 /**
  * Type for the `style={{display: "block"}}` Attribute object
  *
  * Accepts CSS properties in lowerCamelCase or hyphen-case, and custom properties (`--name`).
+ * The values of the properties in CSSPropertyValues are checked, other properties accept any string.
  * Numbers are accepted for custom properties and for properties that take no unit.
  * A value may end with `!important`.
  */
 export type StyleAttrType = {
-    [Name in CSSPropertyName as Name | HyphenCSSPropertyName<Name>]?: (Name extends UnitlessCSSPropertyName ? string | number : string) | null | undefined
+    [Name in CSSPropertyName as Name | HyphenCSSPropertyName<Name>]?: StyleValue<Name>
 } & {
     [name: `--${string}`]: string | number | null | undefined
 }

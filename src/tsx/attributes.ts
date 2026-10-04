@@ -101,9 +101,15 @@ function setBooleanAttributeHelper(element: Element, name: string, value: boolea
     }
 }
 
-/** Convert from lowerCamelCase to hypen-case */
-function lowerCamelToHypenCase(text: string): string {
-    return text.replace(upperCaseRegExp, char => '-' + char.toLowerCase())
+/** The hyphen-case name of a CSS property, as setProperty() expects */
+function cssPropertyName(name: string): string {
+    // Custom properties are case-sensitive, so they are used as-is
+    if (name.startsWith('--')) {
+        return name
+    }
+    const hyphenName = name.replace(upperCaseRegExp, char => '-' + char.toLowerCase())
+    // webkitLineClamp is -webkit-line-clamp
+    return hyphenName.startsWith('webkit-') ? '-' + hyphenName : hyphenName
 }
 
 /**
@@ -169,7 +175,7 @@ function setAttrOnElement(element: AnchorElement, name: string, value: any): voi
             const style = element.style
             if (stringKeyValue.endsWith('!important')) {
                 // Important requires setProperty() call
-                style.setProperty(lowerCamelToHypenCase(key), stringKeyValue.slice(0, -10), 'important')
+                style.setProperty(cssPropertyName(key), stringKeyValue.slice(0, -10), 'important')
             } else {
                 let hasSetter = styleSetterCache.get(key)
                 if (hasSetter === undefined) {

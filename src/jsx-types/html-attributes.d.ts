@@ -4,9 +4,43 @@ import type { RenderObject } from "../tsx/tsx-core.ts"
 import type { AriaAttributes, AriaRole, Booleanish } from "./aria.d.ts"
 import type { HTMLDialogElementEventHandlers, HTMLElementEventHandlers, HTMLFormElementEventHandlers, HTMLInputElementEventHandlers, HTMLMediaElementEventHandlers, HTMLTrackElementEventHandlers, HTMLVideoElementEventHandlers } from "./events.d.ts"
 
-/** Type for the `style={{display: "block"}}` Attribute object */
+/**
+ * CSS property names in lowerCamelCase, the string properties of the DOM lib's CSSStyleDeclaration
+ *
+ * Reference: https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleDeclaration
+ */
+export type CSSPropertyName = Exclude<{
+    [K in keyof CSSStyleDeclaration]: K extends string ? (CSSStyleDeclaration[K] extends string ? K : never) : never
+}[keyof CSSStyleDeclaration], 'cssText' | 'cssFloat'> | 'float'
+
+/** CSS properties that accept a number without a unit, such as `opacity: 0.5` */
+export type UnitlessCSSPropertyName = Extract<CSSPropertyName,
+    | 'animationIterationCount' | 'aspectRatio' | 'borderImageOutset' | 'borderImageSlice' | 'borderImageWidth'
+    | 'columnCount' | 'columns' | 'fillOpacity' | 'flex' | 'flexGrow' | 'flexShrink' | 'floodOpacity' | 'fontSizeAdjust'
+    | 'fontWeight' | 'gridArea' | 'gridColumn' | 'gridColumnEnd' | 'gridColumnStart' | 'gridRow' | 'gridRowEnd'
+    | 'gridRowStart' | 'lineHeight' | 'mathDepth' | 'opacity' | 'order' | 'orphans' | 'scale' | 'shapeImageThreshold'
+    | 'stopOpacity' | 'strokeDasharray' | 'strokeDashoffset' | 'strokeMiterlimit' | 'strokeOpacity' | 'strokeWidth'
+    | 'tabSize' | 'webkitLineClamp' | 'widows' | 'zIndex' | 'zoom'>
+
+/** Convert a lowerCamelCase name to hyphen-case */
+type HyphenCase<Name extends string> = Name extends `${infer First}${infer Rest}`
+    ? `${First extends Lowercase<First> ? First : `-${Lowercase<First>}`}${HyphenCase<Rest>}`
+    : Name
+
+/** The hyphen-case name of a CSS property, with `webkit` names becoming `-webkit-` */
+type HyphenCSSPropertyName<Name extends string> = Name extends `webkit${infer Rest}` ? `-webkit${HyphenCase<Rest>}` : HyphenCase<Name>
+
+/**
+ * Type for the `style={{display: "block"}}` Attribute object
+ *
+ * Accepts CSS properties in lowerCamelCase or hyphen-case, and custom properties (`--name`).
+ * Numbers are accepted for custom properties and for properties that take no unit.
+ * A value may end with `!important`.
+ */
 export type StyleAttrType = {
-    [key: string]: string | number | null | undefined
+    [Name in CSSPropertyName as Name | HyphenCSSPropertyName<Name>]?: (Name extends UnitlessCSSPropertyName ? string | number : string) | null | undefined
+} & {
+    [name: `--${string}`]: string | number | null | undefined
 }
 
 /** Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes#list_of_global_attributes */

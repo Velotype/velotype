@@ -117,6 +117,8 @@ describe('basic component rendering', () => {
             {selector: "#hello-div", html: "Hello Velotype!"},
 
             {selector: "#style-object", attributes: [{name: "style", value: "display: flex; margin-top: 4px;"}]},
+            {selector: "#style-hyphen-unitless-custom", attributes: [{name: "style", value: "background-color: red; opacity: 0.5; --gap: 4;"}]},
+            {selector: "#style-important", attributes: [{name: "style", value: "margin-top: 2px !important; --brandColor: red !important; -webkit-line-clamp: 2 !important;"}]},
         ]
         await testVariations(setOfVariations)
     })

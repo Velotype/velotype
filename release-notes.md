@@ -4,6 +4,12 @@ Changes in each version of `@velotype/velotype` published to [JSR](https://jsr.i
 
 **Breaking** marks a change that can require updates to code that uses Velotype.
 
+## Unreleased
+
+- **Breaking:** `StyleAttrType` (the type of the `style` attribute and of `StylePassthroughAttrs.style`) only accepts known CSS properties, taken from the DOM lib's `CSSStyleDeclaration`. Properties can be written in lowerCamelCase (`marginTop`) or hyphen-case (`"margin-top"`), and custom properties (`"--name"`) are accepted. Numbers are only accepted for custom properties and for properties that take no unit, such as `opacity`, `zIndex`, and `flexGrow`.
+- New `CSSPropertyName` and `UnitlessCSSPropertyName` types.
+- Fix: a custom property with an `!important` value had its name converted to hyphen-case (`--brandColor` set `--brand-color`), and a `webkit` property with an `!important` value was set without its leading `-`.
+
 ## 0.2.2 — 2026-10-03
 
 - Velotype core is split into one file per concern under `src/tsx/`, and `dom-types.d.ts` into `events.d.ts`, `aria.d.ts`, and `html-attributes.d.ts`. The public API and import paths are unchanged.

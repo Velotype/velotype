@@ -10,6 +10,8 @@ class BasicDivTest extends Component<EmptyAttrs> {
             <div id="hello-div">Hello Velotype!</div>
             <hr/>
             <div id="style-object" style={{display:"flex", marginTop:"4px"}}>style object</div>
+            <div id="style-hyphen-unitless-custom" style={{"background-color": "red", opacity: 0.5, "--gap": 4}}>style hyphen-case, unitless number, custom property</div>
+            <div id="style-important" style={{marginTop: "2px !important", "--brandColor": "red !important", webkitLineClamp: "2 !important"}}>style important</div>
             <hr/>
             <button id="boolean-attribute-default-true" type="button" disabled>boolean attribute default true</button>
             <button id="boolean-attribute-explicit-true" type="button" disabled={true}>boolean attribute explicit true</button>

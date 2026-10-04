@@ -40,14 +40,12 @@ import {
     // Event system
     VelotypeEvent,
     type VelotypeEventListener,
-    replaceElementWithRoot,
     emitEvent,
     registerEventListener,
     removeEventListeners,
 
     // Style handling
     type StyleSection,
-    setStylesheet,
 
     // Raw HTML support helpers
     HTML,
@@ -57,6 +55,7 @@ import {
     SVG,
     type SVGAttrsType,
 } from "../tsx/tsx-core.ts"
+import { hotTag, replaceElementWithRoot, setStylesheet, trackFunctionOutput } from "../hmr/hmr.ts"
 
 export {
     // Interfaces
@@ -152,7 +151,12 @@ export function jsxDEV(tag: any, attrs: any, key: string | undefined, _isStaticC
     attrs.__vt_source_lineNumber = source.lineNumber
     attrs.__vt_source_columnNumber = source.columnNumber
 
-    return createElement(tag, attrs, children)
+    // In development, elements are created from the latest version of a component (see hmr.ts)
+    const latestTag = hotTag(tag, source && source.fileName)
+    const element = createElement(latestTag, attrs, children)
+    // createElement() passes children to a function component as an array
+    trackFunctionOutput(latestTag, element, attrs, [children])
+    return element
 }
 
 /**

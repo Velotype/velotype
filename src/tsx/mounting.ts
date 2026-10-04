@@ -186,7 +186,7 @@ function unmountComponentElementChildren(element: HTMLElement): void {
 /**
  * Unmount this element and all of its children
  */
-function unmountComponentElement(element: AnchorElement): void {
+export function unmountComponentElement(element: AnchorElement): void {
     if (instanceOfHTMLElement(element)) {
         unmountComponentElementChildren(element)
     }

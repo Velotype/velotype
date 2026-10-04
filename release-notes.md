@@ -4,6 +4,11 @@ Changes in each version of `@velotype/velotype` published to [JSR](https://jsr.i
 
 **Breaking** marks a change that can require updates to code that uses Velotype.
 
+## Unreleased
+
+- New hot update support in the jsx-dev-runtime entry point, for development servers such as the one in `@velotype/veloserver/dev`. When changed code runs again, live components are updated in place: class components get the new methods and render again keeping their fields, and function component outputs render again in place. The jsx-runtime entry point is unchanged.
+- In the jsx-dev-runtime entry point, `setStylesheet()` replaces a sheet whose text has changed, and `replaceElementWithRoot()` does not mount a second app while an update runs the app's entry code again.
+
 ## 0.2.3 — 2026-10-03
 
 - **Breaking:** `StyleAttrType` (the type of the `style` attribute and of `StylePassthroughAttrs.style`) only accepts known CSS properties, taken from the DOM lib's `CSSStyleDeclaration`. Properties can be written in lowerCamelCase (`marginTop`) or hyphen-case (`"margin-top"`), and custom properties (`"--name"`) are accepted. Numbers are only accepted for custom properties and for properties that take no unit, such as `opacity`, `zIndex`, and `flexGrow`.

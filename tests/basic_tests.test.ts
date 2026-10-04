@@ -691,6 +691,15 @@ describe('basic component rendering', () => {
         assertEquals(await innerTextOf("#owned-calls"), "1")
     })
 
+    itWrap("set of hot-reload tests", "hot-reload", "#hot-reload-tests", async (_pageLoadSelection: ElementHandle) => {
+        const names = ["hot-api-version", "class-refresh-count", "class-new-render", "class-latest-version", "state-kept",
+            "unchanged-skipped", "private-remount", "function-component", "function-component-root", "component-module", "stylesheet-replaced", "root-not-remounted"]
+        for (const name of names) {
+            const text = await (await page.waitForSelector(`#${name}`)).innerText()
+            assertEquals(`${name}: ${text}`, `${name}: pass`)
+        }
+    })
+
     itWrap("set of devtools-hook tests", "devtools-hook", "#devtools-hook-tests", async (_pageLoadSelection: ElementHandle) => {
         const innerTextOf = async (selector: string) => (await (await page.waitForSelector(selector)).innerText()).replace(/\s+/g, " ").trim()
 

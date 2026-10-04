@@ -13,7 +13,8 @@
         "bundle-misc": "deno bundle ./test_modules/misc.tsx --output ./build/misc.js --sourcemap=linked",
         "bundle-event-bus": "deno bundle ./test_modules/event-bus.tsx --output ./build/event-bus.js --sourcemap=linked",
         "bundle-devtools-hook": "deno bundle ./test_modules/devtools-hook.tsx --output ./build/devtools-hook.js --sourcemap=linked",
-        "bundle-render-object-advanced": "deno bundle ./test_modules/render-object-advanced.tsx --output ./build/render-object-advanced.js --sourcemap=linked"
+        "bundle-render-object-advanced": "deno bundle ./test_modules/render-object-advanced.tsx --output ./build/render-object-advanced.js --sourcemap=linked",
+        "bundle-hot-reload": "deno bundle ./test_modules/hot-reload.tsx --output ./build/hot-reload.js --sourcemap=linked"
     },
     "imports": {
         "@astral/astral": "jsr:@astral/astral@^0.5.4",
@@ -21,6 +22,7 @@
         "@std/testing": "jsr:@std/testing@^1.0.16",
         "@velotype/veloserver": "jsr:@velotype/veloserver@^0.2.0",
         "@velotype/velotype/jsx-runtime": "../src/jsx-runtime/jsx-runtime.ts",
+        "@velotype/velotype/jsx-dev-runtime": "../src/jsx-dev-runtime/jsx-dev-runtime.ts",
         "@velotype/velotype/devtools": "../src/devtools/devtools.ts",
         "@velotype/velotype": "../src/jsx-runtime/jsx-runtime.ts"
     },

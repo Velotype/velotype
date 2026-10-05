@@ -2,8 +2,8 @@
 
 // Class Components and Function Components
 
-import { setDomKeyOn, registerNewVtKey } from "./dom-references.ts"
-import { internalComponentProperty } from "./globals.ts"
+import { setDomKeyOn, registerNewVtKey, releaseVtKeysFrom } from "./dom-references.ts"
+import { internalComponentProperty, vtState } from "./globals.ts"
 import { replaceElement, appendElement, prependElement, replaceChildren, removeElement } from "./mounting.ts"
 import { renderableElementToElement, wrapElementIfNeeded } from "./renderable.ts"
 import type { AnchorElement, RenderableElements, HasVtKey } from "./types.ts"
@@ -238,7 +238,16 @@ export class InternalComponent {
      * this Component and then mount new children.
      */
     f(): void {
-        this.e = replaceElement(this.e, componentRender(this, this.a, this.h))
+        const firstKey = vtState.k
+        let render: AnchorElement
+        try {
+            render = componentRender(this, this.a, this.h)
+        } catch (error) {
+            // Keep the current render, and release what the failed render created
+            releaseVtKeysFrom(firstKey)
+            throw error
+        }
+        this.e = replaceElement(this.e, render)
     }
 
     /**

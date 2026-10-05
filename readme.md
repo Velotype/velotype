@@ -367,6 +367,15 @@ class RowTable extends Component<EmptyAttrs> {
 }
 ```
 
+## When code throws
+
+Velotype keeps its own state consistent whatever an app's code throws:
+
+* Errors in rendering are thrown to the caller: a Component's constructor or `render()`, a Function Component, and a RenderObject's render function or `handleUpdate`. What the failed render created is released, `refresh()` keeps the current render, a RenderObject keeps its current value, and RenderObjectArray and RenderTemplateArray keep their data and rows matching
+* Errors in `mount()`, `unmount()`, `registerOnMount()` callbacks, and event bus listeners are reported with `reportError()`, which logs them and dispatches an `error` event on the window, and the other Components and listeners still run
+
+A `handleUpdate` changes elements in place, so one that throws partway leaves its own elements partly updated.
+
 ## Hot reloading
 
 The jsx-dev-runtime entry point (used by the `react-jsxdev` JSX transform) supports hot updates: when a development server runs changed code again, the components on the page are updated in place and keep their state. The jsx-runtime entry point used in production builds does not include any of it.

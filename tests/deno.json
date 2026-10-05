@@ -14,7 +14,8 @@
         "bundle-event-bus": "deno bundle ./test_modules/event-bus.tsx --output ./build/event-bus.js --sourcemap=linked",
         "bundle-devtools-hook": "deno bundle ./test_modules/devtools-hook.tsx --output ./build/devtools-hook.js --sourcemap=linked",
         "bundle-render-object-advanced": "deno bundle ./test_modules/render-object-advanced.tsx --output ./build/render-object-advanced.js --sourcemap=linked",
-        "bundle-hot-reload": "deno bundle ./test_modules/hot-reload.tsx --output ./build/hot-reload.js --sourcemap=linked"
+        "bundle-hot-reload": "deno bundle ./test_modules/hot-reload.tsx --output ./build/hot-reload.js --sourcemap=linked",
+        "bundle-error-handling": "deno bundle ./test_modules/error-handling.tsx --output ./build/error-handling.js --sourcemap=linked"
     },
     "imports": {
         "@astral/astral": "jsr:@astral/astral@^0.5.4",

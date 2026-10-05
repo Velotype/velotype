@@ -8,7 +8,7 @@ import { removeComponentListeners } from "./event-bus.ts"
 import { domKeyProperty } from "./globals.ts"
 import { type MultiRenderable, type RenderObjectInternals, instanceOfRenderObject } from "./render-object.ts"
 import type { AnchorElement } from "./types.ts"
-import { instanceOfHTMLElement, instanceOfSVGSVGElement, instanceOfMathMLElement } from "./utils.ts"
+import { instanceOfHTMLElement, instanceOfSVGSVGElement, instanceOfMathMLElement, reportUserError } from "./utils.ts"
 import { instanceOfWithComponent, type WithComponent } from "./with-component.ts"
 
 /**
@@ -102,8 +102,12 @@ function mountComponentElementHelper(component: InternalComponent | MultiRendera
             return
         }
         component.m = true
-        // Mount the main Component
-        ;(component.c as ComponentInternals).mount()
+        // Mount the main Component, an error is reported so that the other Components still mount
+        try {
+            (component.c as ComponentInternals).mount()
+        } catch (error) {
+            reportUserError(error)
+        }
         // Iterate component fields and trigger their mounts
         Object.values(component.c).forEach(enumberableValue => {
             if (instanceOfRenderObject(enumberableValue)) {
@@ -155,7 +159,12 @@ function unmountComponentElementHelper(component: InternalComponent | MultiRende
         // Unmount the main Component, only if it was mounted
         if (component.m) {
             component.m = false
-            ;(component.c as ComponentInternals).unmount()
+            // An error is reported so that the other Components still unmount and are released
+            try {
+                (component.c as ComponentInternals).unmount()
+            } catch (error) {
+                reportUserError(error)
+            }
         }
         // Iterate component fields and trigger their unmounts
         Object.values(component.c).forEach(enumberableValue => {

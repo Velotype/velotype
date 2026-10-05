@@ -39,7 +39,7 @@ function newTemplateRow<DataType, UpdateRefsType, RowElementType extends Element
     return {e: row, r: options.renderFunction(row, data)}
 }
 /** Render a row for each of data and append them to wrapper and rows */
-function appendTemplateRows<DataType, UpdateRefsType, RowElementType extends Element>(options: RenderTemplateArrayOptions<DataType, UpdateRefsType, RowElementType>, wrapper: AnchorElement, rows: TemplateRowType<UpdateRefsType, RowElementType>[], data: DataType[]): void {
+function appendTemplateRows<DataType, UpdateRefsType, RowElementType extends Element>(options: RenderTemplateArrayOptions<DataType, UpdateRefsType, RowElementType>, wrapper: Node, rows: TemplateRowType<UpdateRefsType, RowElementType>[], data: DataType[]): void {
     for (let i = 0; i < data.length; i++) {
         const row = newTemplateRow(options, data[i])
         rows.push(row)
@@ -91,10 +91,17 @@ export class RenderTemplateArray<DataType, UpdateRefsType = any, RowElementType 
             }
             return new UpdateHandlerLink(wrapper, rows)
         }, (wrapper: AnchorElement, rows: TemplateRowType<UpdateRefsType, RowElementType>[], _oldData: DataType[], newData: DataType[]) => {
+            // The new rows are rendered before the current ones are removed, so that nothing changes when renderFunction throws
+            const fragment = document.createDocumentFragment()
+            const newRows: TemplateRowType<UpdateRefsType, RowElementType>[] = []
+            appendTemplateRows(options, fragment, newRows, newData)
             // Rows have no Components to unmount, so they are removed all at once
             wrapper.textContent = ""
+            wrapper.appendChild(fragment)
             rows.length = 0
-            appendTemplateRows(options, wrapper, rows, newData)
+            for (let i = 0; i < newRows.length; i++) {
+                rows.push(newRows[i])
+            }
         })
         this.#options = options
     }
@@ -102,25 +109,37 @@ export class RenderTemplateArray<DataType, UpdateRefsType = any, RowElementType 
      * Push one data point into the Array
      */
     push(newData: DataType): void {
-        this.value.push(newData)
-        this.es.forEach(instance => {
-            const row = newTemplateRow(this.#options, newData)
-            instance.uR!.push(row)
-            instance.e.appendChild(row.e)
-        })
+        this.#appendAll([newData])
     }
     /**
      * Push all of the data points of newData[] into the Array
      */
     pushAll(newData: DataType[]): void {
+        this.#appendAll(newData)
+    }
+    /** Render rows for newData in each instance element, then add newData to the Array */
+    #appendAll(newData: DataType[]): void {
         const value = this.value
-        for (let i = 0; i < newData.length; i++) {
+        // Every instance element has one row per data point
+        const length = value.length
+        const count = newData.length
+        const options = this.#options
+        try {
+            this.es.forEach(instance => {
+                appendTemplateRows(options, instance.e, instance.uR!, newData)
+            })
+        } catch (error) {
+            // Remove the rows rendered for newData, so that the rows still match the data
+            this.es.forEach(instance => {
+                instance.uR!.splice(length).forEach(row => {
+                    row.e.remove()
+                })
+            })
+            throw error
+        }
+        for (let i = 0; i < count; i++) {
             value.push(newData[i])
         }
-        const options = this.#options
-        this.es.forEach(instance => {
-            appendTemplateRows(options, instance.e, instance.uR!, newData)
-        })
     }
     /**
      * Delete one or more data points from the Array
@@ -157,20 +176,28 @@ export class RenderTemplateArray<DataType, UpdateRefsType = any, RowElementType 
     setAt(index: number, newData: DataType): void {
         const value = this.value
         const oldData = value[index]
-        value[index] = newData
         const options = this.#options
         const handleUpdate = options.handleUpdate
-        this.es.forEach(instance => {
-            const rows = instance.uR!
-            const row = rows[index]
-            if (handleUpdate) {
+        if (handleUpdate) {
+            this.es.forEach(instance => {
+                const row = instance.uR![index]
                 handleUpdate(row.e, row.r, oldData, newData)
-            } else {
-                const newRow = newTemplateRow(options, newData)
-                row.e.replaceWith(newRow.e)
-                rows[index] = newRow
-            }
-        })
+            })
+        } else {
+            // The new rows are rendered before any is replaced, so that nothing changes when renderFunction throws
+            const newRows: TemplateRowType<UpdateRefsType, RowElementType>[] = []
+            this.es.forEach(() => {
+                newRows.push(newTemplateRow(options, newData))
+            })
+            let i = 0
+            this.es.forEach(instance => {
+                const rows = instance.uR!
+                rows[index].e.replaceWith(newRows[i].e)
+                rows[index] = newRows[i++]
+            })
+        }
+        // Set after the rows are updated, so that the data is unchanged when user code throws
+        value[index] = newData
     }
     /**
      * Swap the data points at indexA and indexB, moving their rendered rows

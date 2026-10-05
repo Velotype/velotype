@@ -744,4 +744,56 @@ describe('basic component rendering', () => {
         assertEquals(await innerTextOf("#handle-update-call-count"), "3")
         assertEquals(await innerTextOf(".counter-value"), "3")
     })
+
+    itWrap("set of error handling tests", "error-handling", "#error-handling-tests", async (_pageLoadSelection: ElementHandle) => {
+        const results = JSON.parse(await (await page.waitForSelector("#error-handling-results")).innerText())
+        assertEquals(results, {
+            // mount() and unmount() errors are reported, and the other Components still mount and unmount
+            mountThrew: false,
+            mounted: ["thrower", "sibling"],
+            mountReported: ["mount failed"],
+            unmountThrew: false,
+            unmountShows: "render 2 inner",
+            unmountRegisteredChange: 0,
+            unmountReported: ["unmount failed"],
+            // A failed RenderObject update changes neither the value nor any place it is shown
+            renderThrew: "render failed",
+            renderValue: 1,
+            renderShows: ["1", "1"],
+            renderRegisteredChange: 0,
+            renderShowsAfter: ["3", "3"],
+            handleUpdateThrew: "handleUpdate failed",
+            handleUpdateValue: "a",
+            handleUpdateShows: "b",
+            // A failed row render leaves the rows matching the data
+            templatePushThrew: "row failed",
+            templatePushAllThrew: "row failed",
+            templateData: ["a", "b"],
+            templateShows: ["a", "b"],
+            templateSetAtThrew: "row failed",
+            templateReplaceThrew: "row failed",
+            templateDataAfter: ["a", "b"],
+            templateShowsAfter: ["a", "b"],
+            objectPushThrew: "row failed",
+            objectLength: 2,
+            objectShows: ["a", "b"],
+            objectRegisteredChange: 0,
+            // An event bus listener error is reported, and the other listeners still receive the event
+            emitThrew: false,
+            received: ["second"],
+            emitReported: ["listener failed"],
+            // Render errors are thrown to the caller, and what the failed render created is released
+            rootRenderThrew: "render failed",
+            rootRenderRegisteredChange: 0,
+            constructorThrew: "constructor failed",
+            functionThrew: "function component failed",
+            constructorRegisteredChange: 0,
+            refreshThrew: "refresh failed",
+            refreshShows: "first render",
+            refreshRegisteredChange: 0,
+            // A registerOnMount() callback error is reported, and the next callback still runs
+            onMountCallbacks: ["second"],
+            onMountReported: ["onMount failed"],
+        })
+    })
 })

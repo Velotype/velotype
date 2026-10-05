@@ -2,17 +2,26 @@
 
 // RenderObject and RenderBasic
 
-import { setDomKeyOn, registerNewVtKey, releaseVtKey } from "./dom-references.ts"
+import { setDomKeyOn, registerNewVtKey, releaseVtKey, releaseVtKeysFrom } from "./dom-references.ts"
 import { VelotypeEvent, registerEventListener, isListenerRegistered, emitEvent, type VelotypeEventListener } from "./event-bus.ts"
-import { consoleError, displayContentsSpan, domKeyProperty, listenersF } from "./globals.ts"
+import { consoleError, displayContentsSpan, domKeyProperty, listenersF, vtState } from "./globals.ts"
 import { replaceElement, removeElement } from "./mounting.ts"
 import { childToElement, wrapElementIfNeeded } from "./renderable.ts"
 import type { AnchorElement, BasicTypes, RenderableElements, HasVtKey } from "./types.ts"
-import { hiddenElement, vtSetImmediate, swapSiblings } from "./utils.ts"
+import { hiddenElement, vtSetImmediate, swapSiblings, reportUserError } from "./utils.ts"
 
 /** Checks if something is an instanceof RenderObject */
 export function instanceOfRenderObject(something: any): something is RenderObject<any,any>  {
     return something instanceof RenderObject
+}
+
+/** Call a registered callback, an error is reported so that the other callbacks still run */
+function callUserCallback(callback: () => void): void {
+    try {
+        callback()
+    } catch (error) {
+        reportUserError(error)
+    }
 }
 
 /**
@@ -65,6 +74,23 @@ type RenderObjectElementsType<DataType, UpdateRefsType> = {
     hU?: RenderObjectHandleUpdateType<DataType, UpdateRefsType>
     /** updateRefs */
     uR?: UpdateRefsType
+}
+
+/** A new element rendered for an instance element, before it replaces the current one */
+type RenderedInstanceType<DataType, UpdateRefsType> = {
+    /** instance */
+    i: RenderObjectElementsType<DataType, UpdateRefsType>
+    /** new element */
+    e: AnchorElement
+    /** new updateRefs */
+    r: UpdateRefsType | undefined
+}
+
+/** Replace an instance element with its newly rendered element */
+function replaceInstanceElement<DataType, UpdateRefsType>(instance: RenderObjectElementsType<DataType, UpdateRefsType>, newElement: AnchorElement, updateRefs: UpdateRefsType | undefined): void {
+    replaceElement(instance.e, newElement)
+    instance.e = newElement
+    instance.uR = updateRefs
 }
 
 /**
@@ -137,7 +163,7 @@ export class RenderObject<DataType, UpdateRefsType = any> implements HasVtKey {
                     if (isListenerRegistered(listeningKey, owner.vtKey, listenerToRegister)) {
                         listener(event)
                     }
-                }, delay)
+                }, delay) as any as number // setTimeout() returns number on browsers (not NodeJS.Timeout like its type signature on server-side)
             }
         } : listener
         registerEventListener(owner, listeningKey, listenerToRegister)
@@ -179,7 +205,7 @@ export class RenderObject<DataType, UpdateRefsType = any> implements HasVtKey {
         }
         this.#mounted = true
         if (this.#onMounts) {
-            this.#onMounts.forEach(onMount => {onMount()})
+            this.#onMounts.forEach(callUserCallback)
         }
     }
     /**
@@ -193,7 +219,7 @@ export class RenderObject<DataType, UpdateRefsType = any> implements HasVtKey {
         }
         this.#mounted = false
         if (this.#onUnmounts) {
-            this.#onUnmounts.forEach(onUnmount => {onUnmount()})
+            this.#onUnmounts.forEach(callUserCallback)
         }
     }
     /** Get the current value of this RenderObject */
@@ -223,26 +249,60 @@ export class RenderObject<DataType, UpdateRefsType = any> implements HasVtKey {
         }
     }
     /**
+     * Rerender several instance elements, rendering all of them before any is replaced
+     * so that nothing changes when a render function throws
+     */
+    #rerenderSeveral(newData: DataType): void {
+        const oldData = this.#data
+        const renders: RenderedInstanceType<DataType, UpdateRefsType>[] = []
+        const updates: RenderObjectElementsType<DataType, UpdateRefsType>[] = []
+        this.es.forEach((element, key) => {
+            if (element.hU && element.uR) {
+                updates.push(element)
+            } else {
+                const render = element.rF(newData, this)
+                const isLink = render instanceof UpdateHandlerLink
+                const newElement = wrapElementIfNeeded(childToElement(isLink ? render.result : render))
+                setDomKeyOn(newElement, key)
+                renders.push({i: element, e: newElement, r: isLink ? render.updateRefs : undefined})
+            }
+        })
+        updates.forEach(element => {
+            element.hU!(element.e, element.uR!, oldData, newData)
+        })
+        renders.forEach(render => {
+            replaceInstanceElement(render.i, render.e, render.r)
+        })
+    }
+    /**
      * Force a rerender of existing elements and set value to newData
      * 
      * This method may need to be used in cases where this.value is a complex object
      * or other data structure that is manipulated in-place rather than reassigned.
      */
     rerenderElements(newData: DataType): void {
-        // Rerender Elements
-        this.es.forEach((element, key) => {
-            if (element.hU && element.uR) {
-                element.hU(element.e, element.uR, this.#data, newData)
+        const firstKey = vtState.k
+        try {
+            if (this.es.size > 1) {
+                this.#rerenderSeveral(newData)
             } else {
-                const render = element.rF(newData, this)
-                const isLink = render instanceof UpdateHandlerLink
-                const newElement = wrapElementIfNeeded(childToElement(isLink ? render.result : render))
-                setDomKeyOn(newElement, key)
-                replaceElement(element.e, newElement)
-                element.e = newElement
-                element.uR = isLink ? render.updateRefs : undefined
+                this.es.forEach((element, key) => {
+                    if (element.hU && element.uR) {
+                        element.hU(element.e, element.uR, this.#data, newData)
+                    } else {
+                        const render = element.rF(newData, this)
+                        const isLink = render instanceof UpdateHandlerLink
+                        const newElement = wrapElementIfNeeded(childToElement(isLink ? render.result : render))
+                        setDomKeyOn(newElement, key)
+                        replaceInstanceElement(element, newElement, isLink ? render.updateRefs : undefined)
+                    }
+                })
             }
-        })
+        } catch (error) {
+            // Release what the failed render created, the value is unchanged
+            releaseVtKeysFrom(firstKey)
+            throw error
+        }
         // Set data
         this.#data = newData
         // Trigger EventListeners (if set)

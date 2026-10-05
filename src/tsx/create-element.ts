@@ -4,8 +4,8 @@
 
 import { setAttrsOnElement } from "./attributes.ts"
 import { instanceOfInternalComponent, instanceOfComponent, type Component, InternalComponent, type FunctionComponent } from "./component.ts"
-import { getDOMreference } from "./dom-references.ts"
-import { consoleError, domKeyProperty } from "./globals.ts"
+import { getDOMreference, releaseVtKeysFrom } from "./dom-references.ts"
+import { consoleError, domKeyProperty, vtState } from "./globals.ts"
 import { appendChild, wrapElementIfNeeded } from "./renderable.ts"
 import type { AnchorElement, BasicTypes, RenderableElements, Type } from "./types.ts"
 import { instanceOfBasicTypes, hiddenElement } from "./utils.ts"
@@ -72,16 +72,31 @@ export function createElement(tag: Type<Component<any>> | FunctionComponent<any>
     }
     const notNullAttrs = attrs || {}
     if (instanceOfComponent(tag.prototype)) {
-        // Create and register Component
-        const internalComponent = new InternalComponent(
-            new (tag as Type<Component<any>>)(notNullAttrs, children),
-            notNullAttrs,
-            children
-        )
-        return internalComponent.e
+        const firstKey = vtState.k
+        try {
+            // Create and register Component
+            const internalComponent = new InternalComponent(
+                new (tag as Type<Component<any>>)(notNullAttrs, children),
+                notNullAttrs,
+                children
+            )
+            return internalComponent.e
+        } catch (error) {
+            // Release what the Component created before it threw
+            releaseVtKeysFrom(firstKey)
+            throw error
+        }
     } else if (typeof tag === 'function') {
-        // Function Component
-        const output = (tag as FunctionComponent<any>)(notNullAttrs, children)
+        const firstKey = vtState.k
+        let output: RenderableElements
+        try {
+            // Function Component
+            output = (tag as FunctionComponent<any>)(notNullAttrs, children)
+        } catch (error) {
+            // Release what the Function Component created before it threw
+            releaseVtKeysFrom(firstKey)
+            throw error
+        }
         // Note: These if-clauses are set this way for TypeScript type inference
         if (instanceOfBasicTypes(output)) {
             return output

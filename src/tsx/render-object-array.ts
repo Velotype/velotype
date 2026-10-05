@@ -4,8 +4,8 @@
 
 import { setAttrsOnElement } from "./attributes.ts"
 import { createElement } from "./create-element.ts"
-import { releaseVtKeyObject } from "./dom-references.ts"
-import { displayContentsDiv } from "./globals.ts"
+import { releaseVtKeyObject, releaseVtKeysFrom } from "./dom-references.ts"
+import { displayContentsDiv, vtState } from "./globals.ts"
 import { appendElement } from "./mounting.ts"
 import { RenderObject, type RenderObjectHandleUpdateType, type RenderObjectInternals, type RenderObjectRenderFunctionType } from "./render-object.ts"
 import { renderableElementToElement } from "./renderable.ts"
@@ -67,11 +67,21 @@ export class RenderObjectArray<DataType, UpdateRefsType = any> extends RenderObj
      * Push one data point into the Array
      */
     push(newData: DataType): void {
+        const firstKey = vtState.k
         const obj = new RenderObject<DataType, UpdateRefsType>(newData, this.#renderFunction, this.#handleUpdate)
-        this.value.push(obj)
-        this.es.forEach(element => {
-            appendElement(element.e, renderableElementToElement(obj))
-        })
+        const value = this.value
+        value.push(obj)
+        try {
+            this.es.forEach(element => {
+                appendElement(element.e, renderableElementToElement(obj))
+            })
+        } catch (error) {
+            // Remove the data point and its rows, and release what its render created
+            value.splice(value.lastIndexOf(obj), 1)
+            RenderObjectArray.#releaseOne(obj)
+            releaseVtKeysFrom(firstKey)
+            throw error
+        }
     }
     /**
      * Push all of the data points of newData[] into the Array

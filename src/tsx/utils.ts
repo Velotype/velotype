@@ -2,7 +2,7 @@
 
 // Small helpers shared across Velotype
 
-import { displayNoneDiv, lockedDescriptor } from "./globals.ts"
+import { consoleError, displayNoneDiv, lockedDescriptor } from "./globals.ts"
 import type { BasicTypes } from "./types.ts"
 
 /** Checks if something is an instanceof HTMLElement */
@@ -70,5 +70,18 @@ export function swapSiblings(parent: Node, a: Element, b: Element): void {
     } else {
         parent.insertBefore(a, b)
         parent.insertBefore(b, aNext)
+    }
+}
+
+/**
+ * Report an error thrown by user code that Velotype called, and continue
+ *
+ * Reported the same way as an uncaught error: logged, and dispatched as an "error" event on the window
+ */
+export function reportUserError(error: unknown): void {
+    if (typeof reportError === "function") {
+        reportError(error)
+    } else {
+        consoleError(error)
     }
 }

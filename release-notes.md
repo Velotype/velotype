@@ -4,6 +4,14 @@ Changes in each version of `@velotype/velotype` published to [JSR](https://jsr.i
 
 **Breaking** marks a change that can require updates to code that uses Velotype.
 
+## Unreleased
+
+- Velotype keeps its state consistent when user code throws:
+  - A Component, Function Component, or `refresh()` whose rendering throws releases the Components, RenderObjects, and event listeners it created, and `refresh()` keeps the current render. The error is thrown to the caller.
+  - A `RenderObject` value update whose render function or `handleUpdate` throws leaves the value unchanged. With several instance elements, all of them are rendered before any is replaced, so that none of them change.
+  - `RenderObjectArray` and `RenderTemplateArray` methods whose `renderFunction` throws leave the data and the rendered rows matching. Before, a failed `RenderTemplateArray.push()` left a data point without a row, so later index-based methods changed the wrong rows.
+- Errors thrown by `mount()`, `unmount()`, `registerOnMount()` callbacks, and event bus listeners are reported with `reportError()` (logged, and dispatched as an `error` event on the window) instead of being thrown, so that the other Components still mount and unmount and the other listeners still receive the event.
+
 ## 0.2.4 — 2026-10-03
 
 - New hot update support in the jsx-dev-runtime entry point, for development servers such as the one in `@velotype/veloserver/dev`. When changed code runs again, live components are updated in place: class components get the new methods and render again keeping their fields, and function component outputs render again in place. The jsx-runtime entry point is unchanged.

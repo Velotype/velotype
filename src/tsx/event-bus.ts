@@ -6,6 +6,7 @@ import type { Component } from "./component.ts"
 import { consoleWarn, listenersF, listenersR, vtState } from "./globals.ts"
 import type { RenderObject } from "./render-object.ts"
 import type { HasVtKey } from "./types.ts"
+import { reportUserError } from "./utils.ts"
 
 /**
  * An Event object
@@ -146,7 +147,12 @@ export function emitEvent(listeningKey: string, event: VelotypeEvent, hasVtKey?:
                             return
                         }
                     }
-                    listener(event)
+                    // An error is reported so that the other listeners still receive the event
+                    try {
+                        listener(event)
+                    } catch (error) {
+                        reportUserError(error)
+                    }
                 })
             }
         })

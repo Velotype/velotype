@@ -849,6 +849,87 @@ describe('basic component rendering', () => {
         })
     })
 
+    itWrap("set of sort(), reorder(), move(), and filter() tests", "array-order", "#array-order-tests", async (_pageLoadSelection: ElementHandle) => {
+        const results = JSON.parse(await (await page.waitForSelector("#array-order-results")).innerText())
+        const sorted = ["a", "b", "c", "d", "e"]
+        const reversed = ["e", "d", "c", "b", "a"]
+        const movedDown = ["b", "c", "d", "e", "a"]
+        // Each result holds the data, then what each of the two places shows (some hold extra values at the end)
+        assertEquals(results, {
+            // RenderTemplateArray: sort() and reorder() change the data and move the rows, in every place
+            tSorted: [sorted, sorted, sorted],
+            tReordered: [reversed, reversed, reversed],
+            // Only rows that change places move: none for the same order, and 2 in each place to undo a swap
+            tUnchangedMoves: 0,
+            tNearlySortedMoves: 4,
+            tResorted: sorted,
+            // reorder() needs each index once, and an error from compareFn or reorder() changes nothing
+            tReorderThrows: [
+                "reorder() needs 5 indexes, it got 4",
+                "reorder() needs each index from 0 to 4 once, it got 0 at 1",
+                "reorder() needs each index from 0 to 4 once, it got 5 at 4",
+                "reorder() needs each index from 0 to 4 once, it got 0.5 at 4",
+                "compare failed",
+            ],
+            tAfterThrows: [sorted, sorted],
+            // move(from, to) puts the data point at to; moving to the same index or from past the end does nothing
+            tMovedDown: [movedDown, movedDown, movedDown],
+            tMovedBack: [sorted, sorted],
+            // The rows were moved, never rendered again
+            tSameRows: true,
+            tRendersAfterMoves: 0,
+            // filter() keeps the hidden data points, and they count in indexes and length
+            tFiltered: [sorted, ["a", "c", "e"], ["a", "c", "e"], "b", 5],
+            tFilteredReordered: [reversed, ["e", "c", "a"], ["e", "c", "a"]],
+            // swap() and move() with hidden data points put the shown rows in their new places
+            tSwapShownHidden: [["d", "e", "c", "b", "a"], ["e", "c", "a"], ["e", "c", "a"]],
+            tSwapHiddenShown: [["d", "b", "c", "e", "a"], ["c", "e", "a"], ["c", "e", "a"]],
+            tMoveFiltered: [["a", "d", "b", "c", "e"], ["a", "c", "e"], ["a", "c", "e"]],
+            // Added data points are filtered, and setAt() applies the filter to the new data point
+            tInsertFiltered: [["a", "bb", "d", "b", "c", "e", "d2"], ["a", "bb", "c", "e", "d2"], ["a", "bb", "c", "e", "d2"]],
+            tSetHides: [["a", "bb", "d", "b", "b", "e", "d2"], ["a", "bb", "e", "d2"], ["a", "bb", "e", "d2"]],
+            tSetShows: [["a", "bb", "x", "b", "b", "e", "d2"], ["a", "bb", "x", "e", "d2"], ["a", "bb", "x", "e", "d2"]],
+            // An `on` listener gets the index counting the hidden data points
+            tClicked: ["e@5"],
+            // An error from the predicate changes nothing
+            tFilterThrows: "filter failed",
+            tAfterFilterThrows: ["a", "bb", "x", "e", "d2"],
+            tUnfiltered: [["a", "bb", "x", "b", "b", "e", "d2"], ["a", "bb", "x", "b", "b", "e", "d2"], ["a", "bb", "x", "b", "b", "e", "d2"]],
+            // Shown again, the rows are the same elements
+            tSameRowsAfterFilter: true,
+            // The filter applies to a new value and after clear(), and sorting skips nothing
+            tValueFiltered: [["p", "r"], ["p", "r"]],
+            tValueSorted: [["r", "qq", "p"], ["r", "p"]],
+            tAfterClear: [["s", "tt", "u"], ["s", "u"], ["s", "u"]],
+
+            // RenderObjectArray: the same, with a Component in each row
+            oSorted: [sorted, sorted, sorted],
+            oReordered: [reversed, reversed, reversed],
+            oUnchangedMoves: 0,
+            oNearlySortedMoves: 4,
+            oReorderThrows: ["reorder() needs 5 indexes, it got 3", "compare failed"],
+            oMovedDown: [movedDown, movedDown, movedDown],
+            oMovedBack: [sorted, sorted],
+            // Moving rows neither unmounts nor mounts their Components
+            oSameRows: true,
+            oLifecycleAfterMoves: [],
+            oFiltered: [sorted, ["a", "c", "e"], ["a", "c", "e"], "b", 5],
+            oFilteredMoves: [["a", "d", "b", "c", "e"], ["a", "c", "e"], ["a", "c", "e"]],
+            oInsertFiltered: [["a", "b", "d", "b", "c", "e", "bb"], ["a", "c", "e", "bb"], ["a", "c", "e", "bb"]],
+            oSetHides: [["a", "b", "d", "b", "b", "e", "bb"], ["a", "e", "bb"], ["a", "e", "bb"]],
+            // Hidden rows stay mounted, a row added while hidden is not mounted, and setAt() renders as usual
+            oLifecycleWhileFiltered: ["mount bb", "mount bb", "unmount c", "mount b", "unmount c", "mount b"],
+            oUnfiltered: [["a", "b", "d", "b", "b", "e", "bb"], ["a", "b", "d", "b", "b", "e", "bb"], ["a", "b", "d", "b", "b", "e", "bb"]],
+            // Shown again, only the row added while hidden mounts (once in each place)
+            oLifecycleAfterUnfilter: ["mount bb", "mount bb", "unmount c", "mount b", "unmount c", "mount b", "mount b", "mount b"],
+            oSameRowsAfterFilter: true,
+            // Rows deleted or cleared while hidden are unmounted
+            oDeleteHidden: [["a", "b", "d", "b", "b", "bb"], ["a", "b", "d", "b", "b", "bb"], ["unmount e", "unmount e"]],
+            oClearHidden: [[], [], ["unmount a", "unmount a", "unmount b", "unmount b", "unmount b", "unmount b", "unmount b", "unmount b", "unmount bb", "unmount bb", "unmount d", "unmount d"]],
+            oAfterClear: [["s", "tt", "u"], ["s", "u"], ["s", "u"]],
+        })
+    })
+
     itWrap("set of unmountSignal and released element tests", "unmount-signal", "#unmount-signal-tests", async (_pageLoadSelection: ElementHandle) => {
         const results = JSON.parse(await (await page.waitForSelector("#unmount-signal-results")).innerText())
         assertEquals(results, {

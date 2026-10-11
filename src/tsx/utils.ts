@@ -94,6 +94,86 @@ export function insertIndex(index: number, length: number): number {
     return Math.min(index, length)
 }
 
+/** Throws unless indexes holds each of 0 to length - 1 exactly once */
+export function checkPermutation(indexes: ArrayLike<number>, length: number): void {
+    if (indexes.length !== length) {
+        throw new RangeError(`reorder() needs ${length} indexes, it got ${indexes.length}`)
+    }
+    const seen = new Uint8Array(length)
+    for (let i = 0; i < length; i++) {
+        const index = indexes[i]
+        if (!(index >= 0 && index < length && (index | 0) === index) || seen[index]) {
+            throw new RangeError(`reorder() needs each index from 0 to ${length - 1} once, it got ${index} at ${i}`)
+        }
+        seen[index] = 1
+    }
+}
+
+/**
+ * Marks the positions of a longest increasing subsequence of values (with a 1)
+ *
+ * Elements whose old positions form an increasing subsequence of their new order are already in order,
+ * so reordering moves only the others, the fewest moves possible
+ */
+export function longestIncreasingSubsequence(values: ArrayLike<number>): Uint8Array {
+    const length = values.length
+    const marks = new Uint8Array(length)
+    if (length === 0) {
+        return marks
+    }
+    // tails[k] is the position of the smallest value that ends an increasing subsequence of length k + 1
+    const tails = new Int32Array(length)
+    const previous = new Int32Array(length)
+    let size = 0
+    for (let i = 0; i < length; i++) {
+        const value = values[i]
+        if (size > 0 && values[tails[size - 1]] < value) {
+            // Extends the longest subsequence, which is every step when the order is unchanged
+            previous[i] = tails[size - 1]
+            tails[size++] = i
+            continue
+        }
+        let low = 0
+        let high = size
+        while (low < high) {
+            const middle = (low + high) >>> 1
+            if (values[tails[middle]] < value) {
+                low = middle + 1
+            } else {
+                high = middle
+            }
+        }
+        previous[i] = low > 0 ? tails[low - 1] : -1
+        tails[low] = i
+        if (low === size) {
+            size++
+        }
+    }
+    for (let i = tails[size - 1]; i >= 0; i = previous[i]) {
+        marks[i] = 1
+    }
+    return marks
+}
+
+/**
+ * Moves elements, which are the children of parent, into their new order with the fewest moves
+ *
+ * @elements the elements in their new order
+ * @oldPositions the position of each one before (increasing in their current order in parent)
+ */
+export function moveIntoOrder(parent: Node, elements: readonly Element[], oldPositions: ArrayLike<number>): void {
+    const stay = longestIncreasingSubsequence(oldPositions)
+    // Placed from the end, so that the element each one goes before is already in place
+    let next: Element | null = null
+    for (let i = elements.length - 1; i >= 0; i--) {
+        const element = elements[i]
+        if (!stay[i]) {
+            parent.insertBefore(element, next)
+        }
+        next = element
+    }
+}
+
 /** Insert items into array at start, without spreading items into arguments (which fails for long Arrays) */
 export function insertItems<T>(array: T[], start: number, items: readonly T[]): void {
     const source = (items as T[]) === array ? array.slice() : items

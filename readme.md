@@ -377,9 +377,51 @@ class Counter extends Component<EmptyAttrs> {
 
 An optimized RenderObject that represents an Array of data points rendered into a wrapper element (by default a `<div style="display:contents;">` tag). Each data point is rendered by its own RenderObject, so rows can contain anything a render function can return, including Components and RenderObjects.
 
-Use `push()`, `pushAll()`, `insertAt()`, `insertAllAt()`, `deleteAt()`, `delete()`, `getAt()`, `setAt()`, `swap()`, `clear()`, and `length` to change and read the Array. Only the affected rows are rendered, moved, or removed.
+Use `push()`, `pushAll()`, `insertAt()`, `insertAllAt()`, `deleteAt()`, `delete()`, `getAt()`, `setAt()`, `swap()`, `move()`, `sort()`, `reorder()`, `filter()`, `clear()`, and `length` to change and read the Array. Only the affected rows are rendered, moved, or removed.
 
 `insertAt(index, data)` inserts one data point and `insertAllAt(index, data[])` inserts several, in order, before the data point at `index` (from `0` to `length`, or counting from the end when negative, as `Array.splice()` does). They are separate methods so that a data point can itself be an Array.
+
+#### Sorting, moving, and filtering
+
+These change the order of the rows or which rows are shown by moving the rows that are already rendered, never rendering them again. They are the same on RenderObjectArray and RenderTemplateArray.
+
+* `sort(compareFn)` sorts the data points (as `Array.sort()` does, and stable). Only the rows that change places are moved, so re-sorting a list that is nearly in order, such as a table sorted by a column that a few `setAt()` calls changed, moves only those rows
+* `reorder(indexes)` puts the data points in any new order: afterwards the data point at index `k` is the one that was at `indexes[k]`. It throws a `RangeError` unless `indexes` holds each index from `0` to `length - 1` once. Like `sort()`, it moves only the rows that change places
+* `move(from, to)` moves one data point and its rows, so that it ends up at index `to` (as removing it with `splice(from, 1)` and inserting it with `splice(to, 0, data)` would)
+* `filter(predicate)` shows only the data points that `predicate` returns true for, and `filter(undefined)` shows them all again. The other data points stay in the Array with their rows kept out of the page, so showing them again moves those rows back. Indexes, in `getAt()`, `setAt()`, `swap()`, the `on` listeners of a RenderTemplateArray, and the rest, still count every data point, and `length` is the length of the whole Array. The predicate is also applied to data points added later and to one changed with `setAt()`; call `filter()` again when what it tests for has changed, such as the text in a search box
+
+In a RenderObjectArray, the Components in a row that is filtered out stay mounted while it is out of the page, and a row added while filtered out mounts when it is first shown.
+
+Taking rows out of the page is faster than hiding them (with `hidden` or `display: none`): the browser does less work for each change when a list has fewer rows, and showing them again is faster than rendering them again.
+
+```tsx
+type Server = {
+    name: string
+    cpu: number
+}
+
+class ServerList extends Component<EmptyAttrs> {
+    servers = new RenderTemplateArray<Server, null>({
+        wrapperElementTag: "ul",
+        template: <li></li>,
+        renderFunction: (row: HTMLElement, server: Server) => {
+            row.textContent = `${server.name} ${server.cpu}%`
+            return null
+        },
+    })
+    override render() {
+        return <div>
+            <input type="search" placeholder="Filter" onInput={(event) => {
+                const text = (event.target as HTMLInputElement).value
+                this.servers.filter(text === "" ? undefined : server => server.name.includes(text))
+            }}/>
+            <button type="button" onClick={() => this.servers.sort((a, b) => b.cpu - a.cpu)}>Busiest first</button>
+            <button type="button" onClick={() => this.servers.move(this.servers.length - 1, 0)}>Last to top</button>
+            {this.servers}
+        </div>
+    }
+}
+```
 
 ```tsx
 type Todo = {
@@ -413,7 +455,7 @@ class TodoList extends Component<EmptyAttrs> {
 
 An Array of data points rendered by cloning a template element for each row. Instead of building each row with TSX, the template is built once and every row is a `cloneNode()` of it that `renderFunction` fills in. Rows do not contain Components or RenderObjects, so Velotype has no per-row bookkeeping to do when rows are created, updated, or removed.
 
-It has the same methods as RenderObjectArray: `push()`, `pushAll()`, `insertAt()`, `insertAllAt()`, `deleteAt()`, `delete()`, `getAt()`, `setAt()`, `swap()`, `clear()`, and `length`.
+It has the same methods as RenderObjectArray: `push()`, `pushAll()`, `insertAt()`, `insertAllAt()`, `deleteAt()`, `delete()`, `getAt()`, `setAt()`, `swap()`, `move()`, `sort()`, `reorder()`, `filter()`, `clear()`, and `length`.
 
 #### When to use RenderTemplateArray
 

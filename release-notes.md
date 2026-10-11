@@ -4,6 +4,13 @@ Changes in each version of `@velotype/velotype` published to [JSR](https://jsr.i
 
 **Breaking** marks a change that can require updates to code that uses Velotype.
 
+## Unreleased
+
+- New `sort(compareFn)`, `reorder(indexes)`, `move(from, to)`, and `filter(predicate)` on `RenderObjectArray` and `RenderTemplateArray`, which move the rows already rendered instead of rendering them again.
+  - `sort()` and `reorder()` move only the rows that change places (the rows outside a longest increasing subsequence of the old order), so re-sorting a nearly sorted list moves only the rows that changed. For a dashboard of 10,000 rows, re-sorting after a live update changed 1% of them takes about 5ms of script and 80ms until painted, against about 75ms and 320ms when sorting with `swap()`, and a full sort takes about 60ms of script instead of 100ms.
+  - `move()` moves one data point and its rows, where `deleteAt()` and `insertAt()` rendered the row again.
+  - `filter()` keeps the data points it does not show in the Array, with their rows out of the page (Components in a RenderObjectArray row stay mounted), and indexes still count every data point. Taking rows out of the page instead of hiding them cuts the time to type a 4-character filter over 10,000 rows from about 410ms to 190ms until painted, and showing them again moves the kept rows back instead of rendering them again.
+
 ## 0.3.0 — 2026-10-10
 
 - **Breaking:** `registerEventListener()` throws a `TypeError` when the object has no `vtKey` yet, such as a Component in its constructor or field initializers (register a Component's listeners in `mount()`). Before, the listener was registered under an undefined key and never removed.

@@ -36,7 +36,7 @@ export interface MultiRenderable {
     rD: () => AnchorElement
 }
 /** The Velotype core view of a RenderObject, including its protected members */
-export type RenderObjectInternals = RenderObject<any, any> & MultiRenderable & {unmount: () => void, sw: (other: RenderObject<any, any>) => void}
+export type RenderObjectInternals = RenderObject<any, any> & MultiRenderable & {unmount: () => void, sw: (other: RenderObject<any, any>) => void, ei: (parent: Node) => AnchorElement | null}
 
 /**
  * Generic object to stash metadata when using a handleUpdate method in RenderObject
@@ -383,6 +383,20 @@ export class RenderObject<DataType, UpdateRefsType = any> implements HasVtKey {
                 })
             }
         })
+    }
+    /**
+     * Velotype internal function, called by RenderObjectArray
+     *
+     * The instance element of this RenderObject that is a child of parent
+     */
+    protected ei(parent: Node): AnchorElement | null {
+        let found: AnchorElement | null = null
+        this.es.forEach(instance => {
+            if (instance.e.parentNode === parent) {
+                found = instance.e
+            }
+        })
+        return found
     }
     /**
      * Removes all instance elements that this RenderObject has generated

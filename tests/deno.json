@@ -18,7 +18,8 @@
         "bundle-error-handling": "deno bundle ./test_modules/error-handling.tsx --output ./build/error-handling.js --sourcemap=linked",
         "bundle-array-insert": "deno bundle ./test_modules/array-insert.tsx --output ./build/array-insert.js --sourcemap=linked",
         "bundle-unmount-signal": "deno bundle ./test_modules/unmount-signal.tsx --output ./build/unmount-signal.js --sourcemap=linked",
-        "bundle-async-render-object": "deno bundle ./test_modules/async-render-object.tsx --output ./build/async-render-object.js --sourcemap=linked"
+        "bundle-async-render-object": "deno bundle ./test_modules/async-render-object.tsx --output ./build/async-render-object.js --sourcemap=linked",
+        "bundle-array-order": "deno bundle ./test_modules/array-order.tsx --output ./build/array-order.js --sourcemap=linked"
     },
     "imports": {
         "@astral/astral": "jsr:@astral/astral@^0.5.4",

@@ -16,6 +16,7 @@ export type {
     TypeConstructor,
 } from "./types.ts"
 export { Component, type FunctionComponent } from "./component.ts"
+export { ErrorBoundary } from "./error-boundary.ts"
 export {
     RenderBasic,
     RenderObject,
@@ -23,11 +24,17 @@ export {
     type RenderObjectRenderFunctionType,
     UpdateHandlerLink,
 } from "./render-object.ts"
+export {
+    AsyncRenderObject,
+    type AsyncRenderObjectOptions,
+    type AsyncSource,
+    type AsyncState,
+} from "./async-render-object.ts"
 export { RenderObjectArray, type RenderObjectArrayOptions } from "./render-object-array.ts"
 export { RenderTemplateArray, type RenderTemplateArrayOptions } from "./render-template-array.ts"
 export { passthroughAttrsToElement, setAttrsOnElement } from "./attributes.ts"
 export { createElement, createFragment, getComponent } from "./create-element.ts"
-export { replaceElementWithRoot } from "./mounting.ts"
+export { removeElementRoot, replaceElementWithRoot } from "./mounting.ts"
 export {
     emitEvent,
     registerEventListener,

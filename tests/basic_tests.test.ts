@@ -794,6 +794,139 @@ describe('basic component rendering', () => {
             // A registerOnMount() callback error is reported, and the next callback still runs
             onMountCallbacks: ["second"],
             onMountReported: ["onMount failed"],
+            // ErrorBoundary renders its fallback when its content throws, and releases what the content created
+            boundaryThrew: false,
+            boundaryShows: "a fallback: content failed",
+            boundaryRegisteredChange: 1,
+            boundaryRefreshShows: ["a content "],
+            boundaryRefreshThrew: false,
+            boundaryFailedRefreshShows: ["a fallback: content failed"],
+            boundaryFailedRefreshRegisteredChange: -3,
+            failingBoundaryThrew: "fallback failed",
+            failingBoundaryRegisteredChange: 0,
+            // registerEventListener() before a Component has a vtKey throws, and the Component is released
+            constructorListenerError: "TypeError",
+            constructorListenerRegistered: false,
+            constructorListenerRegisteredChange: 0,
+        })
+    })
+
+    itWrap("set of insertAt() and insertAllAt() tests", "array-insert", "#array-insert-tests", async (_pageLoadSelection: ElementHandle) => {
+        const results = JSON.parse(await (await page.waitForSelector("#array-insert-results")).innerText())
+        const rows = ["a", "b", "b1", "b2", "c", "d", "e", "f", "g"]
+        const after = ["b", "A", "b2", "c", "d", "e", "f", "g"]
+        assertEquals(results, {
+            // Inserts at the start, middle, end, from the end (negative), and past the end, in every place the Array is rendered
+            objectsData: rows,
+            objectsShowsA: rows,
+            objectsShowsB: rows,
+            // The Components in the inserted rows are mounted, once in each place
+            objectsMounted: rows.flatMap(row => [row, row]).sort(),
+            // deleteAt(), swap(), and setAt() still change the matching rows
+            objectsAfterShowsA: after,
+            objectsAfterShowsB: after,
+            // A failed insert leaves the data and rows unchanged
+            objectsFailedThrew: "row failed",
+            objectsFailedData: after,
+            objectsFailedShowsA: after,
+            objectsFailedShowsB: after,
+            templatesData: rows,
+            templatesShowsA: rows,
+            templatesShowsB: rows,
+            // An `on` listener gets the index of the clicked row, counting the inserted rows
+            templatesClicked: ["b2@3"],
+            templatesAfterShowsA: after,
+            templatesAfterShowsB: after,
+            templatesFailedThrew: "row failed",
+            templatesFailedData: after,
+            templatesFailedShowsA: after,
+            templatesFailedShowsB: after,
+            // insertAllAt() with the Array's own data
+            templatesSelfData: after.concat(after),
+            templatesSelfShowsA: after.concat(after),
+            // Data points that are Arrays: insertAt() inserts one, insertAllAt() inserts each of them
+            pairsShows: ["3+4", "5+6", "7+8", "1+2"],
+        })
+    })
+
+    itWrap("set of unmountSignal and released element tests", "unmount-signal", "#unmount-signal-tests", async (_pageLoadSelection: ElementHandle) => {
+        const results = JSON.parse(await (await page.waitForSelector("#unmount-signal-results")).innerText())
+        assertEquals(results, {
+            // The signal is aborted just after unmount() returns, which removes a listener added with it
+            callsWhileMounted: 1,
+            sameSignal: true,
+            abortedWhileMounted: false,
+            callsAfterUnmount: 1,
+            abortedInMount: false,
+            abortedInUnmount: false,
+            abortedAfterUnmount: true,
+            abortReason: "AbortError",
+            // It is also aborted when a Component is released without unmounting
+            renderThrowerElement: "threw",
+            abortedAfterFailedRender: true,
+            abortedWhenFirstUsedAfterRelease: true,
+            abortedWhileDetached: false,
+            abortedFieldChild: true,
+            // Inserting the element of a released Component warns
+            warningsOnFirstInsert: [],
+            warningsOnReinsert: ["released"],
+            warningsOnNestedReinsert: ["released"],
+            reinsertedGetComponent: "released",
+            // removeElementRoot() unmounts, releases, and removes content added with replaceElementWithRoot()
+            widgetRegisteredWhileMounted: 3,
+            widgetLog: ["mount", "unmount", "aborted"],
+            widgetInPage: false,
+            widgetRegisteredAfterRemove: 0,
+            widgetListenersAfterRemove: false,
+            removeAgainThrew: false,
+            removeAgainWarnings: [],
+            detachedRegisteredAfterRemove: 0,
+        })
+    })
+
+    itWrap("set of AsyncRenderObject tests", "async-render-object", "#async-render-object-tests", async (_pageLoadSelection: ElementHandle) => {
+        const results = JSON.parse(await (await page.waitForSelector("#async-render-object-results")).innerText())
+        assertEquals(results, {
+            // pending() until the Promise resolves, then render()
+            beforeResolve: "pending",
+            loadingBeforeResolve: true,
+            afterResolve: "one",
+            loadingAfterResolve: false,
+            valueAfterResolve: {status: "resolved", value: "one"},
+            // A rejection shows onFail(), or is reported without it
+            afterReject: "failed offline",
+            rejectedStatus: "rejected",
+            reportedWithOnFail: [],
+            withoutOnFail: "",
+            reportedWithoutOnFail: ["no onFail"],
+            // Only the latest load is shown, and the replaced load is aborted
+            slowAbortedOnLoad: true,
+            latestWins: "fast",
+            // Loading again shows pending(), unless keepPrevious
+            reloading: "pending",
+            keptWhileLoading: "old",
+            keptLoading: true,
+            reloaded: "new",
+            keptReloaded: "new",
+            // set() cancels the load in progress
+            setAborts: true,
+            setLoading: false,
+            afterSet: "known",
+            // Unmounting the owning Component aborts the load and ignores its result
+            abortedOnUnmount: true,
+            rendersAfterUnmount: 0,
+            reportedAfterUnmount: [],
+            // A render() that throws shows onFail(), or is reported and the state is unchanged
+            renderThrows: "failed render failed",
+            renderThrowsQuietly: "still pending",
+            renderThrowsQuietlyStatus: "pending",
+            reportedRenderThrows: ["render failed quietly"],
+            // A source function that throws is a rejection
+            sourceThrows: "failed no source",
+            // Every instance element updates, and onChange listeners run
+            severalInstances: "bothresolved",
+            onChangeStatuses: ["resolved"],
+            reportedAtEnd: [],
         })
     })
 })

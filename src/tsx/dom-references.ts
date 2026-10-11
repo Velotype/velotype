@@ -2,7 +2,7 @@
 
 // vtKeys: the registry that links DOM elements to Velotype objects
 
-import { type InternalComponent, instanceOfInternalComponent } from "./component.ts"
+import { abortUnmountSignal, type InternalComponent, instanceOfInternalComponent } from "./component.ts"
 import { removeComponentListeners } from "./event-bus.ts"
 import { domKeyProperty, domReferences, vtState } from "./globals.ts"
 import type { MultiRenderable } from "./render-object.ts"
@@ -54,6 +54,7 @@ export function releaseVtKeysFrom(firstKey: number): void {
             if (instanceOfInternalComponent(reference)) {
                 removeComponentListeners(reference.c)
                 domReferences.delete(key)
+                abortUnmountSignal(reference.c)
             } else if (reference.vtKey === key || !reference.uK) {
                 // A RenderObject's own vtKey, or a WithComponent
                 releaseVtKeyObject(reference)

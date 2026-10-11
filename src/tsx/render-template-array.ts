@@ -6,7 +6,7 @@ import type { BubblingEventName } from "../jsx-types/dom-types.d.ts"
 import { createArrayWrapper } from "./render-object-array.ts"
 import { UpdateHandlerLink, RenderObject } from "./render-object.ts"
 import type { AnchorElement } from "./types.ts"
-import { swapSiblings } from "./utils.ts"
+import { insertIndex, insertItems, swapSiblings } from "./utils.ts"
 
 /**
  * Parameters used on RenderTemplateArray construction
@@ -116,6 +116,50 @@ export class RenderTemplateArray<DataType, UpdateRefsType = any, RowElementType 
      */
     pushAll(newData: DataType[]): void {
         this.#appendAll(newData)
+    }
+    /**
+     * Insert one data point into the Array at index
+     *
+     * An index from 0 to length, or counting from the end when negative (as `Array.splice()` does)
+     */
+    insertAt(index: number, newData: DataType): void {
+        this.insertAllAt(index, [newData])
+    }
+    /**
+     * Insert all of the data points of newData[] into the Array at index, in order
+     *
+     * An index from 0 to length, or counting from the end when negative (as `Array.splice()` does)
+     */
+    insertAllAt(index: number, newData: DataType[]): void {
+        const value = this.value
+        // Every instance element has one row per data point
+        const length = value.length
+        const start = insertIndex(index, length)
+        const count = newData.length
+        const options = this.#options
+        try {
+            this.es.forEach(instance => {
+                const rows = instance.uR!
+                // The rows are rendered before any is inserted, so that nothing changes in this instance element when renderFunction throws
+                const fragment = document.createDocumentFragment()
+                const newRows: TemplateRowType<UpdateRefsType, RowElementType>[] = []
+                appendTemplateRows(options, fragment, newRows, newData)
+                instance.e.insertBefore(fragment, start < length ? rows[start].e : null)
+                insertItems(rows, start, newRows)
+            })
+        } catch (error) {
+            // Remove the rows inserted into the other instance elements, so that the rows still match the data
+            this.es.forEach(instance => {
+                const rows = instance.uR!
+                if (rows.length > length) {
+                    rows.splice(start, count).forEach(row => {
+                        row.e.remove()
+                    })
+                }
+            })
+            throw error
+        }
+        insertItems(value, start, newData)
     }
     /** Render rows for newData in each instance element, then add newData to the Array */
     #appendAll(newData: DataType[]): void {

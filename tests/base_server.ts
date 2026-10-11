@@ -46,7 +46,7 @@ export async function startAppServer(server_port: number): Promise<Server<Server
     // TODO calculate dynamically from the test_modules folder
     const setOfModules = ['basic-div','return-types','attrs-types','event-triggers','render-with','raw-tags','render-object',
         'render-object-array','function-components','lifecycle','misc','event-bus','devtools-hook','render-object-advanced',
-        'hot-reload','error-handling']
+        'hot-reload','error-handling','array-insert','unmount-signal','async-render-object']
     // Raw <script> HTML injected before a module's own <script type="module"> tag runs. `type="module"`
     // scripts are deferred, so a plain classic script placed earlier in the document always executes
     // first - used here to seed a fake pre-existing devtools hook instance before Velotype's own
@@ -57,6 +57,15 @@ window.__VELOTYPE_DEVTOOLS_HOOK__ = {
     instances: new Map([[1, {}]]),
     register(metadata) { this.instances.set(2, metadata); return 2 },
     unregister(instanceId) { this.instances.delete(instanceId) }
+}
+</script>`,
+        // Records console.warn() calls before Velotype binds console.warn for its warnings
+        'unmount-signal': `<script>
+window.__warnings = []
+const originalWarn = console.warn
+console.warn = function(...args) {
+    window.__warnings.push(args.map(String).join(" "))
+    originalWarn.apply(console, args)
 }
 </script>`
     }

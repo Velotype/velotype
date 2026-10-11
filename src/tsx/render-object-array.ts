@@ -6,9 +6,10 @@ import { setAttrsOnElement } from "./attributes.ts"
 import { createElement } from "./create-element.ts"
 import { releaseVtKeyObject, releaseVtKeysFrom } from "./dom-references.ts"
 import { displayContentsDiv, vtState } from "./globals.ts"
-import { appendElement } from "./mounting.ts"
+import { appendElement, insertElementBefore } from "./mounting.ts"
 import { RenderObject, type RenderObjectHandleUpdateType, type RenderObjectInternals, type RenderObjectRenderFunctionType } from "./render-object.ts"
 import { renderableElementToElement } from "./renderable.ts"
+import { insertIndex, insertItems } from "./utils.ts"
 
 /** Create the wrapper element of a RenderObjectArray or RenderTemplateArray */
 export function createArrayWrapper(options: {wrapperElementTag?: string, wrapperAttrs?: any}): HTMLElement {
@@ -88,6 +89,48 @@ export class RenderObjectArray<DataType, UpdateRefsType = any> extends RenderObj
      */
     pushAll(newData: DataType[]): void {
         newData.forEach(d => this.push(d))
+    }
+    /**
+     * Insert one data point into the Array at index
+     *
+     * An index from 0 to length, or counting from the end when negative (as `Array.splice()` does)
+     */
+    insertAt(index: number, newData: DataType): void {
+        this.insertAllAt(index, [newData])
+    }
+    /**
+     * Insert all of the data points of newData[] into the Array at index, in order
+     *
+     * An index from 0 to length, or counting from the end when negative (as `Array.splice()` does)
+     */
+    insertAllAt(index: number, newData: DataType[]): void {
+        const value = this.value
+        const start = insertIndex(index, value.length)
+        // The data point that the new ones go before, undefined when they go at the end
+        const next = value[start]
+        const firstKey = vtState.k
+        const objs = newData.map(d => new RenderObject<DataType, UpdateRefsType>(d, this.#renderFunction, this.#handleUpdate))
+        insertItems(value, start, objs)
+        try {
+            this.es.forEach(element => {
+                const wrapper = element.e
+                const before = next ? next.getElements().find(e => e.parentNode === wrapper) || null : null
+                objs.forEach(obj => {
+                    insertElementBefore(wrapper, renderableElementToElement(obj), before)
+                })
+            })
+        } catch (error) {
+            // Remove the data points and their rows, and release what their render created
+            objs.forEach(obj => {
+                const objIndex = value.indexOf(obj)
+                if (objIndex >= 0) {
+                    value.splice(objIndex, 1)
+                }
+                RenderObjectArray.#releaseOne(obj)
+            })
+            releaseVtKeysFrom(firstKey)
+            throw error
+        }
     }
     /**
      * Delete one or more data points from the Array

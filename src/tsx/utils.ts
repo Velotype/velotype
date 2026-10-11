@@ -85,3 +85,24 @@ export function reportUserError(error: unknown): void {
         consoleError(error)
     }
 }
+
+/** Convert an index for inserting into an Array to an index from 0 to length, counting from the end when negative (as `Array.splice()` does) */
+export function insertIndex(index: number, length: number): number {
+    if (index < 0) {
+        return Math.max(length + index, 0)
+    }
+    return Math.min(index, length)
+}
+
+/** Insert items into array at start, without spreading items into arguments (which fails for long Arrays) */
+export function insertItems<T>(array: T[], start: number, items: readonly T[]): void {
+    const source = (items as T[]) === array ? array.slice() : items
+    const count = source.length
+    const tail = array.splice(start)
+    for (let i = 0; i < count; i++) {
+        array.push(source[i])
+    }
+    for (let i = 0; i < tail.length; i++) {
+        array.push(tail[i])
+    }
+}

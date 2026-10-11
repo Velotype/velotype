@@ -14,6 +14,7 @@ import {
     // Core types
     type FunctionComponent,
     Component,
+    ErrorBoundary,
     type EmptyAttrs,
     type IdAttr,
     type ChildrenAttr,
@@ -25,6 +26,10 @@ import {
     type RenderObjectHandleUpdateType,
     type RenderObjectRenderFunctionType,
     RenderBasic,
+    AsyncRenderObject,
+    type AsyncRenderObjectOptions,
+    type AsyncSource,
+    type AsyncState,
     RenderObjectArray,
     type RenderObjectArrayOptions,
     RenderTemplateArray,
@@ -36,6 +41,7 @@ import {
     createElement,
     createFragment,
     getComponent,
+    removeElementRoot,
 
     // Event system
     VelotypeEvent,
@@ -71,6 +77,7 @@ export {
     // Core types
     type FunctionComponent,
     Component,
+    ErrorBoundary,
     type EmptyAttrs,
     type IdAttr,
     type ChildrenAttr,
@@ -82,6 +89,10 @@ export {
     type RenderObjectHandleUpdateType,
     type RenderObjectRenderFunctionType,
     RenderBasic,
+    AsyncRenderObject,
+    type AsyncRenderObjectOptions,
+    type AsyncSource,
+    type AsyncState,
     RenderObjectArray,
     type RenderObjectArrayOptions,
     RenderTemplateArray,
@@ -98,6 +109,7 @@ export {
     VelotypeEvent,
     type VelotypeEventListener,
     replaceElementWithRoot,
+    removeElementRoot,
     emitEvent,
     registerEventListener,
     removeEventListeners,

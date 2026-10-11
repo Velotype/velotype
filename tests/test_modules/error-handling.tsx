@@ -1,4 +1,4 @@
-import {replaceElementWithRoot, Component, RenderObject, RenderObjectArray, RenderTemplateArray, UpdateHandlerLink, registerEventListener, emitEvent, VelotypeEvent, getComponent} from "@velotype/velotype"
+import {replaceElementWithRoot, Component, ErrorBoundary, RenderObject, RenderObjectArray, RenderTemplateArray, UpdateHandlerLink, registerEventListener, emitEvent, VelotypeEvent, getComponent} from "@velotype/velotype"
 import type {EmptyAttrs, FunctionComponent} from "@velotype/velotype"
 import {__vtAppMetadata} from "@velotype/velotype/devtools"
 
@@ -249,6 +249,66 @@ class OnMountHost extends Component<EmptyAttrs> {
 replaceElementWithRoot(<OnMountHost/>, host())
 results.onMountCallbacks = mountCallbacks.slice()
 results.onMountReported = takeReported()
+
+// 12. ErrorBoundary: renders renderError() when renderContent() throws, on first render and on refresh()
+let boundaryFails = true
+class Boundary extends ErrorBoundary<{label: string}> {
+    override renderContent(attrs: Readonly<{label: string}>) {
+        if (boundaryFails) {
+            void (<div><RenderChild/></div>)
+            throw new Error("content failed")
+        }
+        return <div class="boundary">{attrs.label} content <RenderChild/></div>
+    }
+    override renderError(error: unknown, attrs: Readonly<{label: string}>) {
+        return <div class="boundary">{attrs.label} fallback: {(error as Error).message}</div>
+    }
+}
+const beforeBoundary = registered()
+let boundaryElement: HTMLElement | null = null
+results.boundaryThrew = threw(() => { boundaryElement = replaceElementWithRoot(<Boundary label="a"/>, host()) as HTMLElement })
+results.boundaryShows = boundaryElement!.textContent
+// Only the boundary itself stays registered
+results.boundaryRegisteredChange = registered() - beforeBoundary
+boundaryFails = false
+getComponent<Boundary>(boundaryElement).refresh()
+results.boundaryRefreshShows = texts(".boundary")
+boundaryFails = true
+const beforeBoundaryRefresh = registered()
+results.boundaryRefreshThrew = threw(() => getComponent<Boundary>(document.querySelector(".boundary") as HTMLElement).refresh())
+results.boundaryFailedRefreshShows = texts(".boundary")
+// The released content (a RenderChild and its RenderObject, 3 keys) is replaced by the fallback
+results.boundaryFailedRefreshRegisteredChange = registered() - beforeBoundaryRefresh
+
+// 13. ErrorBoundary whose renderError() throws: the error reaches the caller, nothing stays registered
+class FailingBoundary extends ErrorBoundary<EmptyAttrs> {
+    override renderContent(): HTMLElement { throw new Error("content failed") }
+    override renderError(): HTMLElement { throw new Error("fallback failed") }
+}
+const beforeFailingBoundary = registered()
+results.failingBoundaryThrew = threw(() => void (<FailingBoundary/>))
+results.failingBoundaryRegisteredChange = registered() - beforeFailingBoundary
+
+// 14. registerEventListener() in a Component's constructor throws, since vtKey is not set yet
+class ConstructorListener extends Component<EmptyAttrs> {
+    constructor(attrs: EmptyAttrs, children: never[]) {
+        super(attrs, children)
+        registerEventListener(this, "error-handling-constructor", () => {})
+    }
+    override render() { return <p></p> }
+}
+const beforeConstructorListener = registered()
+const constructorListenerError = (() => {
+    try {
+        void (<ConstructorListener/>)
+        return "none"
+    } catch (error) {
+        return error instanceof TypeError ? "TypeError" : String(error)
+    }
+})()
+results.constructorListenerError = constructorListenerError
+results.constructorListenerRegistered = __vtAppMetadata.listenersF.has("error-handling-constructor")
+results.constructorListenerRegisteredChange = registered() - beforeConstructorListener
 
 class ErrorHandlingTest extends Component<EmptyAttrs> {
     override render() {

@@ -3,7 +3,7 @@
 // Class Components and Function Components
 
 import { setDomKeyOn, registerNewVtKey, releaseVtKeysFrom } from "./dom-references.ts"
-import { internalComponentProperty, vtState } from "./globals.ts"
+import { abortControllerProperty, domReferences, internalComponentProperty, vtState } from "./globals.ts"
 import { replaceElement, appendElement, prependElement, replaceChildren, removeElement } from "./mounting.ts"
 import { renderableElementToElement, wrapElementIfNeeded } from "./renderable.ts"
 import type { AnchorElement, RenderableElements, HasVtKey } from "./types.ts"
@@ -74,14 +74,23 @@ export abstract class Component<AttrsType> implements HasVtKey {
     }
 
     /**
-     * Mount is called just after this Component is attached to the DOM.
+     * Mount is called just after this Component is inserted into the page through Velotype,
+     * before the browser paints, so layout can be read. Child Components mount before their parent.
+     * 
+     * Called once. `refresh()` does not call it again, and an error thrown here is reported
+     * with `reportError()` so that the other Components still mount.
      * 
      * May be overriden by a specific Component that extends Component
      */
     protected mount(): void {}
 
     /**
-     * Unmount is called just before this Component is removed from the DOM.
+     * Unmount is called just before this Component is removed from the page by Velotype,
+     * while it is still in the page. Afterwards the Component is released: its event bus
+     * listeners are removed, `unmountSignal` is aborted, and it does not mount again.
+     * 
+     * Called once. An error thrown here is reported with `reportError()` so that the other
+     * Components still unmount.
      * 
      * May be overriden by a specific Component that extends Component
      */
@@ -101,6 +110,9 @@ export abstract class Component<AttrsType> implements HasVtKey {
      * This will unmount and delete all child Components, then call
      * this.render() and consequently new and mount a fresh set of child Components.
      * 
+     * This Component stays mounted, its own `mount()` and `unmount()` are not called.
+     * If render() throws, the current render is kept and the error is thrown.
+     * 
      * Velotype Core creates this on first use, it is not overridable
      */
     get refresh(): () => void {
@@ -108,9 +120,32 @@ export abstract class Component<AttrsType> implements HasVtKey {
     }
 
     /**
+     * An AbortSignal that is aborted just after this Component's `unmount()` returns, or when
+     * the Component is released without being mounted (such as when its render throws)
+     * 
+     * Pass it to code started in `mount()` so that it is cleaned up on unmount, such as
+     * `addEventListener(type, listener, {signal: this.unmountSignal})` or `fetch(url, {signal: this.unmountSignal})`
+     * 
+     * Velotype Core creates this on first use, it is not overridable
+     */
+    get unmountSignal(): AbortSignal {
+        let controller: AbortController | undefined = (this as any)[abortControllerProperty]
+        if (!controller) {
+            controller = new AbortController()
+            ;(this as any)[abortControllerProperty] = controller
+            // A Component that was already released gets an aborted signal
+            if (this.vtKey !== undefined && !domReferences.has(this.vtKey)) {
+                controller.abort()
+            }
+        }
+        return controller.signal
+    }
+
+    /**
      * A unique key per instance of each Component.
      * 
-     * This is read-only and set by Velotype Core on Component construction
+     * This is read-only and set by Velotype Core after the Component's constructor returns,
+     * so it is undefined in the constructor and in field initializers
      */
     declare readonly vtKey: number
 
@@ -315,4 +350,12 @@ function componentRender(classComponent: InternalComponent, attrs: Readonly<any>
     const render: AnchorElement = wrapElementIfNeeded((classComponent.c as ComponentInternals).render(attrs, children))
     setDomKeyOn(render, classComponent.k)
     return render
+}
+
+/** Abort a released Component's unmountSignal, if it has been used */
+export function abortUnmountSignal(component: Component<any>): void {
+    const controller: AbortController | undefined = (component as any)[abortControllerProperty]
+    if (controller) {
+        controller.abort()
+    }
 }

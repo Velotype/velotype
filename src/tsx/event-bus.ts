@@ -45,8 +45,15 @@ export type VelotypeEventListener = (event: VelotypeEvent) => void
  * Will receive all events dispatched with the listeningKey
  * 
  * Will be automatically cleaned up when the hasVtKey Component is released
+ * 
+ * A Component's vtKey is set after its constructor returns, so register a Component's
+ * listeners in `mount()`. Throws a TypeError when hasVtKey has no vtKey yet, such as
+ * when called from a Component's constructor or field initializers.
  */
 export function registerEventListener(hasVtKey: HasVtKey, listeningKey: string, listener: VelotypeEventListener): void {
+    if (typeof hasVtKey.vtKey !== "number") {
+        throw new TypeError("vt: registerEventListener() needs an object with a vtKey, a Component has none until its constructor returns (register listeners in mount())")
+    }
     registerListenerMap(listenersF, listeningKey, hasVtKey.vtKey, listener)
     registerListenerMap(listenersR, hasVtKey.vtKey, listeningKey, listener)
 }

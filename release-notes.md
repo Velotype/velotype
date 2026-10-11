@@ -6,25 +6,32 @@ Changes in each version of `@velotype/velotype` published to [JSR](https://jsr.i
 
 ## Unreleased
 
+- **Breaking:** `registerEventListener()` throws a `TypeError` when the object has no `vtKey` yet, such as a Component in its constructor or field initializers (register a Component's listeners in `mount()`). Before, the listener was registered under an undefined key and never removed.
 - Velotype keeps its state consistent when user code throws:
   - A Component, Function Component, or `refresh()` whose rendering throws releases the Components, RenderObjects, and event listeners it created, and `refresh()` keeps the current render. The error is thrown to the caller.
   - A `RenderObject` value update whose render function or `handleUpdate` throws leaves the value unchanged. With several instance elements, all of them are rendered before any is replaced, so that none of them change.
   - `RenderObjectArray` and `RenderTemplateArray` methods whose `renderFunction` throws leave the data and the rendered rows matching. Before, a failed `RenderTemplateArray.push()` left a data point without a row, so later index-based methods changed the wrong rows.
 - Errors thrown by `mount()`, `unmount()`, `registerOnMount()` callbacks, and event bus listeners are reported with `reportError()` (logged, and dispatched as an `error` event on the window) instead of being thrown, so that the other Components still mount and unmount and the other listeners still receive the event.
+- New `ErrorBoundary`, a Component that renders `renderError()` instead when `renderContent()` throws, on first render or on `refresh()`, and releases what the failed render created. It is in its own module, so bundles that do not use it do not include it.
+- New `AsyncRenderObject`, a RenderObject that shows `pending()` while a Promise loads, then `render()` with its result, or `onFail()` when it rejects or `render()` throws. Only the latest `load()` is shown, and a load is cancelled (its `AbortSignal` aborted and its result ignored) when a newer `load()` or `set()` replaces it or when the AsyncRenderObject unmounts. `keepPrevious` keeps the resolved value shown while reloading. It is in its own module, so bundles that do not use it do not include it.
+- New `insertAt(index, data)` and `insertAllAt(index, data[])` on `RenderObjectArray` and `RenderTemplateArray`, which insert data points before the one at `index` (counting from the end when negative), rendering only the new rows.
+- New `Component.unmountSignal`, an `AbortSignal` that is aborted just after `unmount()` returns (or when the Component is released without being mounted), for cleaning up listeners, fetches, and other work started in `mount()`. It is created on first use.
+- New `removeElementRoot(element)`, the counterpart of `replaceElementWithRoot()`: it unmounts and releases the Components and RenderObjects in `element`, then removes it. Before, content that was not part of a Component's render, such as an app root, could not be unmounted.
+- Inserting the element of a Component or RenderObject that was already released logs a warning, since it does not mount again. Before, it was inserted without its lifecycle or listeners.
 
-## 0.2.4 — 2026-10-03
+## 0.2.4 — 2026-10-04
 
 - New hot update support in the jsx-dev-runtime entry point, for development servers such as the one in `@velotype/veloserver/dev`. When changed code runs again, live components are updated in place: class components get the new methods and render again keeping their fields, and function component outputs render again in place. The jsx-runtime entry point is unchanged.
 - In the jsx-dev-runtime entry point, `setStylesheet()` replaces a sheet whose text has changed, and `replaceElementWithRoot()` does not mount a second app while an update runs the app's entry code again.
 
-## 0.2.3 — 2026-10-03
+## 0.2.3 — 2026-10-04
 
 - **Breaking:** `StyleAttrType` (the type of the `style` attribute and of `StylePassthroughAttrs.style`) only accepts known CSS properties, taken from the DOM lib's `CSSStyleDeclaration`. Properties can be written in lowerCamelCase (`marginTop`) or hyphen-case (`"margin-top"`), and custom properties (`"--name"`) are accepted. Numbers are only accepted for custom properties and for properties that take no unit, such as `opacity`, `zIndex`, and `flexGrow`.
 - **Breaking:** the values of 135 commonly used CSS properties are checked, such as `display`, `position`, `width`, `margin`, `color`, `opacity`, and `transitionDuration`. Keywords must be ones the property accepts, lengths and times need a unit, and colors must be a named color, `#hex`, or a color function. Values using `var()`, `env()`, `attr()`, math functions such as `calc()`, and the CSS-wide keywords (`inherit`, `initial`, ...) are always accepted. Other properties accept any string.
 - New `CSSPropertyName`, `UnitlessCSSPropertyName`, `CSSPropertyValues`, `CSSValue`, `CSSLength`, `CSSPercentage`, `CSSLengthPercentage`, `CSSNumber`, `CSSTime`, `CSSColor`, `CSSNamedColor`, and related types.
 - Fix: a custom property with an `!important` value had its name converted to hyphen-case (`--brandColor` set `--brand-color`), and a `webkit` property with an `!important` value was set without its leading `-`.
 
-## 0.2.2 — 2026-10-03
+## 0.2.2 — 2026-10-04
 
 - Velotype core is split into one file per concern under `src/tsx/`, and `dom-types.d.ts` into `events.d.ts`, `aria.d.ts`, and `html-attributes.d.ts`. The public API and import paths are unchanged.
 - Fix: `<u>` and `<ul>` had each other's attribute types. `<ul>` now only accepts the roles allowed on a list, and `<u>` accepts any role.

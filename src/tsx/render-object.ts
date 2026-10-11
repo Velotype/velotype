@@ -144,7 +144,7 @@ export class RenderObject<DataType, UpdateRefsType = any> implements HasVtKey {
      * @returns this
      */
     registerOnChangeListener(listener: VelotypeEventListener, options?: {
-        /** If specified then this eventListener will get removed on the lifecycle of the HasVtKey (defaults to the RenderObject's lifecycle) */
+        /** If specified then this eventListener will get removed on the lifecycle of the HasVtKey (defaults to the RenderObject's lifecycle), it must already have a vtKey (for a Component, call this from mount()) */
         hasVtKey?: HasVtKey,
         /** should an onChange event be emitted immediately upon registration? (default: false) */
         triggerOnRegistration?: boolean,

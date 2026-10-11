@@ -56,6 +56,9 @@ export const domKeyProperty = Symbol()
 /** The InternalComponent of each Component */
 export const internalComponentProperty = Symbol()
 
+/** The AbortController of each Component that has used its unmountSignal */
+export const abortControllerProperty = Symbol()
+
 // ------- Event bus -------
 
 /** Velotype Event bus - Forward map listeningKey -> vtKey -> listeners */

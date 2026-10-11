@@ -2,10 +2,10 @@
 
 // Inserting and removing elements, and mounting and unmounting the Velotype objects in them
 
-import { type ComponentInternals, type InternalComponent, instanceOfComponent, instanceOfInternalComponent } from "./component.ts"
+import { abortUnmountSignal, type ComponentInternals, type InternalComponent, instanceOfComponent, instanceOfInternalComponent } from "./component.ts"
 import { getDOMreference, releaseVtKey, releaseVtKeyObject } from "./dom-references.ts"
 import { removeComponentListeners } from "./event-bus.ts"
-import { domKeyProperty } from "./globals.ts"
+import { consoleWarn, domKeyProperty } from "./globals.ts"
 import { type MultiRenderable, type RenderObjectInternals, instanceOfRenderObject } from "./render-object.ts"
 import type { AnchorElement } from "./types.ts"
 import { instanceOfHTMLElement, instanceOfSVGSVGElement, instanceOfMathMLElement, reportUserError } from "./utils.ts"
@@ -44,6 +44,13 @@ export function appendElement(element: AnchorElement, toAppendElement: AnchorEle
     mountComponentElement(toAppendElement)
 }
 /**
+ * Inserts toInsertElement into element before the child before (or at the end when before is null), and will mount the inserted toInsertElement
+ */
+export function insertElementBefore(element: AnchorElement, toInsertElement: AnchorElement, before: Node | null): void {
+    element.insertBefore(toInsertElement, before)
+    mountComponentElement(toInsertElement)
+}
+/**
  * Prepends a toPrependElement to an element and will mount the prepended toPrependElement
  */
 export function prependElement(element: HTMLElement, toPrependElement: AnchorElement): void {
@@ -75,21 +82,30 @@ export function removeElement(element: AnchorElement): void {
  * @param element the element to search through
  * @param callback the callback to trigger
  */
-function traverseElementChildren(element: Element, callback: (component: InternalComponent | MultiRenderable | WithComponent, key: number) => void): void {
+function traverseElementChildren(element: Element, callback: (component: InternalComponent | MultiRenderable | WithComponent, key: number) => void, mounting?: boolean): void {
     if (instanceOfHTMLElement(element) || instanceOfSVGSVGElement(element) || instanceOfMathMLElement(element)) {
         let child = element.firstElementChild
         while (child) {
-            traverseElementChildren(child, callback)
+            traverseElementChildren(child, callback, mounting)
             const key: number | undefined = (child as any)[domKeyProperty]
             if (key) {
                 const component = getDOMreference(key)
                 if (component) {
                     callback(component, key)
+                } else if (mounting) {
+                    warnReleasedElement(child)
                 }
             }
             child = child.nextElementSibling
         }
     }
+}
+/**
+ * Warn that an element inserted into the page belongs to a Component or RenderObject that was
+ * already released, so it does not mount and its listeners are gone
+ */
+function warnReleasedElement(element: Element): void {
+    consoleWarn("Inserted an element of a released Component or RenderObject, it does not mount again (create a new one instead)", element)
 }
 
 /**
@@ -137,6 +153,8 @@ function mountComponentElement(element: AnchorElement): void {
         const component = getDOMreference(key)
         if (component) {
             mountComponentElementHelper(component, key)
+        } else {
+            warnReleasedElement(element)
         }
     }
 }
@@ -147,7 +165,7 @@ function mountComponentElementChildren(element: HTMLElement): void {
     if (!element.isConnected) {
         return
     }
-    traverseElementChildren(element, mountComponentElementHelper)
+    traverseElementChildren(element, mountComponentElementHelper, true)
 }
 /**
  * Call `.unmount()` on linked Components (if mounted) and release vtKeys
@@ -173,10 +191,12 @@ function unmountComponentElementHelper(component: InternalComponent | MultiRende
                 releaseVtKeyObject(enumberableValue)
             } else if (instanceOfComponent(enumberableValue)) {
                 releaseVtKeyObject(enumberableValue)
+                abortUnmountSignal(enumberableValue)
             }
         })
         // Release the Component's vtKey
         releaseVtKey(component.k)
+        abortUnmountSignal(component.c)
     } else if (instanceOfWithComponent(component)) {
         // component: WithComponent
         component.unmount()
@@ -218,4 +238,17 @@ export function replaceElementWithRoot(rootComponent: AnchorElement, element: HT
     element.replaceWith(rootComponent)
     mountComponentElement(rootComponent)
     return rootComponent
+}
+
+/**
+ * Removes an element from the document, unmounting and releasing the Components and RenderObjects in it first
+ * 
+ * The counterpart of `replaceElementWithRoot()`, for removing content that is not part of a
+ * Component's render (such as an app root, or content added to a part of the page that other code manages)
+ * 
+ * Does nothing if `element` is `null`
+ */
+export function removeElementRoot(element: AnchorElement | null): void {
+    if (element === null) { return }
+    removeElement(element)
 }

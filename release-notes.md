@@ -4,7 +4,7 @@ Changes in each version of `@velotype/velotype` published to [JSR](https://jsr.i
 
 **Breaking** marks a change that can require updates to code that uses Velotype.
 
-## Unreleased
+## 0.3.1 — 2026-10-11
 
 - New `sort(compareFn)`, `reorder(indexes)`, `move(from, to)`, and `filter(predicate)` on `RenderObjectArray` and `RenderTemplateArray`, which move the rows already rendered instead of rendering them again.
   - `sort()` and `reorder()` move only the rows that change places (the rows outside a longest increasing subsequence of the old order), so re-sorting a nearly sorted list moves only the rows that changed. For a dashboard of 10,000 rows, re-sorting after a live update changed 1% of them takes about 5ms of script and 80ms until painted, against about 75ms and 320ms when sorting with `swap()`, and a full sort takes about 60ms of script instead of 100ms.

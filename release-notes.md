@@ -4,7 +4,7 @@ Changes in each version of `@velotype/velotype` published to [JSR](https://jsr.i
 
 **Breaking** marks a change that can require updates to code that uses Velotype.
 
-## Unreleased
+## 0.3.0 — 2026-10-10
 
 - **Breaking:** `registerEventListener()` throws a `TypeError` when the object has no `vtKey` yet, such as a Component in its constructor or field initializers (register a Component's listeners in `mount()`). Before, the listener was registered under an undefined key and never removed.
 - Velotype keeps its state consistent when user code throws:

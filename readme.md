@@ -7,7 +7,7 @@ Differences from react/preact:
 * Write the same as if you are writing native HTML (use element Attributes instead of Properties)
 * No state management (use Classes as they are intended with fields and methods)
 * High performance (close to hand-written JavaScript)
-* Small payload (~17kb minified, ~6kb gzipped, and bundlers can drop the parts that are not imported)
+* Small payload (~21kb minified, ~7.7kb gzipped, and bundlers can drop the parts that are not imported)
 
 ## Setup
 
@@ -69,7 +69,7 @@ Velotype resolves style objects to make inline styling quick and easy.
 const divTag: HTMLDivElement = <div style={{display: "inline", marginTop: "4px"}}>this is a div</div>
 ```
 
-Style objects are type checked. Property names must be CSS properties, in lowerCamelCase (`marginTop`) or hyphen-case (`"margin-top"`), or custom properties (`"--brand-color"`). The values of commonly used properties are checked too: keywords must be ones the property accepts, lengths and times need a unit, and colors must be a named color, `#hex`, or a color function. Numbers are accepted only for properties that take no unit, such as `opacity` and `zIndex`. A value can end with ` !important`, and values using `var()`, `calc()` and other CSS functions are always accepted. The `style` attribute also accepts a string.
+Style objects are type checked. Property names must be CSS properties, in lowerCamelCase (`marginTop`) or hyphen-case (`"margin-top"`), or custom properties (`"--brand-color"`). The values of commonly used properties are checked too: keywords must be ones the property accepts, lengths and times need a unit, and colors must be a named color, `#hex`, or a color function. Numbers are accepted only for properties that take no unit, such as `opacity` and `zIndex`. A value can end with ` !important`, and values using `var()`, `calc()` and other CSS functions are always accepted. The `style` attribute only accepts an object, not a string (since 0.0.25).
 
 ### Event listeners
 

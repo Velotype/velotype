@@ -4,6 +4,11 @@ Changes in each version of `@velotype/velotype` published to [JSR](https://jsr.i
 
 **Breaking** marks a change that can require updates to code that uses Velotype.
 
+## 0.3.2 — 2026-10-15
+
+- New `setEventTracer(tracer)` on the metadata that each Velotype instance registers with the devtools hook (`__vtAppMetadata`, with the `VelotypeEventTracer` type, from `@velotype/velotype/devtools`), for the Velotype DevTools extension to trace events. While a tracer is set, it is called once for each event that has listeners, just before the first of them receives it, and `setEventTracer(undefined)` stops tracing. A tracer that throws does not affect the event or its listeners.
+  - Tracing wraps the registered listeners, so `emitEvent()` is unchanged and emitting an event runs the same code whether or not anything is tracing. Registering, removing, and `isListenerRegistered()` look through the wrappers only while tracing.
+
 ## 0.3.1 — 2026-10-11
 
 - New `sort(compareFn)`, `reorder(indexes)`, `move(from, to)`, and `filter(predicate)` on `RenderObjectArray` and `RenderTemplateArray`, which move the rows already rendered instead of rendering them again.

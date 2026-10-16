@@ -718,6 +718,18 @@ describe('basic component rendering', () => {
         assertEquals(await innerTextOf("#unregister-result"), "removed")
     })
 
+    itWrap("set of event tracing tests", "devtools-hook", "#devtools-hook-tests", async (_pageLoadSelection: ElementHandle) => {
+        const innerTextOf = async (selector: string) => (await (await page.waitForSelector(selector)).innerText()).replace(/\s+/g, " ").trim()
+        await (await page.waitForSelector("#run-trace")).click()
+        // The tracer saw each event before the listeners did (the number is how many listeners had run), and
+        // stopped seeing them when removed. The listeners received every event, including with a throwing tracer
+        assertEquals(JSON.parse(await innerTextOf("#trace-result")), {
+            // "later:later" once for the event with two listeners, and nothing for the one after both were removed
+            traced: ["vt-ro:onChange:0", "custom:ping:1", "later:later"],
+            received: ["change", "custom", "change", "change", "custom", "early", "during"],
+        })
+    })
+
     itWrap("set of render-object-advanced tests", "render-object-advanced", "#render-object-advanced-tests", async (_pageLoadSelection: ElementHandle) => {
         const innerTextOf = async (selector: string) => (await (await page.waitForSelector(selector)).innerText()).replace(/\s+/g, " ").trim()
 

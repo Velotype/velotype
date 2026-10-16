@@ -3,7 +3,7 @@
  * 
  * Import from `@velotype/velotype/devtools`
  */
-export { __vtAppMetadata, type VtAppMetadata } from "../tsx/globals.ts"
+export { __vtAppMetadata, type VelotypeEventTracer, type VtAppMetadata } from "../tsx/globals.ts"
 export {
     getDevtoolsHook,
     type VelotypeDevtoolsHook,

@@ -1,6 +1,7 @@
 // The devtools hook (for the velodevtools extension)
 
-import { __vtAppMetadata } from "./globals.ts"
+import { __vtAppMetadata, type VtAppMetadata } from "./globals.ts"
+import { setEventTracer } from "./event-bus.ts"
 
 /** Per-instance metadata a Velotype instance exposes to the Velotype DevTools browser extension */
 export type VelotypeDevtoolsInstanceMetadata = typeof __vtAppMetadata
@@ -49,6 +50,7 @@ export function getDevtoolsHook(): VelotypeDevtoolsHook | undefined {
  * `globalThis` is always the `window` here - no environment check is needed.
  */
 function installDevtoolsHook(): void {
+    ;(__vtAppMetadata as { setEventTracer: VtAppMetadata["setEventTracer"] }).setEventTracer = setEventTracer
     const g = globalThis as GlobalThisWithDevtoolsHook
     if (!g.__VELOTYPE_DEVTOOLS_HOOK__) {
         const instances = new Map<number, VelotypeDevtoolsInstanceMetadata>()

@@ -1,7 +1,7 @@
 // Every top-level variable of Velotype core, kept together so that the bundle declares them in one statement
 
 import type { InternalComponent } from "./component.ts"
-import type { VelotypeEventListener } from "./event-bus.ts"
+import type { VelotypeEvent, VelotypeEventListener } from "./event-bus.ts"
 import type { MultiRenderable } from "./render-object.ts"
 import type { StyleSection } from "./stylesheet.ts"
 import type { WithComponent } from "./with-component.ts"
@@ -92,6 +92,9 @@ export const vtState: {
 
 // ------- Devtools -------
 
+/** Called once for every event emitted on the event bus that has listeners, just before the first of them receives it */
+export type VelotypeEventTracer = (listeningKey: string, event: VelotypeEvent) => void
+
 /**
  * Public, type-safe shape of `__vtAppMetadata`
  */
@@ -108,6 +111,13 @@ export type VtAppMetadata = {
     readonly listenersR: ReadonlyMap<number, ReadonlyMap<string, readonly VelotypeEventListener[]>>
     /** Map of style keys to ensure each style key is only mounted once */
     readonly styleSectionMounted: ReadonlyMap<string, StyleSection>
+    /**
+     * Start tracing the events this instance emits, or stop with `undefined`.
+     *
+     * A tracer that throws does not affect the event or its listeners. Without a tracer, emitting
+     * an event runs the same code as when devtools is not installed.
+     */
+    readonly setEventTracer: (tracer: VelotypeEventTracer | undefined) => void
 }
 
 /**
@@ -137,6 +147,9 @@ export const __vtAppMetadata: VtAppMetadata = {
     /** Map of style keys to ensure each style key is only mounted once */
     styleSectionMounted: styleSectionMounted,
 
+    // ------- For Event tracing -------
+    /** Replaced by installDevtoolsHook(), which can reach the event bus */
+    setEventTracer: () => {},
 }
 
 /** An element with a style attribute, used as a template for cloneNode() - declared last so that it does not split the variables above */

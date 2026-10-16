@@ -3,7 +3,7 @@
 // Velotype event bus
 
 import type { Component } from "./component.ts"
-import { consoleWarn, listenersF, listenersR, vtState } from "./globals.ts"
+import { consoleWarn, listenersF, listenersR, vtState, type VelotypeEventTracer } from "./globals.ts"
 import type { RenderObject } from "./render-object.ts"
 import type { HasVtKey } from "./types.ts"
 import { reportUserError } from "./utils.ts"
@@ -53,6 +53,9 @@ export type VelotypeEventListener = (event: VelotypeEvent) => void
 export function registerEventListener(hasVtKey: HasVtKey, listeningKey: string, listener: VelotypeEventListener): void {
     if (typeof hasVtKey.vtKey !== "number") {
         throw new TypeError("vt: registerEventListener() needs an object with a vtKey, a Component has none until its constructor returns (register listeners in mount())")
+    }
+    if (tracer) {
+        listener = traceListener(listeningKey, listener)
     }
     registerListenerMap(listenersF, listeningKey, hasVtKey.vtKey, listener)
     registerListenerMap(listenersR, hasVtKey.vtKey, listeningKey, listener)
@@ -105,7 +108,10 @@ function removeListenerMap<FirstKeyType, SecondKeyType>(map: Map<FirstKeyType, M
         if (listeners) {
             vtState.r++
             if (listener) {
-                const index = listeners.indexOf(listener)
+                let index = listeners.indexOf(listener)
+                if (index < 0 && tracer) {
+                    index = listeners.findIndex(registered => (registered as TracedListener).o === listener)
+                }
                 if (index < 0) {
                     consoleWarn("Listener not registered", firstKey, secondKey)
                     return
@@ -134,7 +140,7 @@ function removeListenerMap<FirstKeyType, SecondKeyType>(map: Map<FirstKeyType, M
 export function isListenerRegistered(listeningKey: string, vtKey: number, listener: VelotypeEventListener): boolean {
     const keyListeners = listenersF.get(listeningKey)
     const listeners = keyListeners && keyListeners.get(vtKey)
-    return !!listeners && listeners.includes(listener)
+    return !!listeners && (listeners.includes(listener) || (!!tracer && listeners.some(registered => (registered as TracedListener).o === listener)))
 }
 /**
  * Emit a VelotypeEvent on a listeningKey
@@ -165,5 +171,64 @@ export function emitEvent(listeningKey: string, event: VelotypeEvent, hasVtKey?:
         })
     } else {
         consoleWarn("No listeners for event", listeningKey, event)
+    }
+}
+
+// ------- Tracing, for the devtools extension -------
+//
+// Tracing wraps the listeners instead of changing emitEvent(), so that emitting an event runs the
+// same code whether or not anything traces it. A wrapper reports the event the first time one of
+// its listeners receives it, and then calls the listener it wraps. The check for a wrapper in the
+// code to find, remove, or test a registered listener only runs while tracing.
+
+/** A listener wrapped for tracing keeps the listener it wraps in `o` */
+type TracedListener = VelotypeEventListener & { o?: VelotypeEventListener }
+let tracer: VelotypeEventTracer | undefined
+/** The event that was last reported, because every listener of an event is wrapped but the event is reported once */
+let tracedEvent: VelotypeEvent | undefined
+
+function traceListener(listeningKey: string, listener: VelotypeEventListener): TracedListener {
+    const traced: TracedListener = event => {
+        if (tracer && tracedEvent !== event) {
+            tracedEvent = event
+            // Emitting the same event object again later is reported again
+            queueMicrotask(() => { tracedEvent = undefined })
+            try {
+                tracer(listeningKey, event)
+            } catch {
+                // A failing tracer must not change what the app does
+            }
+        }
+        listener(event)
+    }
+    traced.o = listener
+    return traced
+}
+
+/** Replaces every listener in a double map, with new arrays so that an emit in progress keeps its own */
+function replaceListeners<FirstKeyType, SecondKeyType>(map: Map<FirstKeyType, Map<SecondKeyType, VelotypeEventListener[]>>, replace: (firstKey: FirstKeyType, secondKey: SecondKeyType, listener: VelotypeEventListener) => VelotypeEventListener): void {
+    map.forEach((keyListeners, firstKey) => {
+        keyListeners.forEach((listeners, secondKey) => {
+            keyListeners.set(secondKey, listeners.map(listener => replace(firstKey, secondKey, listener)))
+        })
+    })
+}
+
+/**
+ * Start reporting every event to `next` as it reaches its listeners, or stop with `undefined`
+ *
+ * Wraps the listeners that are registered now, and the ones registered while tracing
+ */
+export function setEventTracer(next: VelotypeEventTracer | undefined): void {
+    const wasTracing = !!tracer
+    tracer = next
+    tracedEvent = undefined
+    if (next && !wasTracing) {
+        replaceListeners(listenersF, (listeningKey, _vtKey, listener) => traceListener(listeningKey, listener))
+        replaceListeners(listenersR, (_vtKey, listeningKey, listener) => traceListener(listeningKey, listener))
+    } else if (!next && wasTracing) {
+        const unwrap = (_first: unknown, _second: unknown, listener: VelotypeEventListener) => (listener as TracedListener).o ?? listener
+        replaceListeners(listenersF, unwrap)
+        replaceListeners(listenersR, unwrap)
     }
 }

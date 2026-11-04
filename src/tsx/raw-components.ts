@@ -24,7 +24,7 @@ export type HTMLAttrsType<ElementAttrsType> = {
  * 
  * tag:string - which html tag to use for this element (defaults to \<div>, does not support \<svg> or \<math>)
  * 
- * html:string - content to use in innerHTML
+ * innerHTML:string - content to use in innerHTML (never untrusted input)
  */
 export class HTML<AttrsType = HTMLAttributes> extends Component<HTMLAttrsType<AttrsType>> {
     /**
@@ -50,7 +50,7 @@ export type SVGAttrsType = {
  * 
  * One special attr:
  * 
- * svg:string - content to use in innerHTML of the \<svg> element
+ * innerHTML:string - content to use in innerHTML of the \<svg> element (never untrusted input)
  */
 export class SVG extends Component<SVGAttrsType> {
     /**
@@ -76,7 +76,7 @@ export type MATHAttrsType = {
  * 
  * One special attr:
  * 
- * svg:string - content to use in innerHTML of the svg element
+ * innerHTML:string - content to use in innerHTML of the \<math> element (never untrusted input)
  */
 export class MATH extends Component<MATHAttrsType> {
     /**

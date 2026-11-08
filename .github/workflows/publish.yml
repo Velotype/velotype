@@ -5,13 +5,23 @@ on:
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    # Pinned rather than ubuntu-latest, so a publish never finds out the runner moved under it.
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       id-token: write # The OIDC ID token is used for authentication with JSR.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
-      - run: deno publish
+
+      # Fail here rather than halfway through a publish that cannot be undone - a JSR version is
+      # immutable, so a bad one is permanent.
+      - name: Publish dry run
+        run: deno publish --dry-run
+
+      # The same deno that ran the dry run, signed in through the job's OIDC token. `npx jsr publish`
+      # downloads a deno of its own, which can type check with older DOM types than the dry run did.
+      - name: Publish
+        run: deno publish

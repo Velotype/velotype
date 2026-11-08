@@ -8,6 +8,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Checks only read the repository; nothing here writes back to it
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

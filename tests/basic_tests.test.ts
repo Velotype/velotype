@@ -93,6 +93,24 @@ describe('basic component rendering', () => {
         selection = await page.waitForSelector("#boolean-attribute-explicit-false")
         assertEquals(await selection.getAttribute("disabled"),null)
 
+        selection = await page.waitForSelector("#aria-boolean-attributes")
+        assertEquals(await selection.getAttribute("aria-expanded"),"false")
+        assertEquals(await selection.getAttribute("aria-hidden"),"true")
+        assertEquals(await selection.getAttribute("data-open"),"false")
+
+        // alt="" marks an image as decorative, so it is kept
+        selection = await page.waitForSelector("#empty-alt")
+        assertEquals(await selection.getAttribute("alt"),"")
+
+        selection = await page.waitForSelector("#zero-values")
+        assertEquals(await selection.getAttribute("tabindex"),"0")
+        assertEquals(await selection.getAttribute("min"),"0")
+        assertEquals(await selection.evaluate((el: HTMLInputElement) => el.value),"0")
+
+        selection = await page.waitForSelector("#null-values")
+        assertEquals(await selection.getAttribute("title"),null)
+        assertEquals(await selection.getAttribute("lang"),null)
+
         // button onclick with RenderBasic<boolean>
         const text = await (await page.waitForSelector("#button-onclick span")).innerHTML()
         assertEquals(text,"false")

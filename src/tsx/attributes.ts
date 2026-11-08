@@ -202,8 +202,8 @@ function setAttrOnElement(element: AnchorElement, name: string, value: any): voi
             const withComponent = new WithComponent(value)
             setDomKeyOn(element, withComponent.k)
         }
-    } else if (value || value == "") {
-        // Regular attribute
+    } else if (value != null) {
+        // Regular attribute, including "" (alt="" marks an image as decorative) and 0
         setAttributeHelper(element, name, value)
     }
 }

@@ -4,6 +4,10 @@ Changes in each version of `@velotype/velotype` published to [JSR](https://jsr.i
 
 **Breaking** marks a change that can require updates to code that uses Velotype.
 
+## 0.3.3 — 2026-11-08
+
+- A regular attribute is set when its value is not `null` or `undefined`, in place of a loose check that kept `""` and `0` only because `0 == ""`. `NaN` is now set as `"NaN"` instead of being left out. Tests cover `alt=""`, zero values, `null` and `undefined`, and `aria-` and `data-` booleans, the same rules velossr 0.0.11 follows on the server.
+
 ## 0.3.2 — 2026-10-15
 
 - New `setEventTracer(tracer)` on the metadata that each Velotype instance registers with the devtools hook (`__vtAppMetadata`, with the `VelotypeEventTracer` type, from `@velotype/velotype/devtools`), for the Velotype DevTools extension to trace events. While a tracer is set, it is called once for each event that has listeners, just before the first of them receives it, and `setEventTracer(undefined)` stops tracing. A tracer that throws does not affect the event or its listeners.

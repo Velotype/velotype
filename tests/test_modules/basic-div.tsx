@@ -16,6 +16,11 @@ class BasicDivTest extends Component<EmptyAttrs> {
             <button id="boolean-attribute-default-true" type="button" disabled>boolean attribute default true</button>
             <button id="boolean-attribute-explicit-true" type="button" disabled={true}>boolean attribute explicit true</button>
             <button id="boolean-attribute-explicit-false" type="button" disabled={false}>boolean attribute explicit false</button>
+            <button id="aria-boolean-attributes" type="button" aria-expanded={false} aria-hidden={true} data-open={false}>aria and data booleans</button>
+            <hr/>
+            <img id="empty-alt" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt=""/>
+            <input id="zero-values" type="number" tabindex={0} min={0} value={0}/>
+            <div id="null-values" title={null} lang={undefined}>null and undefined values</div>
             <hr/>
             <button id="button-onclick" type="button" onClick={()=>{this.buttonClicked.value = true}}>clickable button has been clicked: {this.buttonClicked}</button>
             <hr/>

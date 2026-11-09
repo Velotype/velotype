@@ -17,6 +17,7 @@
     ]
   },
   "tasks": {
+    "check-baseline": "deno run --no-lock --allow-read jsr:@velotype/velobaseline@0.1.1 src/",
     "bundle-jsx-runtime": "deno bundle --minify ./src/jsx-runtime/jsx-runtime.ts --output ./dist/jsx-runtime.min.js --sourcemap=linked",
     "bundle-jsx-dev-runtime": "deno bundle --minify ./src/jsx-dev-runtime/jsx-dev-runtime.ts --output ./dist/jsx-dev-runtime.min.js --sourcemap=linked",
     "test": "cd ./tests/ && deno run 'bundle*' && cd .. && deno test --allow-read --allow-net --allow-sys --allow-env --allow-write --allow-run",

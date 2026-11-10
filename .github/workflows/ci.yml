@@ -29,6 +29,10 @@ jobs:
       - name: Lint
         run: deno lint
 
+      # Only Baseline widely available web features in the code a browser runs (jsr:@velotype/velobaseline)
+      - name: Browser support
+        run: deno task check-baseline
+
       # Type checks the package as JSR will see it, and finds a packaging problem now rather than
       # during a publish: a JSR version is immutable, so a bad one is permanent.
       - name: Publish dry run

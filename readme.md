@@ -257,6 +257,7 @@ A Component's child methods change one element inside what it rendered, without 
 
 * `replaceChild(child, newChild)` replaces `child`, returning the new element
 * `appendToChild(child, newChild)` and `prependToChild(child, newChild)` add to the end or start of `child`
+* `insertBeforeChild(child, newChild)` adds just before `child`, in its parent (not before the Component's own root element, which would be outside its render)
 * `replaceChildrenOfChild(child, newChildren)` replaces all of `child`'s children
 * `removeChild(child)` removes `child`
 

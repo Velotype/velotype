@@ -543,6 +543,14 @@ describe('basic component rendering', () => {
         await (await page.waitForSelector("#toggle-child")).click()
         assertEquals(await innerTextOf("#lifecycle-child"), "mounts: 1")
 
+        // The child methods work before a Component has rendered, and what they put in mounts with the page
+        assertEquals(await innerTextOf("#filled-list"), "y mounted from render")
+        assertEquals(await page.evaluate(() => document.getElementById("filled-old")), null)
+        assertEquals(await page.evaluate(() => {
+            const element = document.getElementById("fills-before-render")
+            return [element?.getAttribute("data-refresh-constructor"), element?.getAttribute("data-refresh-render")]
+        }), ["threw", "threw"], "refresh() before the first render throws")
+
         // getComponent() reaches back into the live class instance behind a rendered element
         await (await page.waitForSelector("#call-get-component")).click()
         assertEquals(await innerTextOf("#get-component-result"), "called")

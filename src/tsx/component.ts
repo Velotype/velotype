@@ -48,9 +48,17 @@ function internalComponentOf(component: Component<any>): InternalComponent {
 }
 /** The InternalComponent methods that back a Component's refresh() and child helper functions */
 type ComponentHelperName = "f" | "q" | "w" | "t" | "i" | "y" | "u"
-/** Get a Component's helper function, bound to its InternalComponent on first use */
+/**
+ * Get a Component's helper function, bound to its InternalComponent on first use
+ *
+ * In the Component's constructor there is no InternalComponent yet: the child methods then act on
+ * the element they are given, as they do until the Component has rendered, and `refresh()` throws
+ */
 function componentHelper(component: Component<any>, name: ComponentHelperName): any {
     const internal = internalComponentOf(component)
+    if (!internal) {
+        return name === "f" ? refreshBeforeRender : (InternalComponent.prototype[name] as (...args: any[]) => any).bind({e: undefined})
+    }
     const helpers = internal.b || (internal.b = {})
     return helpers[name] || (helpers[name] = internal[name].bind(internal))
 }
@@ -286,6 +294,7 @@ export class InternalComponent {
      * this Component and then mount new children.
      */
     f(): void {
+        if (this.e === undefined) {refreshBeforeRender()}
         const firstKey = vtState.k
         let render: AnchorElement
         try {
@@ -302,7 +311,7 @@ export class InternalComponent {
      * replaceChild()
      */
     q(child: AnchorElement, newChild: RenderableElements): AnchorElement {
-        if (this.e.contains(child)) {
+        if (ownsChild(this, child)) {
             return replaceElement(child, renderableElementToElement(newChild), true)
         } else {
             return child
@@ -313,7 +322,7 @@ export class InternalComponent {
      * appendToChild()
      */
     w(child: HTMLElement, toAppend: RenderableElements): boolean {
-        if (this.e.contains(child)) {
+        if (ownsChild(this, child)) {
             appendElement(child, renderableElementToElement(toAppend))
             return true
         } else {
@@ -324,7 +333,7 @@ export class InternalComponent {
      * prependToChild()
      */
     t(child: HTMLElement, toPreppend: RenderableElements): boolean {
-        if (this.e.contains(child)) {
+        if (ownsChild(this, child)) {
             prependElement(child, renderableElementToElement(toPreppend))
             return true
         } else {
@@ -336,7 +345,7 @@ export class InternalComponent {
      */
     i(child: AnchorElement, toInsert: RenderableElements): boolean {
         const parent = child.parentNode
-        if (child !== this.e && parent && this.e.contains(child)) {
+        if (child !== this.e && parent && ownsChild(this, child)) {
             insertElementBefore(parent as AnchorElement, renderableElementToElement(toInsert), child)
             return true
         } else {
@@ -347,7 +356,7 @@ export class InternalComponent {
      * replaceChildrenOfChild()
      */
     y(child: HTMLElement, newChildren: RenderableElements[]): boolean {
-        if (this.e.contains(child)) {
+        if (ownsChild(this, child)) {
             replaceChildren(child, newChildren.map(c=>renderableElementToElement(c)))
             return true
         } else {
@@ -358,7 +367,7 @@ export class InternalComponent {
      * removeChild()
      */
     u(child: AnchorElement): boolean {
-        if (this.e.contains(child)) {
+        if (ownsChild(this, child)) {
             removeElement(child)
             return true
         } else {
@@ -366,6 +375,20 @@ export class InternalComponent {
         }
     }
     
+}
+
+/**
+ * Whether `child` is an element the child methods may change: one in the Component's render - or,
+ * before the Component has rendered (in its constructor, or in render()), whatever element they
+ * are given, since there is no render yet to check it against and nothing in it is on the page
+ */
+function ownsChild(internal: {e: AnchorElement | undefined}, child: Node): boolean {
+    return internal.e === undefined || internal.e.contains(child)
+}
+
+/** refresh() before a Component has rendered: there is nothing yet to render again */
+function refreshBeforeRender(): never {
+    throw new Error("refresh() before the first render")
 }
 
 /**

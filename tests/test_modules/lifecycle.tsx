@@ -1,5 +1,5 @@
 import {replaceElementWithRoot, Component, RenderBasic, getComponent} from "@velotype/velotype"
-import type {EmptyAttrs} from "@velotype/velotype"
+import type {EmptyAttrs, RenderableElements} from "@velotype/velotype"
 
 // Tracked outside of any Component instance so it survives the child being unmounted
 let globalChildUnmountCount = 0
@@ -31,6 +31,23 @@ class ChildWithLifecycle extends Component<EmptyAttrs> {
     }
 }
 
+/** Fills an element it built, with the child methods, before it has rendered */
+class FillsBeforeRender extends Component<EmptyAttrs> {
+    list: HTMLUListElement = <ul id="filled-list"><li id="filled-old">old</li></ul>
+    refreshInConstructor = "did not throw"
+    constructor(attrs: EmptyAttrs, children: RenderableElements[]) {
+        super(attrs, children)
+        this.replaceChildrenOfChild(this.list, [<li id="filled-constructor"><InsertedChild/></li>])
+        try {this.refresh()} catch {this.refreshInConstructor = "threw"}
+    }
+    override render() {
+        this.appendToChild(this.list, <li id="filled-render">from render</li>)
+        let refreshInRender = "did not throw"
+        try {this.refresh()} catch {refreshInRender = "threw"}
+        return <div id="fills-before-render" data-refresh-constructor={this.refreshInConstructor} data-refresh-render={refreshInRender}>{this.list}</div>
+    }
+}
+
 class LifecycleTest extends Component<EmptyAttrs> {
     showChild = true
     unmountCountDisplay = new RenderBasic<number>(0)
@@ -51,6 +68,7 @@ class LifecycleTest extends Component<EmptyAttrs> {
                 this.unmountCountDisplay.value = globalChildUnmountCount
             }}>toggle child</button>
             <div id="lifecycle-child-wrapper">{childElement}</div>
+            <FillsBeforeRender/>
             <div id="unmount-count">{this.unmountCountDisplay}</div>
             <hr/>
             <button id="call-get-component" type="button" onClick={() => {

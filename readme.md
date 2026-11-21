@@ -261,7 +261,7 @@ A Component's child methods change one element inside what it rendered, without 
 * `replaceChildrenOfChild(child, newChildren)` replaces all of `child`'s children
 * `removeChild(child)` removes `child`
 
-The methods return `false` (or `child`, for `replaceChild()`) and change nothing when `child` is not part of this Component's render.
+The methods return `false` (or `child`, for `replaceChild()`) and change nothing when `child` is not part of this Component's render. Before the Component has rendered - in its constructor, or in `render()` - they act on the element they are given, since there is no render yet to check it against: a Component can fill an element it built before returning it. Nothing they put in is mounted until it is on the page, and what they take out is released. `refresh()` throws there.
 
 ```tsx
 class Panel extends Component<EmptyAttrs> {

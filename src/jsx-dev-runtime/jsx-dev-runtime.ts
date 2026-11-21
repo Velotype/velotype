@@ -42,6 +42,7 @@ import {
     createFragment,
     getComponent,
     removeElementRoot,
+    warnOnRemovedMounted,
 
     // Event system
     VelotypeEvent,
@@ -110,6 +111,7 @@ export {
     type VelotypeEventListener,
     replaceElementWithRoot,
     removeElementRoot,
+    warnOnRemovedMounted,
     emitEvent,
     registerEventListener,
     removeEventListeners,

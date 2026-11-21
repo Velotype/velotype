@@ -5,7 +5,7 @@
 import { setAttrsOnElement } from "./attributes.ts"
 import { createElement } from "./create-element.ts"
 import { releaseVtKeyObject, releaseVtKeysFrom } from "./dom-references.ts"
-import { displayContentsDiv, vtState } from "./globals.ts"
+import { displayContentsDiv, keptOffPage, vtState } from "./globals.ts"
 import { appendElement, insertElementBefore } from "./mounting.ts"
 import { RenderObject, type RenderObjectHandleUpdateType, type RenderObjectInternals, type RenderObjectRenderFunctionType } from "./render-object.ts"
 import { renderableElementToElement } from "./renderable.ts"
@@ -51,6 +51,7 @@ function parkFor(state: FilterState<any, any>, wrapper: Node): HTMLElement {
     if (!park) {
         park = document.createElement("div")
         state.p.set(wrapper, park)
+        keptOffPage.add(park)
     }
     return park
 }

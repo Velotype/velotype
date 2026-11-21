@@ -35,6 +35,7 @@ export { RenderTemplateArray, type RenderTemplateArrayOptions } from "./render-t
 export { passthroughAttrsToElement, setAttrsOnElement } from "./attributes.ts"
 export { createElement, createFragment, getComponent } from "./create-element.ts"
 export { removeElementRoot, replaceElementWithRoot } from "./mounting.ts"
+export { warnOnRemovedMounted } from "./removed-mounted.ts"
 export {
     emitEvent,
     registerEventListener,

@@ -530,6 +530,23 @@ describe('basic component rendering', () => {
         await testVariations(setOfVariations)
     })
 
+    itWrap("warnOnRemovedMounted reports a Component taken off the page while mounted, and nothing else", "removed-mounted", "#removed-mounted-tests", async (_pageLoadSelection: ElementHandle) => {
+        // The observer reports after the task that removed something, so each step waits a moment
+        const step = (id: string) => page.evaluate(async (id: string) => {
+            const before = (window as unknown as {__warnings: string[]}).__warnings.length
+            ;(document.getElementById(id) as HTMLElement).click()
+            await new Promise(resolve => setTimeout(resolve, 50))
+            return (window as unknown as {__warnings: string[]}).__warnings.slice(before).filter(w => w.includes("still mounted")).length
+        }, {args: [id]})
+        // Moved, hidden by filter(), drawn again by refresh(), or taken out through Velotype: none are reported
+        assertEquals(await step("move"), 0)
+        assertEquals(await step("filter"), 0)
+        assertEquals(await step("refresh"), 0)
+        assertEquals(await step("remove-through-velotype"), 0)
+        // Taken out with a DOM call of its own, while mounted: reported once
+        assertEquals(await step("remove-raw"), 1)
+    })
+
     itWrap("set of lifecycle tests", "lifecycle", "#lifecycle-tests", async (_pageLoadSelection: ElementHandle) => {
         const innerTextOf = async (selector: string) => (await (await page.waitForSelector(selector)).innerText()).replace(/\s+/g, " ").trim()
 

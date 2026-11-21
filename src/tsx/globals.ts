@@ -59,6 +59,9 @@ export const internalComponentProperty = Symbol()
 /** The AbortController of each Component that has used its unmountSignal */
 export const abortControllerProperty = Symbol()
 
+/** Detached elements that hold elements kept mounted off the page on purpose (filter()'s hidden rows) - warnOnRemovedMounted() leaves them be */
+export const keptOffPage: WeakSet<Node> = new WeakSet<Node>()
+
 // ------- Event bus -------
 
 /** Velotype Event bus - Forward map listeningKey -> vtKey -> listeners */

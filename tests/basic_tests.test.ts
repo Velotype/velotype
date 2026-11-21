@@ -554,8 +554,17 @@ describe('basic component rendering', () => {
         await (await page.waitForSelector("#prepend-item")).click()
         assertEquals(await innerTextOf("#child-ops-list"), "z a b c")
 
+        // insertBeforeChild() puts the new element in its place and mounts it
+        await (await page.waitForSelector("#insert-before-b")).click()
+        assertEquals(await innerTextOf("#child-ops-list"), "z a y mounted b c")
+
+        // ...but not before the Component's root, which would be outside its render
+        await (await page.waitForSelector("#insert-before-root")).click()
+        assertEquals(await page.evaluate(() => document.getElementById("lifecycle-tests")?.getAttribute("data-insert-before-root")), "false")
+        assertEquals(await page.evaluate(() => document.getElementById("outside-root")), null)
+
         await (await page.waitForSelector("#remove-item-a")).click()
-        assertEquals(await innerTextOf("#child-ops-list"), "z b c")
+        assertEquals(await innerTextOf("#child-ops-list"), "z y mounted b c")
 
         await (await page.waitForSelector("#replace-children")).click()
         assertEquals(await innerTextOf("#child-ops-list"), "only")

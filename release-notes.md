@@ -4,6 +4,10 @@ Changes in each version of `@velotype/velotype` published to [JSR](https://jsr.i
 
 **Breaking** marks a change that can require updates to code that uses Velotype.
 
+## Unreleased
+
+- New `insertBeforeChild(child, newChild)` on `Component`, to go with the other child methods: it puts `newChild` just before `child`, an element of the Component's render, and mounts it. A list that adds an item in its place no longer has to append it and move it there. It returns `false` and changes nothing when `child` is not part of the Component's render, or is its root element.
+
 ## 0.3.3 — 2026-11-08
 
 - A regular attribute is set when its value is not `null` or `undefined`, in place of a loose check that kept `""` and `0` only because `0 == ""`. `NaN` is now set as `"NaN"` instead of being left out. Tests cover `alt=""`, zero values, `null` and `undefined`, and `aria-` and `data-` booleans, the same rules velossr 0.0.11 follows on the server.

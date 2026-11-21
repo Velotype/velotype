@@ -4,7 +4,7 @@
 
 import { setDomKeyOn, registerNewVtKey, releaseVtKeysFrom } from "./dom-references.ts"
 import { abortControllerProperty, domReferences, internalComponentProperty, vtState } from "./globals.ts"
-import { replaceElement, appendElement, prependElement, replaceChildren, removeElement } from "./mounting.ts"
+import { replaceElement, appendElement, prependElement, insertElementBefore, replaceChildren, removeElement } from "./mounting.ts"
 import { renderableElementToElement, wrapElementIfNeeded } from "./renderable.ts"
 import type { AnchorElement, RenderableElements, HasVtKey } from "./types.ts"
 import { defineLockedProperty } from "./utils.ts"
@@ -47,7 +47,7 @@ function internalComponentOf(component: Component<any>): InternalComponent {
     return (component as any)[internalComponentProperty]
 }
 /** The InternalComponent methods that back a Component's refresh() and child helper functions */
-type ComponentHelperName = "f" | "q" | "w" | "t" | "y" | "u"
+type ComponentHelperName = "f" | "q" | "w" | "t" | "i" | "y" | "u"
 /** Get a Component's helper function, bound to its InternalComponent on first use */
 function componentHelper(component: Component<any>, name: ComponentHelperName): any {
     const internal = internalComponentOf(component)
@@ -189,6 +189,19 @@ export abstract class Component<AttrsType> implements HasVtKey {
     }
 
     /**
+     * Insert a newly constructed element just before a child element
+     * 
+     * Velotype Core creates this on first use, it is not overridable
+     * 
+     * @param child a child element of this Component, other than its root element
+     * @param toInsertChild the element to insert before it
+     * @returns boolean for if insertion was accepted (will reject if the input child element is not a child of this Component, or is its root element)
+     */
+    get insertBeforeChild(): (child: AnchorElement, toInsertChild: RenderableElements) => boolean {
+        return componentHelper(this, "i")
+    }
+
+    /**
      * Replace the children of a child element
      * 
      * Velotype Core creates this on first use, it is not overridable
@@ -313,6 +326,18 @@ export class InternalComponent {
     t(child: HTMLElement, toPreppend: RenderableElements): boolean {
         if (this.e.contains(child)) {
             prependElement(child, renderableElementToElement(toPreppend))
+            return true
+        } else {
+            return false
+        }
+    }
+    /**
+     * insertBeforeChild() - not before the root element, which would put the new element outside this Component's render
+     */
+    i(child: AnchorElement, toInsert: RenderableElements): boolean {
+        const parent = child.parentNode
+        if (child !== this.e && parent && this.e.contains(child)) {
+            insertElementBefore(parent as AnchorElement, renderableElementToElement(toInsert), child)
             return true
         } else {
             return false

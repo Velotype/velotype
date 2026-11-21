@@ -4,6 +4,17 @@ import type {EmptyAttrs} from "@velotype/velotype"
 // Tracked outside of any Component instance so it survives the child being unmounted
 let globalChildUnmountCount = 0
 
+/** Shows whether it mounted, for insertBeforeChild() */
+class InsertedChild extends Component<EmptyAttrs> {
+    mounted = new RenderBasic<string>("not mounted")
+    override mount() {
+        this.mounted.value = "mounted"
+    }
+    override render() {
+        return <span>y {this.mounted}</span>
+    }
+}
+
 class ChildWithLifecycle extends Component<EmptyAttrs> {
     mountCount = new RenderBasic<number>(0)
     override mount() {
@@ -58,6 +69,16 @@ class LifecycleTest extends Component<EmptyAttrs> {
             <button id="prepend-item" type="button" onClick={() => {
                 this.prependToChild(this.listRef, <li id="item-z">z</li>)
             }}>prepend</button>
+            <button id="insert-before-b" type="button" onClick={() => {
+                const itemB = document.getElementById("item-b")
+                if (itemB) {
+                    this.insertBeforeChild(itemB, <li id="item-y"><InsertedChild/></li>)
+                }
+            }}>insert before b</button>
+            <button id="insert-before-root" type="button" onClick={(event: MouseEvent) => {
+                const root = (event.currentTarget as HTMLElement).parentElement as HTMLElement
+                root.setAttribute("data-insert-before-root", String(this.insertBeforeChild(root, <span id="outside-root">outside</span>)))
+            }}>insert before root</button>
             <button id="remove-item-a" type="button" onClick={() => {
                 const itemA = document.getElementById("item-a")
                 if (itemA) {

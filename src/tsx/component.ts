@@ -46,21 +46,27 @@ export type ComponentInternals = Component<any> & Mountable & {render: (attrs: R
 function internalComponentOf(component: Component<any>): InternalComponent {
     return (component as any)[internalComponentProperty]
 }
-/** The InternalComponent methods that back a Component's refresh() and child helper functions */
-type ComponentHelperName = "f" | "q" | "w" | "t" | "i" | "y" | "u"
+/** One of `childMethods`, called through the getters on Component, which give it its types */
+type ChildMethod = (render: AnchorElement | undefined, child: any, newChild?: any) => any
+/** refresh() ("f"), and the child methods, by the names in `childMethods` */
+type ComponentHelperName = "f" | keyof typeof childMethods
 /**
- * Get a Component's helper function, bound to its InternalComponent on first use
+ * Get a Component's helper function, made for its InternalComponent on first use
  *
- * In the Component's constructor there is no InternalComponent yet: the child methods then act on
- * the element they are given, as they do until the Component has rendered, and `refresh()` throws
+ * A child method is given the Component's element each time it is called, since `refresh()` can
+ * replace it. In the Component's constructor there is no InternalComponent yet: the child methods
+ * are then given no element, and act on the element they are given, as they do until the
+ * Component has rendered; `refresh()` throws.
  */
 function componentHelper(component: Component<any>, name: ComponentHelperName): any {
     const internal = internalComponentOf(component)
     if (!internal) {
-        return name === "f" ? refreshBeforeRender : (InternalComponent.prototype[name] as (...args: any[]) => any).bind({e: undefined})
+        return name === "f" ? refreshBeforeRender : (child: any, newChild: any) => (childMethods[name] as ChildMethod)(undefined, child, newChild)
     }
     const helpers = internal.b || (internal.b = {})
-    return helpers[name] || (helpers[name] = internal[name].bind(internal))
+    return helpers[name] || (helpers[name] = name === "f"
+        ? internal.f.bind(internal)
+        : (child: any, newChild: any) => (childMethods[name] as ChildMethod)(internal.e, child, newChild))
 }
 
 /**
@@ -306,84 +312,59 @@ export class InternalComponent {
         }
         this.e = replaceElement(this.e, render)
     }
-
-    /**
-     * replaceChild()
-     */
-    q(child: AnchorElement, newChild: RenderableElements): AnchorElement {
-        if (ownsChild(this, child)) {
-            return replaceElement(child, renderableElementToElement(newChild), true)
-        } else {
-            return child
-        }
-    }
-
-    /**
-     * appendToChild()
-     */
-    w(child: HTMLElement, toAppend: RenderableElements): boolean {
-        if (ownsChild(this, child)) {
-            appendElement(child, renderableElementToElement(toAppend))
-            return true
-        } else {
-            return false
-        }
-    }
-    /**
-     * prependToChild()
-     */
-    t(child: HTMLElement, toPreppend: RenderableElements): boolean {
-        if (ownsChild(this, child)) {
-            prependElement(child, renderableElementToElement(toPreppend))
-            return true
-        } else {
-            return false
-        }
-    }
-    /**
-     * insertBeforeChild() - not before the root element, which would put the new element outside this Component's render
-     */
-    i(child: AnchorElement, toInsert: RenderableElements): boolean {
-        const parent = child.parentNode
-        if (child !== this.e && parent && ownsChild(this, child)) {
-            insertElementBefore(parent as AnchorElement, renderableElementToElement(toInsert), child)
-            return true
-        } else {
-            return false
-        }
-    }
-    /**
-     * replaceChildrenOfChild()
-     */
-    y(child: HTMLElement, newChildren: RenderableElements[]): boolean {
-        if (ownsChild(this, child)) {
-            replaceChildren(child, newChildren.map(c=>renderableElementToElement(c)))
-            return true
-        } else {
-            return false
-        }
-    }
-    /**
-     * removeChild()
-     */
-    u(child: AnchorElement): boolean {
-        if (ownsChild(this, child)) {
-            removeElement(child)
-            return true
-        } else {
-            return false
-        }
-    }
-    
 }
 
 /**
- * Whether `child` is an element the child methods may change: one in the Component's render - or,
- * before the Component has rendered (in its constructor, or in render()), whatever element they
- * are given, since there is no render yet to check it against and nothing in it is on the page
+ * Whether `child` is an element the child methods may change: one in `render`, the Component's
+ * element - or, before the Component has rendered (in its constructor, or in render()), whatever
+ * element they are given, since there is no render yet to check it against and nothing in it is
+ * on the page
  */
-function ownsChild(internal: {e: AnchorElement | undefined}, child: Node): boolean {
-    return internal.e === undefined || internal.e.contains(child)
+function ownsChild(render: AnchorElement | undefined, child: Node): boolean {
+    return render === undefined || render.contains(child)
+}
+
+/**
+ * The child methods, each given the Component's element as `render` (`undefined` before it has
+ * rendered). Each changes nothing, and returns `false` (or `child`, for replaceChild()), when
+ * `child` is not one it may change.
+ */
+const childMethods = {
+    /** replaceChild() */
+    q(render: AnchorElement | undefined, child: AnchorElement, newChild: RenderableElements): AnchorElement {
+        return ownsChild(render, child) ? replaceElement(child, renderableElementToElement(newChild), true) : child
+    },
+    /** appendToChild() */
+    w(render: AnchorElement | undefined, child: HTMLElement, toAppend: RenderableElements): boolean {
+        if (!ownsChild(render, child)) {return false}
+        appendElement(child, renderableElementToElement(toAppend))
+        return true
+    },
+    /** prependToChild() */
+    t(render: AnchorElement | undefined, child: HTMLElement, toPrepend: RenderableElements): boolean {
+        if (!ownsChild(render, child)) {return false}
+        prependElement(child, renderableElementToElement(toPrepend))
+        return true
+    },
+    /** insertBeforeChild() - not before the root element, which would put the new element outside the Component's render */
+    i(render: AnchorElement | undefined, child: AnchorElement, toInsert: RenderableElements): boolean {
+        const parent = child.parentNode
+        if (child === render || !parent || !ownsChild(render, child)) {return false}
+        insertElementBefore(parent as AnchorElement, renderableElementToElement(toInsert), child)
+        return true
+    },
+    /** replaceChildrenOfChild() */
+    y(render: AnchorElement | undefined, child: HTMLElement, newChildren: RenderableElements[]): boolean {
+        if (!ownsChild(render, child)) {return false}
+        replaceChildren(child, newChildren.map(c => renderableElementToElement(c)))
+        return true
+    },
+    /** removeChild() */
+    u(render: AnchorElement | undefined, child: AnchorElement): boolean {
+        if (!ownsChild(render, child)) {return false}
+        removeElement(child)
+        return true
+    },
 }
 
 /** refresh() before a Component has rendered: there is nothing yet to render again */

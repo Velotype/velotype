@@ -543,6 +543,11 @@ describe('basic component rendering', () => {
         await (await page.waitForSelector("#toggle-child")).click()
         assertEquals(await innerTextOf("#lifecycle-child"), "mounts: 1")
 
+        // Before a Component has rendered, the child methods and refresh() throw, and change nothing
+        const message = "vt: child methods and refresh() need the first render"
+        assertEquals(await page.evaluate(() => JSON.parse(document.getElementById("before-render")?.getAttribute("data-results") ?? "[]")), [message, message, message, message, message])
+        assertEquals(await page.evaluate(() => [document.getElementById("appended-from-constructor"), document.getElementById("appended-from-render")]), [null, null])
+
         // getComponent() reaches back into the live class instance behind a rendered element
         await (await page.waitForSelector("#call-get-component")).click()
         assertEquals(await innerTextOf("#get-component-result"), "called")

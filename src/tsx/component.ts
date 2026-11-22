@@ -51,6 +51,8 @@ type ComponentHelperName = "f" | "q" | "w" | "t" | "i" | "y" | "u"
 /** Get a Component's helper function, bound to its InternalComponent on first use */
 function componentHelper(component: Component<any>, name: ComponentHelperName): any {
     const internal = internalComponentOf(component)
+    // In the constructor: no InternalComponent yet
+    if (!internal) {beforeRender()}
     const helpers = internal.b || (internal.b = {})
     return helpers[name] || (helpers[name] = internal[name].bind(internal))
 }
@@ -286,6 +288,7 @@ export class InternalComponent {
      * this Component and then mount new children.
      */
     f(): void {
+        if (this.e === undefined) {beforeRender()}
         const firstKey = vtState.k
         let render: AnchorElement
         try {
@@ -302,7 +305,7 @@ export class InternalComponent {
      * replaceChild()
      */
     q(child: AnchorElement, newChild: RenderableElements): AnchorElement {
-        if (this.e.contains(child)) {
+        if (ownsChild(this.e, child)) {
             return replaceElement(child, renderableElementToElement(newChild), true)
         } else {
             return child
@@ -313,7 +316,7 @@ export class InternalComponent {
      * appendToChild()
      */
     w(child: HTMLElement, toAppend: RenderableElements): boolean {
-        if (this.e.contains(child)) {
+        if (ownsChild(this.e, child)) {
             appendElement(child, renderableElementToElement(toAppend))
             return true
         } else {
@@ -324,7 +327,7 @@ export class InternalComponent {
      * prependToChild()
      */
     t(child: HTMLElement, toPreppend: RenderableElements): boolean {
-        if (this.e.contains(child)) {
+        if (ownsChild(this.e, child)) {
             prependElement(child, renderableElementToElement(toPreppend))
             return true
         } else {
@@ -336,7 +339,7 @@ export class InternalComponent {
      */
     i(child: AnchorElement, toInsert: RenderableElements): boolean {
         const parent = child.parentNode
-        if (child !== this.e && parent && this.e.contains(child)) {
+        if (ownsChild(this.e, child) && child !== this.e && parent) {
             insertElementBefore(parent as AnchorElement, renderableElementToElement(toInsert), child)
             return true
         } else {
@@ -347,7 +350,7 @@ export class InternalComponent {
      * replaceChildrenOfChild()
      */
     y(child: HTMLElement, newChildren: RenderableElements[]): boolean {
-        if (this.e.contains(child)) {
+        if (ownsChild(this.e, child)) {
             replaceChildren(child, newChildren.map(c=>renderableElementToElement(c)))
             return true
         } else {
@@ -358,7 +361,7 @@ export class InternalComponent {
      * removeChild()
      */
     u(child: AnchorElement): boolean {
-        if (this.e.contains(child)) {
+        if (ownsChild(this.e, child)) {
             removeElement(child)
             return true
         } else {
@@ -366,6 +369,21 @@ export class InternalComponent {
         }
     }
     
+}
+
+/**
+ * Whether `child` is in `render`, the Component's element. Before the Component has rendered - in
+ * its constructor or in render() - there is nothing to check an element against, so the child
+ * methods throw rather than change an element the Component may not own.
+ */
+function ownsChild(render: AnchorElement | undefined, child: Node): boolean {
+    if (render === undefined) {beforeRender()}
+    return render.contains(child)
+}
+
+/** The child methods and refresh() before a Component has rendered */
+function beforeRender(): never {
+    throw new Error("vt: child methods and refresh() need the first render")
 }
 
 /**

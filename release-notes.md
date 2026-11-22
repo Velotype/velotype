@@ -7,6 +7,7 @@ Changes in each version of `@velotype/velotype` published to [JSR](https://jsr.i
 ## Unreleased
 
 - New `insertBeforeChild(child, newChild)` on `Component`, to go with the other child methods: it puts `newChild` just before `child`, an element of the Component's render, and mounts it. A list that adds an item in its place no longer has to append it and move it there. It returns `false` and changes nothing when `child` is not part of the Component's render, or is its root element.
+- The child methods and `refresh()` throw an `Error` that says why when they are used before a Component has rendered, in its constructor or in `render()`, in place of a `TypeError` about an undefined element.
 
 ## 0.3.3 — 2026-11-08
 

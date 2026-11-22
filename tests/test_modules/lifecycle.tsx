@@ -1,5 +1,5 @@
 import {replaceElementWithRoot, Component, RenderBasic, getComponent} from "@velotype/velotype"
-import type {EmptyAttrs} from "@velotype/velotype"
+import type {EmptyAttrs, RenderableElements} from "@velotype/velotype"
 
 // Tracked outside of any Component instance so it survives the child being unmounted
 let globalChildUnmountCount = 0
@@ -31,6 +31,37 @@ class ChildWithLifecycle extends Component<EmptyAttrs> {
     }
 }
 
+/** Uses the child methods and refresh() before it has rendered, where they throw */
+class UsesChildMethodsBeforeRender extends Component<EmptyAttrs> {
+    list: HTMLUListElement = <ul><li>a</li></ul>
+    inConstructor: string[] = []
+    constructor(attrs: EmptyAttrs, children: RenderableElements[]) {
+        super(attrs, children)
+        this.inConstructor = [
+            attempt(() => this.appendToChild(document.body, <div id="appended-from-constructor"/>)),
+            attempt(() => this.refresh()),
+        ]
+    }
+    override render() {
+        const inRender = [
+            attempt(() => this.appendToChild(this.list, <li id="appended-from-render"/>)),
+            attempt(() => this.insertBeforeChild(this.list.firstChild as HTMLElement, <li/>)),
+            attempt(() => this.refresh()),
+        ]
+        return <div id="before-render" data-results={JSON.stringify([...this.inConstructor, ...inRender])}>{this.list}</div>
+    }
+}
+
+/** The message a call throws, or "did not throw" */
+function attempt(call: () => unknown): string {
+    try {
+        call()
+        return "did not throw"
+    } catch (error) {
+        return (error as Error).message
+    }
+}
+
 class LifecycleTest extends Component<EmptyAttrs> {
     showChild = true
     unmountCountDisplay = new RenderBasic<number>(0)
@@ -51,6 +82,7 @@ class LifecycleTest extends Component<EmptyAttrs> {
                 this.unmountCountDisplay.value = globalChildUnmountCount
             }}>toggle child</button>
             <div id="lifecycle-child-wrapper">{childElement}</div>
+            <UsesChildMethodsBeforeRender/>
             <div id="unmount-count">{this.unmountCountDisplay}</div>
             <hr/>
             <button id="call-get-component" type="button" onClick={() => {

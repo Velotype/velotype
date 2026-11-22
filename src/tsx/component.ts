@@ -383,7 +383,7 @@ function ownsChild(render: AnchorElement | undefined, child: Node): boolean {
 
 /** The child methods and refresh() before a Component has rendered */
 function beforeRender(): never {
-    throw new Error("A Component's child methods and refresh() need its render: not in its constructor or render()")
+    throw new Error("vt: child methods and refresh() need the first render")
 }
 
 /**

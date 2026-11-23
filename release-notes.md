@@ -4,16 +4,13 @@ Changes in each version of `@velotype/velotype` published to [JSR](https://jsr.i
 
 **Breaking** marks a change that can require updates to code that uses Velotype.
 
-## Unreleased
-
-- `vtwith` works on any element, the root of what a function component, a Component's `render()` or a RenderObject returns too. Before, such a root was wrapped in a `display: contents` element, which changed the page's structure. Its RenderObjects mount, unmount and are released with it, and `refresh()` or a new value releases the ones of the root it replaces.
-
 ## 0.3.5 — 2026-11-23
 
 - A Component kept in a public field of another is shown only inside that Component's render, and the readme now says so. When the holder unmounts, a field Component that is still mounted is unmounted properly before it is released, wherever it is; before, it was released without its `unmount()` running, so its listeners stayed. Velotype warns ("Field Component shown outside its holder") when one is on the page outside the holder's element.
 - The rows `filter()` hid in one place of a `RenderObjectArray` are unmounted and released when that place leaves the page. Before, only resetting the array or unmounting the Component holding it in a public field reached them, so an array in a `#private` field, or placed inline, kept them mounted after its place was gone, and `refresh()` of its owner did too.
 - The readme says when Velotype releases what it holds: create a Component only to place it, and a RenderObject in a `#private` field is held until its Component releases it.
 - New `release()` on `RenderObject`, for one that Velotype can't see, in a `#private` field, a Map or a closure: the Component that created it calls `release()` from its `unmount()`. It removes the listeners the RenderObject owns and drops Velotype's hold on it, and a `RenderObjectArray` releases its rows too. Before, such a RenderObject stayed held for as long as the page was open.
+- `vtwith` works on any element, the root of what a function component, a Component's `render()` or a RenderObject returns too. Before, such a root was wrapped in a `display: contents` element; now that element is the root itself, so code that reached it through the wrapper (its `firstElementChild`, say) gets it directly. The attribute and its type are unchanged. Its RenderObjects mount, unmount and are released with it, and `refresh()` or a new value releases the ones of the root it replaces.
 
 ## 0.3.4 — 2026-11-21
 

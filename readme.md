@@ -250,6 +250,7 @@ It also works with `fetch(url, {signal: this.unmountSignal})`, so a response tha
 * Likewise Velotype unmounts Components that are removed through Velotype: `removeElementRoot()`, a Component's child methods, `refresh()`, and RenderObjects. An element removed with DOM methods is not unmounted
 * The RenderObjects in a Component's fields mount and unmount with it (calling their `registerOnMount()` callbacks), and the ones in public fields are released when it unmounts. To share a RenderObject between Components, pass it in attrs or keep it in a `#private` field
 * A Component kept in a public field of another is shown only inside that Component's render, and is unmounted and released with it. One shown somewhere else is unmounted there too, and stops working, so Velotype warns. To share a Component, pass it in attrs or keep it in a `#private` field
+* Velotype holds each Component and RenderObject from when it is created until it is released: when Velotype takes it off the page, or with the Component that holds it in a public field. So create a Component only to place it, since one that is never placed is never released. A RenderObject in a `#private` field may be shared, so it outlives the Component that holds it and stays held; keep one there only when it is meant to
 * Errors thrown by `mount()` and `unmount()` are reported, see [When code throws](#when-code-throws)
 
 #### Changing part of what a Component rendered

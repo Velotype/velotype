@@ -1,4 +1,4 @@
-import {replaceElementWithRoot, Component, RenderObjectArray, RenderTemplateArray} from "@velotype/velotype"
+import {replaceElementWithRoot, removeElementRoot, getComponent, Component, RenderObjectArray, RenderTemplateArray} from "@velotype/velotype"
 import type {EmptyAttrs} from "@velotype/velotype"
 
 // Each scenario sorts, reorders, moves, and filters a RenderTemplateArray or RenderObjectArray, then
@@ -207,6 +207,37 @@ objects.clear()
 results.oClearHidden = [data(), oShownA(), lifecycle.slice().sort()]
 objects.pushAll(["s", "tt", "u"])
 results.oAfterClear = [data(), oShownA(), oShownB()]
+
+// Rows filter() hid after they were shown stay mounted off the page, and are unmounted when the
+// array's place leaves the page: here the array is in a #private field, so nothing resets it
+let liveRows = 0
+class LiveRow extends Component<{label: string}> {
+    override mount() { liveRows++ }
+    override unmount() { liveRows-- }
+    override render() { return <li>{this.attrs.label}</li> }
+}
+class PrivateRows extends Component<EmptyAttrs> {
+    #rows = new RenderObjectArray<string>({renderFunction: label => <LiveRow label={label}/>})
+    constructor(attrs: EmptyAttrs, children: never[]) {
+        super(attrs, children)
+        this.#rows.pushAll(["a", "bb", "c", "dd"])
+    }
+    hideLong() { this.#rows.filter(label => label.length === 1) }
+    refreshNow() { this.refresh() }
+    override render() { return <ul>{this.#rows}</ul> }
+}
+// In a wrapper, since refresh() replaces the Component's own element
+const privateRowsElement: HTMLElement = <PrivateRows/>
+const privateRowsWrapper = replaceElementWithRoot(<div>{privateRowsElement}</div>, host()) as HTMLElement
+const privateRows = getComponent<PrivateRows>(privateRowsElement)
+results.pLiveShown = liveRows
+privateRows.hideLong()
+results.pLiveFiltered = liveRows
+// refresh() takes this place of the array off the page, hidden rows too, and shows it again
+privateRows.refreshNow()
+results.pLiveAfterRefresh = liveRows
+removeElementRoot(privateRowsWrapper)
+results.pLiveAfterRemove = liveRows
 
 class ArrayOrderTest extends Component<EmptyAttrs> {
     override render() {

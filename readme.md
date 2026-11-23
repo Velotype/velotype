@@ -797,3 +797,22 @@ The development server talks to the dev runtime through `globalThis.__VELOTYPE_H
 ## Debugging
 
 `@velotype/velotype/devtools` exports read-only access to Velotype's internal state (`__vtAppMetadata`) and the devtools hook (`getDevtoolsHook()`), for debugging and for the Velotype DevTools browser extension. Applications do not need to import it, Velotype registers with the devtools hook from any entry point.
+
+### Finding leaks
+
+`findLeaks()`, from `@velotype/velotype/devtools`, lists what every Velotype instance on the page still holds that the page no longer shows. Run it in tests, or while developing, once the page has settled:
+
+* `mountedOffPage`: Components still mounted while their element is off the page, taken out with a DOM call rather than through Velotype, so what their `mount()` started keeps running
+* `neverPlaced`: Components created and never placed
+* `heldOffPage`: RenderObjects held while nothing drawn from them is on the page, such as one in a `#private` field that its Component didn't `release()`
+
+Each stays in memory for as long as the page is open, so each is a leak, except one kept on purpose to be placed later. Rows that `filter()` hid are kept mounted on purpose and aren't listed.
+
+```tsx
+import {findLeaks} from "@velotype/velotype/devtools"
+
+const leaks = findLeaks()
+if (leaks.mountedOffPage.length + leaks.neverPlaced.length + leaks.heldOffPage.length > 0) {
+    console.error("leaks", leaks)
+}
+```

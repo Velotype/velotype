@@ -9,3 +9,4 @@ export {
     type VelotypeDevtoolsHook,
     type VelotypeDevtoolsInstanceMetadata,
 } from "../tsx/devtools-hook.ts"
+export { findLeaks, type VelotypeLeaks } from "./leaks.ts"

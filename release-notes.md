@@ -4,6 +4,10 @@ Changes in each version of `@velotype/velotype` published to [JSR](https://jsr.i
 
 **Breaking** marks a change that can require updates to code that uses Velotype.
 
+## Unreleased
+
+- `vtwith` works on any element, the root of what a function component, a Component's `render()` or a RenderObject returns too. Before, such a root was wrapped in a `display: contents` element, which changed the page's structure. Its RenderObjects mount, unmount and are released with it, and `refresh()` or a new value releases the ones of the root it replaces.
+
 ## 0.3.5 — 2026-11-23
 
 - A Component kept in a public field of another is shown only inside that Component's render, and the readme now says so. When the holder unmounts, a field Component that is still mounted is unmounted properly before it is released, wherever it is; before, it was released without its `unmount()` running, so its listeners stayed. Velotype warns ("Field Component shown outside its holder") when one is on the page outside the holder's element.

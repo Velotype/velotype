@@ -1,4 +1,4 @@
-import {replaceElementWithRoot, removeElementRoot, Component, getComponent, RenderBasic, RenderObjectArray, registerEventListener} from "@velotype/velotype"
+import {replaceElementWithRoot, removeElementRoot, Component, getComponent, RenderBasic, RenderObject, RenderObjectArray, registerEventListener} from "@velotype/velotype"
 import {__vtAppMetadata} from "@velotype/velotype/devtools"
 import type {EmptyAttrs} from "@velotype/velotype"
 
@@ -239,6 +239,52 @@ function keepPrivate(release: boolean) {
 }
 results.privateKept = keepPrivate(false)
 results.privateReleased = keepPrivate(true)
+
+// 9. vtwith works on any element, a root too: it isn't wrapped, and goes with that root
+const withLog: string[] = []
+function tracked(name: string): RenderBasic<string> {
+    return new RenderBasic<string>(name).registerOnMount(() => { withLog.push("mount " + name) }, () => { withLog.push("unmount " + name) })
+}
+function WithRoot(attrs: {name: string}) {
+    const label = tracked(attrs.name)
+    return <p class="with-root" vtwith={[label]}>{label}</p>
+}
+let withRenders = 0
+class WithRootComponent extends Component<EmptyAttrs> {
+    override render() {
+        const label = tracked("render " + ++withRenders)
+        return <section vtwith={[label]}>{label}</section>
+    }
+    refreshNow() { this.refresh() }
+}
+const withData = new RenderObject<string>("a", name => {
+    const label = tracked("object " + name)
+    return <p vtwith={[label]}>{label}</p>
+})
+function withCase(run: () => void) {
+    const before = registered()
+    withLog.length = 0
+    run()
+    return {log: withLog.slice(), registeredAfter: registered() - before}
+}
+results.withFunctionRoot = withCase(() => {
+    const element: HTMLElement = <WithRoot name="function"/>
+    results.withFunctionRootTag = element.className
+    removeElementRoot(replaceElementWithRoot(element, host()))
+})
+results.withComponentRoot = withCase(() => {
+    const element: HTMLElement = <WithRootComponent/>
+    results.withComponentRootTag = element.tagName
+    const wrapper = replaceElementWithRoot(<div>{element}</div>, host())
+    getComponent<WithRootComponent>(element).refreshNow()
+    removeElementRoot(wrapper)
+})
+results.withObjectRoot = withCase(() => {
+    const wrapper = replaceElementWithRoot(<div>{withData}</div>, host()) as HTMLElement
+    results.withObjectRootTag = wrapper.firstElementChild?.tagName
+    withData.set("b")
+    removeElementRoot(wrapper)
+})
 
 class UnmountSignalTest extends Component<EmptyAttrs> {
     override render() {

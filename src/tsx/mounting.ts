@@ -5,7 +5,7 @@
 import { abortUnmountSignal, type ComponentInternals, type InternalComponent, instanceOfComponent, instanceOfInternalComponent } from "./component.ts"
 import { getDOMreference, releaseVtKey, releaseVtKeyObject } from "./dom-references.ts"
 import { removeComponentListeners } from "./event-bus.ts"
-import { consoleWarn, domKeyProperty } from "./globals.ts"
+import { consoleWarn, domKeyProperty, internalComponentProperty } from "./globals.ts"
 import { type MultiRenderable, type RenderObjectInternals, instanceOfRenderObject } from "./render-object.ts"
 import type { AnchorElement } from "./types.ts"
 import { instanceOfHTMLElement, instanceOfSVGSVGElement, instanceOfMathMLElement, reportUserError } from "./utils.ts"
@@ -190,6 +190,11 @@ function unmountComponentElementHelper(component: InternalComponent | MultiRende
                 (enumberableValue as RenderObjectInternals).unmount()
                 releaseVtKeyObject(enumberableValue)
             } else if (instanceOfComponent(enumberableValue)) {
+                // A Component in a public field is shown only inside this Component's render
+                const field: InternalComponent | undefined = (enumberableValue as any)[internalComponentProperty]
+                if (field?.e?.isConnected && !component.e.contains(field.e)) {consoleWarn("Field Component shown outside its holder", enumberableValue)}
+                // Released properly wherever it is: unmounted first if it still is mounted
+                if (field?.m) {unmountComponentElement(field.e)}
                 releaseVtKeyObject(enumberableValue)
                 abortUnmountSignal(enumberableValue)
             }

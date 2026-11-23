@@ -6,7 +6,7 @@ import { setAttrsOnElement } from "./attributes.ts"
 import { createElement } from "./create-element.ts"
 import { releaseVtKeyObject, releaseVtKeysFrom } from "./dom-references.ts"
 import { displayContentsDiv, vtState } from "./globals.ts"
-import { appendElement, insertElementBefore } from "./mounting.ts"
+import { appendElement, insertElementBefore, removeElement } from "./mounting.ts"
 import { RenderObject, type RenderObjectHandleUpdateType, type RenderObjectInternals, type RenderObjectRenderFunctionType } from "./render-object.ts"
 import { renderableElementToElement } from "./renderable.ts"
 import type { AnchorElement } from "./types.ts"
@@ -429,6 +429,21 @@ export class RenderObjectArray<DataType, UpdateRefsType = any> extends RenderObj
         filter.h.clear()
         hidden.forEach(obj => filter.h.add(obj))
         super.set(newData)
+    }
+    /**
+     * Velotype internal function, called by Velotype core
+     *
+     * Unmounts the instance element of this RenderObjectArray with key, and the rows filter() hid
+     * there: they are off the page, where nothing else unmounting this instance would reach them
+     */
+    protected override uK(key: number): boolean {
+        const wrapper = this.es.get(key)?.e
+        const park = wrapper && this.#filter.p.get(wrapper)
+        if (park) {
+            this.#filter.p.delete(wrapper)
+            for (const element of [...park.children]) {removeElement(element as AnchorElement)}
+        }
+        return super.uK(key)
     }
     /** Will unmount and release all rendered instances of this RenderObjectArray */
     protected override unmount(): void {

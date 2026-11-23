@@ -971,6 +971,11 @@ describe('basic component rendering', () => {
             oDeleteHidden: [["a", "b", "d", "b", "b", "bb"], ["a", "b", "d", "b", "b", "bb"], ["unmount e", "unmount e"]],
             oClearHidden: [[], [], ["unmount a", "unmount a", "unmount b", "unmount b", "unmount b", "unmount b", "unmount b", "unmount b", "unmount bb", "unmount bb", "unmount d", "unmount d"]],
             oAfterClear: [["s", "tt", "u"], ["s", "u"], ["s", "u"]],
+            // Rows filter() hid after they were shown stay mounted, and are unmounted when the array's place leaves the page
+            pLiveShown: 4,
+            pLiveFiltered: 4,
+            pLiveAfterRefresh: 2,
+            pLiveAfterRemove: 0,
         })
     })
 

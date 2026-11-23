@@ -2,7 +2,7 @@
 
 // vtwith: RenderObject lifecycles attached to an element
 
-import { registerNewVtKey, releaseVtKeyObject } from "./dom-references.ts"
+import { registerNewVtKey } from "./dom-references.ts"
 import type { RenderObject, RenderObjectInternals } from "./render-object.ts"
 
 /** Checks if something is an instanceof WithComponent */
@@ -34,9 +34,6 @@ export class WithComponent {
         this.w.forEach(obj => (obj as RenderObjectInternals).mount())
     }
     unmount(): void {
-        this.w.forEach(obj => {
-            (obj as RenderObjectInternals).unmount()
-            releaseVtKeyObject(obj)
-        })
+        this.w.forEach(obj => obj.release())
     }
 }

@@ -190,8 +190,11 @@ function unmountComponentElementHelper(component: InternalComponent | MultiRende
                 (enumberableValue as RenderObjectInternals).unmount()
                 releaseVtKeyObject(enumberableValue)
             } else if (instanceOfComponent(enumberableValue)) {
-                // Shown only inside this Component's render, which has unmounted it by now
-                if ((enumberableValue as any)[internalComponentProperty]?.m) {consoleWarn("Field Component shown outside its holder", enumberableValue)}
+                // A Component in a public field is shown only inside this Component's render
+                const field: InternalComponent | undefined = (enumberableValue as any)[internalComponentProperty]
+                if (field?.e?.isConnected && !component.e.contains(field.e)) {consoleWarn("Field Component shown outside its holder", enumberableValue)}
+                // Released properly wherever it is: unmounted first if it still is mounted
+                if (field?.m) {unmountComponentElement(field.e)}
                 releaseVtKeyObject(enumberableValue)
                 abortUnmountSignal(enumberableValue)
             }

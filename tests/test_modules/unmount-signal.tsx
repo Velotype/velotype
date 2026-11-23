@@ -111,27 +111,42 @@ const fieldSignal = fieldChild.unmountSignal
 fieldHolder.removeChild(ownerElement)
 results.abortedFieldChild = fieldSignal.aborted
 
-// 5b. A Component in a public field shown inside its holder unmounts with it, quietly; one shown somewhere else warns
+// 5b. A Component in a public field is shown only inside its holder: it unmounts with it, quietly.
+// Shown somewhere else, it warns, and is unmounted there. Mounted but off the page (taken out with a
+// plain DOM call), it isn't shown anywhere, so it doesn't warn, and is unmounted all the same.
+let fieldUnmounts = 0
+class CountsUnmount extends Component<EmptyAttrs> {
+    override unmount() { fieldUnmounts++ }
+    override render() { return <span></span> }
+}
 class ShowsFieldChild extends Component<EmptyAttrs> {
-    fieldChild = getComponent<Plain>(<Plain/>)
+    fieldChild = getComponent<CountsUnmount>(<CountsUnmount/>)
     override render() { return <div>{this.fieldChild}</div> }
 }
 class LendsFieldChild extends Component<EmptyAttrs> {
-    fieldChild = getComponent<Plain>(<Plain/>)
+    fieldChild = getComponent<CountsUnmount>(<CountsUnmount/>)
     override render() { return <div></div> }
 }
-takeWarnings()
-const insideHolder = getComponent<Holder>(replaceElementWithRoot(<Holder/>, host()))
+const fieldHost = getComponent<Holder>(replaceElementWithRoot(<Holder/>, host()))
+/** Unmounts the holder, and says what that warned and how many field Components unmounted */
+function unmountHolder(holderElement: HTMLElement): {warnings: string[], unmounts: number} {
+    takeWarnings()
+    fieldUnmounts = 0
+    fieldHost.removeChild(holderElement)
+    return {warnings: takeWarnings().map(warning => warning.includes("Field Component shown outside its holder") ? "outside" : warning), unmounts: fieldUnmounts}
+}
 const showsElement = <ShowsFieldChild/>
-insideHolder.appendToChild(insideHolder.slot, showsElement)
-insideHolder.removeChild(showsElement)
-results.fieldChildInsideWarnings = takeWarnings()
+fieldHost.appendToChild(fieldHost.slot, showsElement)
+results.fieldChildInside = unmountHolder(showsElement)
 const lendsElement = <LendsFieldChild/>
 const lent = getComponent<LendsFieldChild>(lendsElement).fieldChild
-insideHolder.appendToChild(insideHolder.slot, lendsElement)
-insideHolder.appendToChild(insideHolder.slot, lent)
-insideHolder.removeChild(lendsElement)
-results.fieldChildElsewhereWarnings = takeWarnings().map(warning => warning.includes("Field Component shown outside its holder") ? "outside" : warning)
+fieldHost.appendToChild(fieldHost.slot, lendsElement)
+fieldHost.appendToChild(fieldHost.slot, lent)
+results.fieldChildElsewhere = unmountHolder(lendsElement)
+const strandsElement = <ShowsFieldChild/>
+fieldHost.appendToChild(fieldHost.slot, strandsElement)
+;(strandsElement.firstElementChild as HTMLElement).remove()
+results.fieldChildOffPage = unmountHolder(strandsElement)
 
 // 6. Inserting the element of a released Component warns, inserting a new one does not
 takeWarnings()

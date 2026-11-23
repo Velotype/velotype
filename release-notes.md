@@ -6,7 +6,7 @@ Changes in each version of `@velotype/velotype` published to [JSR](https://jsr.i
 
 ## Unreleased
 
-- A Component kept in a public field of another is shown only inside that Component's render, and the readme now says so. Velotype warns ("Field Component shown outside its holder") when the holder unmounts while one is still mounted, which means it is shown somewhere else: it is released there, and its `unmount()` never runs.
+- A Component kept in a public field of another is shown only inside that Component's render, and the readme now says so. When the holder unmounts, a field Component that is still mounted is unmounted properly before it is released, wherever it is; before, it was released without its `unmount()` running, so its listeners stayed. Velotype warns ("Field Component shown outside its holder") when one is on the page outside the holder's element.
 
 ## 0.3.4 — 2026-11-21
 

@@ -5,7 +5,7 @@
 import { abortUnmountSignal, type ComponentInternals, type InternalComponent, instanceOfComponent, instanceOfInternalComponent } from "./component.ts"
 import { getDOMreference, releaseVtKey, releaseVtKeyObject } from "./dom-references.ts"
 import { removeComponentListeners } from "./event-bus.ts"
-import { consoleWarn, domKeyProperty, internalComponentProperty } from "./globals.ts"
+import { consoleWarn, domKeyProperty, internalComponentProperty, withProperty } from "./globals.ts"
 import { type MultiRenderable, type RenderObjectInternals, instanceOfRenderObject } from "./render-object.ts"
 import type { AnchorElement } from "./types.ts"
 import { instanceOfHTMLElement, instanceOfSVGSVGElement, instanceOfMathMLElement, reportUserError } from "./utils.ts"
@@ -22,14 +22,23 @@ export function replaceElement(element: AnchorElement, newElement: AnchorElement
     const isFocused = document.activeElement == element && document.hasFocus()
     if (includeRoot) {
         unmountComponentElement(element)
-    } else if (instanceOfHTMLElement(element)) {
-        unmountComponentElementChildren(element)
+    } else {
+        if (instanceOfHTMLElement(element)) {
+            unmountComponentElementChildren(element)
+        }
+        // The root keeps its key, but not the old root's vtwith
+        withOf(element, (element as any)[domKeyProperty], unmountComponentElementHelper)
     }
     element.replaceWith(newElement)
     if (includeRoot) {
         mountComponentElement(newElement)
-    } else if (instanceOfHTMLElement(newElement)) {
-        mountComponentElementChildren(newElement)
+    } else {
+        if (instanceOfHTMLElement(newElement)) {
+            mountComponentElementChildren(newElement)
+        }
+        if (newElement.isConnected) {
+            withOf(newElement, (newElement as any)[domKeyProperty], mountComponentElementHelper)
+        }
     }
     if (isFocused) {
         newElement.focus()
@@ -92,12 +101,22 @@ function traverseElementChildren(element: Element, callback: (component: Interna
                 const component = getDOMreference(key)
                 if (component) {
                     callback(component, key)
+                    withOf(child, key, callback)
                 } else if (mounting) {
                     warnReleasedElement(child)
                 }
             }
             child = child.nextElementSibling
         }
+    }
+}
+/**
+ * Call callback for the vtwith of an element keyed by a Component or RenderObject (key is the element's key)
+ */
+function withOf(element: Element, key: number, callback: (component: WithComponent, key: number) => void): void {
+    const withComponent: WithComponent | undefined = (element as any)[withProperty]
+    if (withComponent && withComponent.k !== key) {
+        callback(withComponent, withComponent.k)
     }
 }
 /**
@@ -153,6 +172,7 @@ function mountComponentElement(element: AnchorElement): void {
         const component = getDOMreference(key)
         if (component) {
             mountComponentElementHelper(component, key)
+            withOf(element, key, mountComponentElementHelper)
         } else {
             warnReleasedElement(element)
         }
@@ -228,6 +248,7 @@ export function unmountComponentElement(element: AnchorElement): void {
         const component = getDOMreference(key)
         if (component) {
             unmountComponentElementHelper(component, key)
+            withOf(element, key, unmountComponentElementHelper)
         }
     }
 }

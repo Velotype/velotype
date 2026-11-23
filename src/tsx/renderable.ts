@@ -5,7 +5,7 @@
 import { instanceOfInternalComponent, instanceOfComponent, type Component } from "./component.ts"
 import { createElement } from "./create-element.ts"
 import { getDOMreference } from "./dom-references.ts"
-import { consoleError, displayContentsDiv, domKeyProperty } from "./globals.ts"
+import { consoleError, displayContentsDiv, domKeyProperty, withProperty } from "./globals.ts"
 import { type RenderObject, type RenderObjectInternals, instanceOfRenderObject } from "./render-object.ts"
 import type { AnchorElement, RenderableElements } from "./types.ts"
 import { instanceOfHTMLElement, instanceOfSVGSVGElement, instanceOfMathMLElement, instanceOfText, instanceOfBasicTypes, hiddenElement } from "./utils.ts"
@@ -76,6 +76,11 @@ export function appendChild(parent: HTMLElement | DocumentFragment, child: Rende
     }
 }
 
+/** Is element keyed by a Component or RenderObject (a vtwith can share an element, so it isn't wrapped) */
+function keyedByOther(element: any): boolean {
+    const key: number | undefined = element[domKeyProperty]
+    return key !== undefined && element[withProperty]?.k !== key
+}
 /**
  * If a render operation returns a Component, RenderObject, or RenderBasic as a result of
  * render then it needs to be wrapped in another HTMLElement for rendering to work properly
@@ -99,7 +104,7 @@ export function wrapElementIfNeeded(element: RenderableElements | null | undefin
     }
     // If a Component returns a Component or RenderObject as a result of render
     // then it needs to be wrapped in another HTMLElement for rendering to work properly
-    if (instanceOfBasicTypes(element) || instanceOfComponent(element) || instanceOfRenderObject(element) || instanceOfText(element) || Array.isArray(element) || (element as any)[domKeyProperty] !== undefined) {
+    if (instanceOfBasicTypes(element) || instanceOfComponent(element) || instanceOfRenderObject(element) || instanceOfText(element) || Array.isArray(element) || keyedByOther(element)) {
         const wrapper = displayContentsDiv.cloneNode() as HTMLDivElement
         appendChild(wrapper, element)
         return wrapper

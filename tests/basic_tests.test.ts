@@ -1018,6 +1018,13 @@ describe('basic component rendering', () => {
             // RenderObjects in #private fields stay held, unless their Component releases them in unmount()
             privateKept: {registeredAfterRemove: 4, listening: true, rowsMounted: 0},
             privateReleased: {registeredAfterRemove: 0, listening: false, rowsMounted: 0},
+            // vtwith on a root: not wrapped, mounted with it, and unmounted and released with it, or when refresh() or a new value replaces it
+            withFunctionRootTag: "with-root",
+            withFunctionRoot: {log: ["mount function", "unmount function"], registeredAfter: 0},
+            withComponentRootTag: "SECTION",
+            withComponentRoot: {log: ["mount render 1", "unmount render 1", "mount render 2", "unmount render 2"], registeredAfter: 0},
+            withObjectRootTag: "P",
+            withObjectRoot: {log: ["mount object a", "unmount object a", "mount object b", "unmount object b"], registeredAfter: 0},
         })
     })
 

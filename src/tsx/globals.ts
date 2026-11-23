@@ -53,6 +53,9 @@ export const domReferences: Map<number, InternalComponent | MultiRenderable | Wi
 /** Property that stores an element's domKey (DOM -> Component binding) */
 export const domKeyProperty = Symbol()
 
+/** The vtwith of an element, kept when a Component or RenderObject keys it */
+export const withProperty = Symbol()
+
 /** The InternalComponent of each Component */
 export const internalComponentProperty = Symbol()
 
@@ -129,7 +132,7 @@ export type VtAppMetadata = {
  */
 export const __vtAppMetadata: VtAppMetadata = {
     /** The version of this Velotype instance */
-    version: "0.3.4",
+    version: "0.3.5",
 
     // ------- For Velotype Core -------
     /** Property on each bound element that holds its DOM key */

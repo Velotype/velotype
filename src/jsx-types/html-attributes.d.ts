@@ -392,9 +392,10 @@ export type HTMLAttributes<RefType extends EventTarget = EventTarget> = HTMLElem
     writingsuggestions?: boolean
 
     /**
-     * A set of RenderObjects to pass lifecycle management responsibility to this Element
-     * 
-     * Cannot be set on an Element that is controlled by a Component or RenderObject
+     * A set of RenderObjects to pass lifecycle management responsibility to this Element: they mount,
+     * unmount and are released with it. It may be the root a function component, a Component's
+     * render or a RenderObject returns, which is then not wrapped, and refresh() or a new value
+     * releases the ones of the root it replaces
      * 
      * Velotype custom attribute
      */

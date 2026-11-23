@@ -3,7 +3,7 @@
 // Setting attributes, properties, styles, and event listeners on elements
 
 import { setDomKeyOn } from "./dom-references.ts"
-import { consoleError, domKeyProperty, prototypeSetterCache, styleSetterCache, upperCaseRegExp, vtState } from "./globals.ts"
+import { consoleError, domKeyProperty, prototypeSetterCache, styleSetterCache, upperCaseRegExp, vtState, withProperty } from "./globals.ts"
 import type { AnchorElement, IdAttr, StylePassthroughAttrs } from "./types.ts"
 import { WithComponent } from "./with-component.ts"
 
@@ -200,6 +200,8 @@ function setAttrOnElement(element: AnchorElement, name: string, value: any): voi
             consoleError("vtwith on a keyed element", key)
         } else {
             const withComponent = new WithComponent(value)
+            // Kept on the element too, for when a Component or RenderObject keys it
+            ;(element as any)[withProperty] = withComponent
             setDomKeyOn(element, withComponent.k)
         }
     } else if (value != null) {

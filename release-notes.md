@@ -4,6 +4,10 @@ Changes in each version of `@velotype/velotype` published to [JSR](https://jsr.i
 
 **Breaking** marks a change that can require updates to code that uses Velotype.
 
+## Unreleased
+
+- A Component kept in a public field of another is shown only inside that Component's render, and the readme now says so. Velotype warns ("Field Component shown outside its holder") when the holder unmounts while one is still mounted, which means it is shown somewhere else: it is released there, and its `unmount()` never runs.
+
 ## 0.3.4 — 2026-11-21
 
 - New `insertBeforeChild(child, newChild)` on `Component`, to go with the other child methods: it puts `newChild` just before `child`, an element of the Component's render, and mounts it. A list that adds an item in its place no longer has to append it and move it there. It returns `false` and changes nothing when `child` is not part of the Component's render, or is its root element.

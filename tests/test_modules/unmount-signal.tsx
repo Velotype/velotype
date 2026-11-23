@@ -111,6 +111,28 @@ const fieldSignal = fieldChild.unmountSignal
 fieldHolder.removeChild(ownerElement)
 results.abortedFieldChild = fieldSignal.aborted
 
+// 5b. A Component in a public field shown inside its holder unmounts with it, quietly; one shown somewhere else warns
+class ShowsFieldChild extends Component<EmptyAttrs> {
+    fieldChild = getComponent<Plain>(<Plain/>)
+    override render() { return <div>{this.fieldChild}</div> }
+}
+class LendsFieldChild extends Component<EmptyAttrs> {
+    fieldChild = getComponent<Plain>(<Plain/>)
+    override render() { return <div></div> }
+}
+takeWarnings()
+const insideHolder = getComponent<Holder>(replaceElementWithRoot(<Holder/>, host()))
+const showsElement = <ShowsFieldChild/>
+insideHolder.appendToChild(insideHolder.slot, showsElement)
+insideHolder.removeChild(showsElement)
+results.fieldChildInsideWarnings = takeWarnings()
+const lendsElement = <LendsFieldChild/>
+const lent = getComponent<LendsFieldChild>(lendsElement).fieldChild
+insideHolder.appendToChild(insideHolder.slot, lendsElement)
+insideHolder.appendToChild(insideHolder.slot, lent)
+insideHolder.removeChild(lendsElement)
+results.fieldChildElsewhereWarnings = takeWarnings().map(warning => warning.includes("Field Component shown outside its holder") ? "outside" : warning)
+
 // 6. Inserting the element of a released Component warns, inserting a new one does not
 takeWarnings()
 const warnHolder = getComponent<Holder>(replaceElementWithRoot(<Holder/>, host()))

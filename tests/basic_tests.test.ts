@@ -992,6 +992,9 @@ describe('basic component rendering', () => {
             abortedWhenFirstUsedAfterRelease: true,
             abortedWhileDetached: false,
             abortedFieldChild: true,
+            // A public-field Component shown outside its holder warns when the holder unmounts
+            fieldChildInsideWarnings: [],
+            fieldChildElsewhereWarnings: ["outside"],
             // Inserting the element of a released Component warns
             warningsOnFirstInsert: [],
             warningsOnReinsert: ["released"],

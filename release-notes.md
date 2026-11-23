@@ -4,7 +4,7 @@ Changes in each version of `@velotype/velotype` published to [JSR](https://jsr.i
 
 **Breaking** marks a change that can require updates to code that uses Velotype.
 
-## Unreleased
+## 0.3.5 — 2026-11-23
 
 - A Component kept in a public field of another is shown only inside that Component's render, and the readme now says so. When the holder unmounts, a field Component that is still mounted is unmounted properly before it is released, wherever it is; before, it was released without its `unmount()` running, so its listeners stayed. Velotype warns ("Field Component shown outside its holder") when one is on the page outside the holder's element.
 - The rows `filter()` hid in one place of a `RenderObjectArray` are unmounted and released when that place leaves the page. Before, only resetting the array or unmounting the Component holding it in a public field reached them, so an array in a `#private` field, or placed inline, kept them mounted after its place was gone, and `refresh()` of its owner did too.

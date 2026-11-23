@@ -893,6 +893,21 @@ describe('basic component rendering', () => {
         })
     })
 
+    itWrap("set of findLeaks() tests", "leaks", "#leaks-tests", async (_pageLoadSelection: ElementHandle) => {
+        const results = JSON.parse(await (await page.waitForSelector("#leaks-results")).innerText())
+        const none = {mountedOffPage: [], neverPlaced: [], heldOffPage: []}
+        assertEquals(results, {
+            placed: none,
+            // A #private RenderObject its Component didn't release is held, drawn nowhere
+            removed: {mountedOffPage: [], neverPlaced: [], heldOffPage: ["kept note"]},
+            // Taken out with a DOM call: still mounted
+            domRemoved: {mountedOffPage: ["Plain"], neverPlaced: [], heldOffPage: ["kept note"]},
+            unplaced: {mountedOffPage: [], neverPlaced: ["Plain"], heldOffPage: ["kept note"]},
+            // Rows a filter hid are mounted on purpose
+            filtered: {mountedOffPage: [], neverPlaced: ["Plain"], heldOffPage: ["kept note"]},
+        })
+    })
+
     itWrap("set of sort(), reorder(), move(), and filter() tests", "array-order", "#array-order-tests", async (_pageLoadSelection: ElementHandle) => {
         const results = JSON.parse(await (await page.waitForSelector("#array-order-results")).innerText())
         const sorted = ["a", "b", "c", "d", "e"]

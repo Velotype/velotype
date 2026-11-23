@@ -4,6 +4,10 @@ Changes in each version of `@velotype/velotype` published to [JSR](https://jsr.i
 
 **Breaking** marks a change that can require updates to code that uses Velotype.
 
+## 0.3.6 — 2026-11-23
+
+- New `findLeaks()` in `@velotype/velotype/devtools`, for tests and development: it lists the Components still mounted with their element off the page, the Components never placed, and the RenderObjects held while nothing drawn from them is on the page, across every Velotype instance on the page. Rows that `filter()` hid are kept mounted on purpose and aren't listed; the detached element holding them is marked `data-vt-park` so that it can tell. The main bundle grows by the attribute only (34 bytes minified, 16 gzipped).
+
 ## 0.3.5 — 2026-11-23
 
 - A Component kept in a public field of another is shown only inside that Component's render, and the readme now says so. When the holder unmounts, a field Component that is still mounted is unmounted properly before it is released, wherever it is; before, it was released without its `unmount()` running, so its listeners stayed. Velotype warns ("Field Component shown outside its holder") when one is on the page outside the holder's element.

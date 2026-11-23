@@ -50,6 +50,8 @@ function parkFor(state: FilterState<any, any>, wrapper: Node): HTMLElement {
     let park = state.p.get(wrapper)
     if (!park) {
         park = document.createElement("div")
+        // findLeaks() (devtools) tells parked rows, mounted on purpose, from leaked ones
+        park.setAttribute("data-vt-park", "")
         state.p.set(wrapper, park)
     }
     return park

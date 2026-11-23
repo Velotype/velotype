@@ -187,8 +187,7 @@ function unmountComponentElementHelper(component: InternalComponent | MultiRende
         // Iterate component fields and trigger their unmounts
         Object.values(component.c).forEach(enumberableValue => {
             if (instanceOfRenderObject(enumberableValue)) {
-                (enumberableValue as RenderObjectInternals).unmount()
-                releaseVtKeyObject(enumberableValue)
+                enumberableValue.release()
             } else if (instanceOfComponent(enumberableValue)) {
                 // A Component in a public field is shown only inside this Component's render
                 const field: InternalComponent | undefined = (enumberableValue as any)[internalComponentProperty]

@@ -1015,6 +1015,9 @@ describe('basic component rendering', () => {
             removeAgainThrew: false,
             removeAgainWarnings: [],
             detachedRegisteredAfterRemove: 0,
+            // RenderObjects in #private fields stay held, unless their Component releases them in unmount()
+            privateKept: {registeredAfterRemove: 4, listening: true, rowsMounted: 0},
+            privateReleased: {registeredAfterRemove: 0, listening: false, rowsMounted: 0},
         })
     })
 

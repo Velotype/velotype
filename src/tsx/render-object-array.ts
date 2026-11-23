@@ -4,7 +4,7 @@
 
 import { setAttrsOnElement } from "./attributes.ts"
 import { createElement } from "./create-element.ts"
-import { releaseVtKeyObject, releaseVtKeysFrom } from "./dom-references.ts"
+import { releaseVtKeysFrom } from "./dom-references.ts"
 import { displayContentsDiv, vtState } from "./globals.ts"
 import { appendElement, insertElementBefore, removeElement } from "./mounting.ts"
 import { RenderObject, type RenderObjectHandleUpdateType, type RenderObjectInternals, type RenderObjectRenderFunctionType } from "./render-object.ts"
@@ -456,9 +456,8 @@ export class RenderObjectArray<DataType, UpdateRefsType = any> extends RenderObj
     }
     /** Unmount, remove all rendered instances of, and release the vtKey of a single underlying RenderObject */
     static #releaseOne(d: RenderObject<any,any>): void {
-        (d as RenderObjectInternals).unmount()
+        d.release()
         d.removeAll()
-        releaseVtKeyObject(d)
     }
     /**
      * Gets the length of the Array

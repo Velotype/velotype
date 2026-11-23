@@ -1,4 +1,4 @@
-import {replaceElementWithRoot, removeElementRoot, Component, getComponent, RenderBasic, registerEventListener} from "@velotype/velotype"
+import {replaceElementWithRoot, removeElementRoot, Component, getComponent, RenderBasic, RenderObjectArray, registerEventListener} from "@velotype/velotype"
 import {__vtAppMetadata} from "@velotype/velotype/devtools"
 import type {EmptyAttrs} from "@velotype/velotype"
 
@@ -200,6 +200,45 @@ const beforeDetached = registered()
 const detachedRoot = <div><Widget/></div>
 removeElementRoot(detachedRoot)
 results.detachedRegisteredAfterRemove = registered() - beforeDetached
+
+// 8. A Component releases the RenderObjects it keeps in #private fields, which Velotype can't see, with release() in its unmount()
+let keptRows = 0
+class KeptRow extends Component<{text: string}> {
+    override mount() { keptRows++ }
+    override unmount() { keptRows-- }
+    override render() { return <li>{this.attrs.text}</li> }
+}
+class KeepsPrivate extends Component<{release: boolean}> {
+    #count = new RenderBasic<number>(1)
+    #rows = new RenderObjectArray<string>({renderFunction: text => <KeptRow text={text}/>})
+    constructor(attrs: {release: boolean}, children: never[]) {
+        super(attrs, children)
+        this.#rows.pushAll(["a", "b"])
+        this.#count.registerOnChangeListener(() => {})
+    }
+    countKey() { return "vt-ro-" + this.#count.vtKey }
+    override unmount() {
+        if (this.attrs.release) {
+            this.#count.release()
+            this.#rows.release()
+        }
+    }
+    override render() { return <div>{this.#count}<ul>{this.#rows}</ul></div> }
+}
+function keepPrivate(release: boolean) {
+    const before = registered()
+    const element: HTMLElement = <KeepsPrivate release={release}/>
+    const countKey = getComponent<KeepsPrivate>(element).countKey()
+    removeElementRoot(replaceElementWithRoot(element, host()))
+    return {
+        // The two RenderObjects and the array's two rows
+        registeredAfterRemove: registered() - before,
+        listening: __vtAppMetadata.listenersF.has(countKey),
+        rowsMounted: keptRows,
+    }
+}
+results.privateKept = keepPrivate(false)
+results.privateReleased = keepPrivate(true)
 
 class UnmountSignalTest extends Component<EmptyAttrs> {
     override render() {

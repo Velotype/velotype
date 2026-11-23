@@ -2,7 +2,7 @@
 
 // RenderObject and RenderBasic
 
-import { setDomKeyOn, registerNewVtKey, releaseVtKey, releaseVtKeysFrom } from "./dom-references.ts"
+import { setDomKeyOn, registerNewVtKey, releaseVtKey, releaseVtKeyObject, releaseVtKeysFrom } from "./dom-references.ts"
 import { VelotypeEvent, registerEventListener, isListenerRegistered, emitEvent, type VelotypeEventListener } from "./event-bus.ts"
 import { consoleError, displayContentsSpan, domKeyProperty, listenersF, vtState } from "./globals.ts"
 import { replaceElement, removeElement } from "./mounting.ts"
@@ -137,7 +137,8 @@ export class RenderObject<DataType, UpdateRefsType = any> implements HasVtKey {
      * Register an EventListener to receive an onChange event when the value of this RenderObject changes.
      * 
      * A RenderObject in a public field of a Component is released, with the listeners it owns, when that
-     * Component unmounts. To share a RenderObject, pass it in attrs or keep it in a #private field.
+     * Component unmounts. To share a RenderObject, pass it in attrs or keep it in a #private field, and
+     * call release() when it is no longer needed.
      * 
      * @param listener the EventListener to register
      * @param options optional set of options
@@ -407,6 +408,17 @@ export class RenderObject<DataType, UpdateRefsType = any> implements HasVtKey {
             releaseVtKey(key)
         })
         this.es.clear()
+    }
+    /**
+     * Releases this RenderObject: calls its registered onUnmounts and removes the listeners it owns, and a
+     * RenderObjectArray releases its rows. Velotype releases the ones in a Component's public fields, so
+     * call this for one that Velotype can't see, such as one in a #private field or a Map, from the
+     * unmount() of the Component that created it. Its places are not removed, so release one only once
+     * it is shown nowhere else, and don't place it again.
+     */
+    release(): void {
+        this.unmount()
+        releaseVtKeyObject(this)
     }
 }
 
